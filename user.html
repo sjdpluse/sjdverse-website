@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - SJDVerse</title>
+    <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
+    <!-- Using Poppins, Montserrat and Michroma for a more professional look -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hljs-dark-theme" disabled>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" id="hljs-light-theme">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --p1: #d8f4a0; --p2: #fdc7d5; --p3: #bcd8fd; --p4: #ffeca8; --p5: #5d5c5c; --white: #ffffff; --light-gray: #f8f9fa; --medium-gray: #e9ecef; --dark-gray: #343a40;
+            --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.06); --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --border-radius: 20px; --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Light Theme (default) */
+            --bg-primary: var(--white);
+            --bg-secondary: var(--light-gray);
+            --text-primary: var(--dark-gray);
+            --text-secondary: var(--p5);
+            --border-color: var(--medium-gray);
+            --card-bg: var(--white);
+            --primary: var(--p3);
+        }
+
+        .dark-theme {
+            --bg-primary: #1c1c1e;
+            --bg-secondary: #2c2c2e;
+            --text-primary: #f2f2f7;
+            --text-secondary: #aeaeb2;
+            --border-color: #3a3a3c;
+            --card-bg: #2c2c2e;
+            --primary: #5d9bfb;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        h1, h2, h3, h4, h5, h6, .logo, .btn {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+        }
+
+        /* New App Header */
+        .app-header {
+            background: var(--card-bg);
+            padding: 0 5%;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 60px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .app-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+        .app-header .logo:hover { transform: scale(1.05); }
+        .app-nav { display: flex; align-items: center; gap: 20px; }
+        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s, transform 0.2s; position: relative; padding: 8px; }
+        .app-nav .nav-icon:hover { color: var(--text-primary); transform: scale(1.1); }
+        .app-nav .nav-icon.active { color: var(--text-primary); }
+        .app-nav .profile-link img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; transition: border-color 0.2s; }
+        .app-nav .profile-link.active img,
+        .app-nav .profile-link:hover img { border-color: var(--text-primary); }
+        .profile-nav-item { position: relative; }
+        .profile-dropdown { display: none; position: absolute; top: calc(100% + 10px); right: 0; background: var(--card-bg); border-radius: 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); width: 200px; z-index: 1001; border: 1px solid var(--border-color); padding: 8px 0; animation: fadeIn 0.2s ease; }
+        .profile-dropdown .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; transition: background-color 0.2s; background: none; border: none; width: 100%; font-family: 'Poppins', sans-serif; font-size: 0.9rem; color: var(--text-primary); text-decoration: none; text-align: left; }
+        .profile-dropdown .dropdown-item:hover { background: var(--bg-secondary); }
+        .profile-dropdown hr { border: none; border-top: 1px solid var(--border-color); margin: 8px 0; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 0 15px;
+            }
+            .app-nav {
+                gap: 10px;
+            }
+            .app-nav .nav-icon {
+                font-size: 1.3rem;
+                padding: 6px;
+            }
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            padding: 10px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            position: relative;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        .tab-panel {
+            display: none;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Projects Grid (from profile.html) */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .project-card {
+            padding: 16px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .project-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        .project-title { font-size: 1rem; font-weight: 600; margin-bottom: 8px; color: var(--text-primary); }
+        .project-description { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 12px; flex-grow: 1; }
+        .project-tech { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+        .tech-tag { background: var(--bg-secondary); color: var(--text-primary); padding: 5px 10px; border-radius: 16px; font-size: 0.7rem; font-weight: 500; }
+        .project-links { display: flex; gap: 10px; margin-top: auto; }
+
+        /* Reusing styles from profile.html for consistency */
+        .btn-icon {
+            background: none; border: none; cursor: pointer; font-size: 1.5rem; padding: 5px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: var(--p5); transition: all var(--transition);
+        }
+        .btn-icon:hover {
+            background: var(--medium-gray);
+        }
+
+        /* Settings Dropdown from indexx.html */
+        .settings-menu-container {
+            position: relative;
+        }
+        .settings-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px);
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-heavy);
+            width: 220px;
+            padding: 10px 0;
+            z-index: 1001;
+        }
+        html[dir="ltr"] .settings-dropdown {
+            right: 0;
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: none;
+            border: none;
+            width: 100%;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            color: var(--p5);
+            text-decoration: none;
+        }
+        html[dir="ltr"] .dropdown-item { text-align: left; }
+        .dropdown-item:hover { background: var(--light-gray); }
+        .dropdown-item i { width: 20px; text-align: center; opacity: 0.7; }
+        .language-switcher { padding: 0 20px 10px; }
+        .language-switcher label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--p5);
+            opacity: 0.7;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .language-select { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--medium-gray); font-family: 'Poppins', sans-serif; }
+        .settings-dropdown hr { border: none; border-top: 1px solid var(--medium-gray); margin: 10px 0; }
+        .header-icon {
+            /* Old styles, can be removed */
+        }
+        .logo { font-size: 1.8rem; font-weight: 800; color: var(--p5); text-decoration: none; }
+        .btn { padding: 10px 20px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-primary { background: var(--primary); color: var(--dark-gray); } .btn-primary:hover { filter: brightness(0.95); } .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); } .btn-secondary:hover { background: var(--border-color); }
+        .btn-follow {
+            background: var(--p3);
+            color: var(--dark-gray);
+        }
+        .btn-unfollow {
+            background: var(--medium-gray);
+            color: var(--dark-gray);
+            border: 1px solid var(--dark-gray);
+        }
+        .btn-unfollow:hover {
+            background: var(--p2);
+            color: var(--dark-gray);
+            border-color: transparent;
+        }
+
+        /* Profile Header & Layout (from profile.html) */
+        .profile-header { height: 350px; position: relative; overflow: hidden; }
+        .cover-photo { width: 100%; height: 100%; background-size: cover; background-position: center; position: relative; } .cover-overlay { position: absolute; bottom: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to top, var(--bg-secondary), transparent); }
+        .container {
+            max-width: 1200px; margin: -120px auto 40px; padding: 0 20px;
+            display: grid; grid-template-columns: 300px 1fr; gap: 24px;
+            position: relative; z-index: 1; align-items: flex-start;
+        }
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+        }
+
+        /* Sidebar (from profile.html) */
+        .profile-sidebar {
+            background: var(--card-bg); padding: 24px; border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light); border: 1px solid var(--border-color);
+            position: sticky; top: 136px; /* Adjusted to prevent avatar from going under the new header */
+        }
+        .profile-info { text-align: center; padding-bottom: 16px; }
+        .profile-avatar {
+            width: 150px; height: 150px; border-radius: 50%; object-fit: cover;
+            border: 4px solid var(--primary); box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            margin: -100px auto 16px; background: var(--card-bg);
+        }
+        .profile-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text-primary); }
+        .profile-username { color: var(--text-secondary); font-weight: 500; margin-bottom: 16px; opacity: 0.8; }
+        .profile-bio { color: var(--text-primary); line-height: 1.7; margin-bottom: 16px; font-size: 0.9rem; }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 20px 0 30px;
+        }
+        .stat-item { text-align: center; }
+        .stat-item strong {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: block;
+            color: var(--primary);
+        }
+        .stat-item span {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+
+        .profile-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .divider { height: 1px; background: var(--border-color); margin: 24px 0; }
+
+        .profile-details {
+            margin-top: 16px;
+            text-align: left;
+        }
+        .detail-item {
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 8px; color: var(--text-secondary); font-size: 0.9rem;
+        }
+        .detail-item i { width: 20px; color: var(--primary); }
+
+        /* Main Content Area & Posts (from profile.html) */
+        .main-content-area { /* This will hold the posts */ }
+        .post-feed { display: flex; flex-direction: column; gap: 24px; }
+        .post-card {
+            background: var(--card-bg); padding: 24px; border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light); border: 1px solid var(--border-color);
+        }
+        .post-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .post-author { display: flex; align-items: center; gap: 16px; }
+        .post-author img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+        .post-author-info h4 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .post-author-info p { margin: 0; font-size: 0.85rem; color: var(--text-secondary); opacity: 0.8; }
+        .post-content p { white-space: pre-wrap; line-height: 1.7; font-size: 0.95rem; margin-bottom: 16px; color: var(--text-primary); }
+        .post-image-container {
+            position: relative; width: 100%; aspect-ratio: 16 / 9;
+            background-color: var(--bg-secondary); border-radius: 12px;
+            overflow: hidden; margin-top: 16px;
+        }
+        .post-image {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; cursor: pointer;
+        }
+        .post-actions { display: flex; align-items: center; gap: 24px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); }
+        .post-action { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: color var(--transition); }
+        .post-action:hover { color: var(--primary); }
+        .post-action i { font-size: 1.1rem; }
+        .post-action.liked { color: #ef476f; }
+
+        .comment-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+        }
+        .reply-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0;
+        }
+        .reply-btn:hover { color: var(--primary); }
+        .replies-container {
+            margin-left: 45px;
+            margin-top: 10px;
+            border-left: 2px solid var(--border-color);
+            padding-left: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .verified-badge {
+            font-size: 0.5em; /* Makes the badge scale with the parent text */
+            vertical-align: -0.1em; /* Adjust vertical alignment */
+            margin-left: 4px;
+        }
+        .verified-badge .fa-certificate {
+            color: #1DA1F2;
+        }
+        .verified-avatar {
+            border: 4px solid #1DA1F2 !important;
+            box-shadow: 0 0 15px rgba(29, 161, 242, 0.4);
+        }
+
+        pre {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 12px;
+            white-space: pre-wrap; /* Allow wrapping */
+            word-break: break-all; /* Break long words */
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .code-snippet-container {
+            position: relative;
+        }
+        .code-snippet-container pre {
+            max-height: 300px;
+            overflow: hidden;
+        }
+        .code-snippet-container.long-code::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0; height: 80px;
+            background: linear-gradient(to top, var(--card-bg) 40%, transparent);
+            pointer-events: none;
+        }
+
+        .loading-placeholder, .error-placeholder {
+            text-align: center;
+            padding: 80px 20px;
+            font-size: 1.2rem;
+            color: var(--p5);
+            opacity: 0.7;
+        }
+        .hidden { display: none !important; }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
+</head>
+<body class="light-theme">
+    <!-- Image Viewer Modal -->
+    <div id="imageViewerModal" class="modal hidden" onclick="closeModal('imageViewerModal')">
+        <img id="modalImage" src="" style="max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: var(--border-radius);">
+    </div>
+
+    <header class="app-header">
+        <a href="indexx.html" class="logo">
+            <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 35px;">
+            <span style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
+        </a>
+        <nav class="app-nav">
+            <a href="indexx.html" class="nav-icon" id="nav-home" title="Home"><i class="fas fa-home"></i></a>
+            <a href="explore.html" class="nav-icon" id="nav-explore" title="Explore"><i class="fas fa-compass"></i></a>
+            <a href="search.html" class="nav-icon" id="nav-search" title="Search"><i class="fas fa-search"></i></a>
+            <a href="courses.html" class="nav-icon" id="nav-courses" title="Courses"><i class="fas fa-book-open"></i></a>
+            <a href="messages.html" class="nav-icon" id="nav-messages" title="Messages"><i class="fas fa-comments"></i></a>
+            <div class="profile-nav-item">
+                <a href="javascript:void(0);" class="nav-icon profile-link" id="nav-profile-trigger" title="Profile">
+                    <img id="headerUserAvatar" src="https://i.postimg.cc/prmTzhSz/man.png" alt="User Avatar">
+                </a>
+                <div id="profileDropdown" class="profile-dropdown">
+                    <a href="profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
+                    <button id="themeToggleDropdown" class="dropdown-item"><i class="fas fa-moon"></i> <span>Theme</span></button>
+                    <hr>
+                    <button class="dropdown-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div id="mainContainer" class="hidden">
+        <div class="loading-placeholder">
+            <p data-i18n-key="loading_user_info">Loading user information...</p>
+        </div>
+    </main>
+
+    <script>
+        // Supabase initialization
+        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const mainContainer = document.getElementById('mainContainer');
+        const userNav = document.getElementById('userNav'); // This is the logged-in user's nav
+
+        let profileUserId = null;
+        let loadedProfileData = null;
+        let currentLoggedInUser = null;
+        let isFollowing = false;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const savedLang = localStorage.getItem('language') || 'en';
+
+            // Get current logged-in user for like/comment actions
+            const { data: { user } } = await _supabase.auth.getUser();
+            currentLoggedInUser = user;
+
+            if (currentLoggedInUser) {
+                initializeNewHeader();
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const username = params.get('username');
+            const postIdToHighlight = params.get('postId');
+
+            if (!username) {
+                mainContainer.innerHTML = `<div class="error-placeholder"><p>${getTranslation('username_not_specified')}</p></div>`;
+                return;
+            }
+
+            const { data: profile, error } = await _supabase
+                .from('profiles')
+                .select('id, username, full_name, avatar_url, cover_url, bio, achievements, education, field_of_study, country, is_verified')
+                .eq('username', username)
+                .single();
+
+            if (error || !profile) {
+                console.error('Error fetching profile:', error);
+                mainContainer.innerHTML = `<div class="error-placeholder"><p>${getTranslation('user_not_found', {username: username})}</p></div>`;
+                return;
+            }
+
+            profileUserId = profile.id;
+            loadedProfileData = profile;
+            displayProfile(profile);
+
+            // Set body theme based on user's saved preference (if any)
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme, true);
+
+            mainContainer.classList.remove('hidden');
+
+            if (currentLoggedInUser && currentLoggedInUser.id !== profile.id) {
+                await checkFollowStatus(profile.id);
+                document.getElementById('followBtn').disabled = false;
+            } else if (currentLoggedInUser && currentLoggedInUser.id === profile.id) {
+                const followBtn = document.getElementById('followBtn');
+                if (followBtn) followBtn.style.display = 'none';
+            }
+            await getFollowerCounts(profile.id);
+
+            changeLanguage('en');
+            await loadPosts(profile.id);
+            await loadProjects(profile.id);
+            await loadAchievements(profile.id);
+
+            if (postIdToHighlight) {
+                handlePostHighlight(postIdToHighlight);
+            }
+        });
+
+        function displayProfile(profile) {
+            document.title = `${profile.full_name || profile.username} - SJDVerse`;
+
+            mainContainer.innerHTML = `
+                <div class="profile-header">
+                    <div class="cover-photo" style="background-image: url('${profile.cover_url || 'https://images.unsplash.com/photo-1504805572947-34fad45a79b1?q=80&w=1200&auto=format&fit=crop'}');"></div>
+                </div>
+                <main class="container">
+                    <aside class="profile-sidebar">
+                        <div class="profile-info">
+                            <img src="${profile.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png'}" alt="${getTranslation('profile_picture_alt', {name: profile.full_name})}" class="profile-avatar ${profile.is_verified ? 'verified-avatar' : ''}">
+                            <h2 class="profile-name">${profile.full_name || getTranslation('user_name_placeholder')} ${profile.is_verified ? '<span class="fa-stack verified-badge" title="Verified"><i class="fas fa-certificate fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span>' : ''}</h2>
+                            <p class="profile-username">@${profile.username}</p>
+                            <p class="profile-bio">${profile.bio ? escapeHTML(profile.bio) : getTranslation('no_bio')}</p>
+                            
+                            <div class="profile-stats">
+                                <div class="stat-item">
+                                    <strong id="followersCount">0</strong>
+                                    <span data-i18n-key="followers">Followers</span>
+                                </div>
+                                <div class="stat-item">
+                                    <strong id="followingCount">0</strong>
+                                    <span data-i18n-key="following">Following</span>
+                                </div>
+                            </div>
+
+                            <div class="profile-actions">
+                                <button class="btn btn-primary" id="followBtn" onclick="toggleFollow()" disabled>
+                                    <i class="fas fa-user-plus"></i> <span data-i18n-key="follow">Follow</span>
+                                </button>
+                                <button class="btn btn-secondary" onclick="startChat()">
+                                    <i class="fas fa-comments"></i> <span data-i18n-key="start_chat">Start Chat</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="profile-details">
+                            <div class="detail-item">
+                                <i class="fas fa-briefcase"></i>
+                                <span>${profile.field_of_study || getTranslation('not_yet')}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>${profile.education || getTranslation('not_yet')}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-globe"></i>
+                                <span>${profile.country || getTranslation('not_yet')}</span>
+                            </div>
+                        </div>
+                    </aside>
+                    <div class="main-content-area">
+                        <div class="tabs">
+                            <button class="tab-button active" onclick="openTab(event, 'posts')">Posts</button>
+                            <button class="tab-button" onclick="openTab(event, 'projects')">Projects</button>
+                            <button class="tab-button" onclick="openTab(event, 'achievements')">Achievements</button>
+                        </div>
+                        <div id="posts" class="tab-panel active">
+                            <div id="postFeed" class="post-feed"></div>
+                        </div>
+                        <div id="projects" class="tab-panel">
+                            <div id="projectsContainer" class="projects-grid"></div>
+                        </div>
+                        <div id="achievements" class="tab-panel">
+                            <div id="achievementsContainer" class="projects-grid"></div>
+                        </div>
+                    </div>
+                </main>
+            `;
+        }
+
+
+        async function loadPosts(userId) {
+            const postFeed = document.getElementById('postFeed');
+            postFeed.innerHTML = `<p class="placeholder">${getTranslation('loading_posts')}</p>`;
+            const { data: posts, error } = await _supabase
+                .from('user_posts')
+                .select(`*, post_likes(user_id)`)
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading posts:', error);
+                postFeed.innerHTML = `<p class="placeholder" style="color: red;">${getTranslation('posts_load_error')}</p>`;
+                return;
+            }
+
+            if (!posts || posts.length === 0) {
+                postFeed.innerHTML = `<div class="post-card placeholder">${getTranslation('no_posts_by_user')}</div>`;
+            } else {
+                postFeed.innerHTML = '';
+                posts.forEach(post => renderPost(post));
+            }
+        }
+
+        function openTab(evt, tabName) {
+            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        async function loadProjects(userId) {
+            const projectsContainer = document.getElementById('projectsContainer');
+            projectsContainer.innerHTML = `<p class="placeholder">${getTranslation('loading_projects')}</p>`;
+
+            const { data: projects, error } = await _supabase
+                .from('user_projects')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading projects:', error);
+                projectsContainer.innerHTML = `<p class="placeholder">${getTranslation('projects_load_error')}</p>`;
+                return;
+            }
+
+            if (!projects || projects.length === 0) {
+                projectsContainer.innerHTML = `<div class="post-card placeholder">${getTranslation('no_projects_by_user')}</div>`;
+            } else {
+                projectsContainer.innerHTML = '';
+                projects.forEach(project => renderProject(project));
+            }
+        }
+
+        function renderProject(project) {
+            const projectsContainer = document.getElementById('projectsContainer');
+            const projectElement = document.createElement('div');
+            projectElement.className = 'post-card project-card';
+            
+            const techTags = project.technologies ? project.technologies.split(',').map(tech => 
+                `<span class="tech-tag">${tech.trim()}</span>`
+            ).join('') : '';
+            
+            const imageHtml = project.image_url ? `<img src="${project.image_url}" alt="${project.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${project.image_url}')">` : '';
+            
+            const linksHtml = `
+                ${project.project_url ? `<a href="${project.project_url}" target="_blank" class="btn btn-secondary"><i class="fas fa-external-link-alt"></i> ${getTranslation('live_demo')}</a>` : ''}
+                ${project.github_url ? `<a href="${project.github_url}" target="_blank" class="btn btn-secondary"><i class="fab fa-github"></i> GitHub</a>` : ''}
+            `;
+            
+            projectElement.innerHTML = `
+                ${imageHtml}
+                <div class="project-content" style="padding-top: 1rem; display: flex; flex-direction: column; flex-grow: 1;">
+                    <h3 class="project-title">${project.title}</h3><p class="project-description">${project.description}</p><div class="project-tech">${techTags}</div><div class="project-links">${linksHtml}</div>
+                </div>`;
+            projectsContainer.appendChild(projectElement);
+        }
+
+        async function loadAchievements(userId) {
+            const container = document.getElementById('achievementsContainer');
+            container.innerHTML = `<p class="placeholder">${getTranslation('loading_achievements')}</p>`;
+
+            const { data, error } = await _supabase
+                .from('user_achievements')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading achievements:', error);
+                container.innerHTML = `<p class="placeholder">${getTranslation('achievements_load_error')}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div class="post-card placeholder">${getTranslation('no_achievements_by_user')}</div>`;
+            } else {
+                container.innerHTML = '';
+                data.forEach(item => renderAchievement(item));
+            }
+        }
+
+        function renderAchievement(achievement) {
+            const container = document.getElementById('achievementsContainer');
+            const element = document.createElement('div');
+            element.className = 'post-card project-card'; // Reuse styles
+
+            const imageHtml = achievement.certificate_url ? `<img src="${achievement.certificate_url}" alt="${achievement.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${achievement.certificate_url}')">` : '';
+
+            element.innerHTML = `
+                ${imageHtml}
+                <div class="project-content" style="padding-top: 1rem;"><h3 class="project-title">${escapeHTML(achievement.title)}</h3><p class="project-description">${escapeHTML(achievement.description || '')}</p></div>`;
+            container.appendChild(element);
+        }
+
+        function renderPost(post) {
+            const postFeed = document.getElementById('postFeed');
+            const postCard = document.createElement('div');
+            postCard.className = 'post-card';
+            postCard.id = `post-${post.id}`;
+
+            const lang = document.documentElement.lang || 'en';
+            const authorName = loadedProfileData?.full_name || getTranslation('user_name_placeholder');
+            const authorAvatar = loadedProfileData?.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
+            const postDate = new Date(post.created_at).toLocaleString(lang === 'fa' ? 'fa-IR' : 'en-US');
+
+            const likeCount = post.post_likes ? post.post_likes.length : 0;
+            const isLikedByCurrentUser = currentLoggedInUser && post.post_likes ? post.post_likes.some(like => like.user_id === currentLoggedInUser.id) : false;
+            
+            const postImageHTML = post.image_url ? `
+                <div class="post-image-container">
+                    <img src="${post.image_url}" alt="Post image" class="post-image" style="cursor: pointer;" onclick="openImageViewer('${post.image_url}')">
+                </div>` : '';
+
+            let codeHtml = '';
+            if (post.code_snippet && post.code_snippet.code) {
+                const language = post.code_snippet.language || 'plaintext';
+                const isLongCode = post.code_snippet.code.split('\n').length > 12 || post.code_snippet.code.length > 800;
+                const containerClass = isLongCode ? 'code-snippet-container long-code' : 'code-snippet-container';
+                codeHtml = `
+                    <div class="${containerClass}">
+                        <pre><code class="language-${language}">${escapeHTML(post.code_snippet.code)}</code></pre>
+                    </div>
+                `;
+            }
+
+            let attachmentHtml = '';
+            if (post.attachment_url && post.attachment_metadata) {
+                const meta = post.attachment_metadata;
+                const fileSize = meta.size ? `(${(meta.size / 1024 / 1024).toFixed(2)} MB)` : '';
+                attachmentHtml = `
+                    <div class="file-attachment" style="margin-top: 12px;">
+                        <a href="${post.attachment_url}" target="_blank" download="${meta.name}" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg-secondary); border-radius: 12px; text-decoration: none; color: var(--text-primary);">
+                            <i class="fas fa-file-alt" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                            <div>
+                                <strong>${escapeHTML(meta.name)}</strong>
+                                <small style="display: block; color: var(--text-secondary);">${fileSize}</small>
+                            </div>
+                        </a>
+                    </div>`;
+            }
+
+            postCard.innerHTML = `
+                <div class="post-header">
+                    <div class="post-author">
+                        <img src="${authorAvatar}" alt="Avatar">
+                        <div class="post-author-info">
+                            <h4>${authorName}</h4>
+                            <p>${postDate}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>${escapeHTML(post.content)}</p>
+                    ${postImageHTML}
+                    ${codeHtml}
+                    ${attachmentHtml}
+                </div>
+                <div class="post-actions">
+                    <div class="post-action ${isLikedByCurrentUser ? 'liked' : ''}" onclick="toggleLike('${post.id}')" ${!currentLoggedInUser ? 'disabled' : ''}>
+                        <i class="fas fa-heart"></i> <span id="like-count-${post.id}">${likeCount}</span>
+                    </div>
+                    <div class="post-action" onclick="talkAboutPost(event, '${post.id}', '${profileUserId}')">
+                        <i class="fas fa-comments"></i> <span>Talk about this post</span>
+                    </div>
+                </div>
+            `;
+            postFeed.appendChild(postCard);
+
+            // Highlight code if it exists
+            const codeBlock = postCard.querySelector('pre code');
+            if (codeBlock) {
+                hljs.highlightElement(codeBlock);
+            }
+        }
+
+        async function toggleLike(postId) {
+            if (!currentLoggedInUser) {
+                alert(getTranslation('login_to_like'));
+                return;
+            }
+
+            const likeButton = document.querySelector(`#post-${postId} .post-action`);
+            const likeCountSpan = document.getElementById(`like-count-${postId}`);
+            const isLiked = likeButton.classList.contains('liked');
+
+            likeButton.disabled = true;
+
+            if (isLiked) {
+                // Unlike
+                const { error } = await _supabase
+                    .from('post_likes')
+                    .delete()
+                    .match({ post_id: postId, user_id: currentLoggedInUser.id });
+
+                if (error) {
+                    alert(getTranslation('unlike_error'));
+                    console.error(error);
+                } else {
+                    likeButton.classList.remove('liked');
+                    likeCountSpan.textContent = parseInt(likeCountSpan.textContent) - 1;
+                }
+            } else {
+                // Like
+                const { error } = await _supabase
+                    .from('post_likes')
+                    .insert({ post_id: postId, user_id: currentLoggedInUser.id });
+
+                if (error) {
+                    alert(getTranslation('like_error'));
+                    console.error(error);
+                } else {
+                    likeButton.classList.add('liked');
+                    likeCountSpan.textContent = parseInt(likeCountSpan.textContent) + 1;
+                }
+            }
+            likeButton.disabled = false;
+        }
+
+        async function talkAboutPost(event, postId, authorId) {
+            event.stopPropagation();
+            if (!currentLoggedInUser) {
+                alert('Please log in to start a conversation.');
+                return;
+            }
+            if (currentLoggedInUser.id === authorId) {
+                return;
+            }
+
+            const { data: conversation_id, error } = await _supabase.rpc('create_or_get_conversation', {
+                other_user_id: authorId
+            });
+
+            if (error) {
+                console.error('Error creating conversation:', error);
+                alert('Error starting chat.');
+            } else {
+                window.location.href = `chat.html?id=${conversation_id}&post_id=${postId}`;
+            }
+        }
+
+        function handlePostHighlight(postId) {
+            setTimeout(() => {
+                const postElement = document.getElementById(`post-${postId}`);
+                if (!postElement) {
+                    console.warn(`Post with ID ${postId} not found on the page.`);
+                    return;
+                }
+                postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                postElement.style.transition = 'background-color 1s ease-out';
+                postElement.style.backgroundColor = 'rgba(188, 216, 253, 0.3)'; // Using a color from the theme
+                setTimeout(() => {
+                    postElement.style.backgroundColor = '';
+                }, 2500);
+            }, 500); // Wait for posts to render
+        }
+
+
+        async function startChat() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) {
+                alert(getTranslation('login_to_chat'));
+                window.location.href = 'indexx.html';
+                return;
+            }
+
+            if (user.id === profileUserId) {
+                alert(getTranslation('cant_chat_with_yourself'));
+                return;
+            }
+
+            const { data: conversation_id, error } = await _supabase.rpc('create_or_get_conversation', {
+                other_user_id: profileUserId
+            });
+
+            if (error) {
+                console.error('Error creating conversation:', error);
+                alert(getTranslation('chat_start_error'));
+            } else {
+                window.location.href = `chat.html?id=${conversation_id}`;
+            }
+        }
+
+        async function checkFollowStatus(profileId) {
+            const { data, error } = await _supabase
+                .from('connections')
+                .select('*', { count: 'exact' })
+                .eq('follower_id', currentLoggedInUser.id)
+                .eq('following_id', profileId);
+
+            if (error) {
+                console.error('Error checking follow status:', error);
+                return;
+            }
+
+            isFollowing = data.length > 0;
+            updateFollowButton();
+        }
+
+        async function getFollowerCounts(profileId) {
+            const { count: followers, error: followersError } = await _supabase
+                .from('connections')
+                .select('*', { count: 'exact', head: true })
+                .eq('following_id', profileId);
+
+            const { count: following, error: followingError } = await _supabase
+                .from('connections')
+                .select('*', { count: 'exact', head: true })
+                .eq('follower_id', profileId);
+
+            if (followersError || followingError) {
+                console.error('Error fetching counts:', followersError || followingError);
+                return;
+            }
+
+            document.getElementById('followersCount').textContent = followers || 0;
+            document.getElementById('followingCount').textContent = following || 0;
+        }
+
+        function updateFollowButton() {
+            const followBtn = document.getElementById('followBtn');
+            if (!followBtn) return;
+
+            if (isFollowing) {
+                followBtn.innerHTML = `<i class="fas fa-user-check"></i> <span data-i18n-key="unfollow">Unfollow</span>`;
+                followBtn.classList.remove('btn-primary', 'btn-follow');
+                followBtn.classList.add('btn-unfollow');
+            } else {
+                followBtn.innerHTML = `<i class="fas fa-user-plus"></i> <span data-i18n-key="follow">Follow</span>`;
+                followBtn.classList.remove('btn-secondary', 'btn-unfollow');
+                followBtn.classList.add('btn-primary', 'btn-follow');
+            }
+            changeLanguage(document.documentElement.lang || 'en');
+        }
+
+        async function toggleFollow() {
+            const followBtn = document.getElementById('followBtn');
+            followBtn.disabled = true;
+
+            if (isFollowing) {
+                const { error } = await _supabase
+                    .from('connections')
+                    .delete()
+                    .match({ follower_id: currentLoggedInUser.id, following_id: profileUserId });
+
+                if (error) {
+                    alert(getTranslation('unfollow_error'));
+                    console.error('Unfollow error:', error);
+                } else {
+                    isFollowing = false;
+                    const followersCountEl = document.getElementById('followersCount');
+                    followersCountEl.textContent = parseInt(followersCountEl.textContent) - 1;
+                }
+            } else {
+                const { error } = await _supabase
+                    .from('connections')
+                    .insert({ follower_id: currentLoggedInUser.id, following_id: profileUserId });
+
+                if (error) {
+                    alert(getTranslation('follow_error'));
+                    console.error('Follow error:', error);
+                } else {
+                    isFollowing = true;
+                    const followersCountEl = document.getElementById('followersCount');
+                    followersCountEl.textContent = parseInt(followersCountEl.textContent) + 1;
+                }
+            }
+
+            updateFollowButton();
+            followBtn.disabled = false;
+        }
+
+        // --- Helper & Common Functions ---
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            const p = document.createElement('p');
+            p.textContent = str;
+            return p.innerHTML;
+        }
+
+        function openImageViewer(imageUrl) {
+            const modal = document.getElementById('imageViewerModal');
+            document.getElementById('modalImage').src = imageUrl;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function initializeNewHeader() {
+            const profileTrigger = document.getElementById('nav-profile-trigger');
+            const profileDropdown = document.getElementById('profileDropdown');
+            const headerAvatar = document.getElementById('headerUserAvatar');
+
+            if (currentLoggedInUser && headerAvatar) {
+                headerAvatar.src = currentLoggedInUser.user_metadata.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
+            }
+
+            if (profileTrigger && profileDropdown) {
+                profileTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (profileDropdown.style.display === 'block' && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
+                        profileDropdown.style.display = 'none';
+                    }
+                });
+            }
+            const themeToggle = document.getElementById('themeToggleDropdown');
+            if(themeToggle) themeToggle.addEventListener('click', toggleTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        }
+
+        function setTheme(theme, isInitial = false) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.body.classList.remove('light-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+                document.body.classList.add('light-theme');
+            }
+            const darkThemeHljs = document.getElementById('hljs-dark-theme');
+            const lightThemeHljs = document.getElementById('hljs-light-theme');
+            if (darkThemeHljs && lightThemeHljs) {
+                darkThemeHljs.disabled = theme !== 'dark';
+                lightThemeHljs.disabled = theme === 'dark';
+            }
+            const themeToggleDropdown = document.getElementById('themeToggleDropdown');
+            if (themeToggleDropdown) themeToggleDropdown.querySelector('i').className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            if (!isInitial) localStorage.setItem('theme', theme);
+        }
+
+        async function logout() {
+            if (!confirm(getTranslation('confirm_logout'))) return;
+            await _supabase.auth.signOut();
+            window.location.href = 'indexx.html';
+        }
+
+        // --- Internationalization (i18n) ---
+        const translations = {
+            en: {
+                "logout": "Logout",
+                "loading_user_info": "Loading user information...",
+                "username_not_specified": "Username not specified in URL.",
+                "user_not_found": "User '{username}' not found.",
+                "profile_picture_alt": "Profile picture of {name}",
+                "user_name_placeholder": "User",
+                "no_bio": "This user has not set a bio yet.",
+                "followers": "Followers",
+                "following": "Following",
+                "follow": "Follow", "unfollow": "Unfollow", "start_chat": "Start Chat", "not_yet": "Not set",
+                "loading_posts": "Loading posts...",
+                "posts_load_error": "Error loading posts.",
+                "no_posts_by_user": "This user has not posted anything yet.",
+                "login_to_like": "Please log in to like posts.",
+                "unlike_error": "Error unliking post.",
+                "like_error": "Error liking post.",
+                "loading_comments": "Loading comments...",
+                "load_comments_error": "Error loading comments.", "no_comments_yet": "No comments yet.", "write_a_comment": "Write a comment...", "login_to_comment": "Please log in to comment.", "comment_post_error": "Error posting comment.",
+                "login_to_chat": "Please log in to start a chat.",
+                "cant_chat_with_yourself": "You cannot start a chat with yourself.",
+                "chat_start_error": "Error starting chat.",
+                "unfollow_error": "Error unfollowing user.",
+                "follow_error": "Error following user.",
+                "confirm_logout": "Are you sure you want to log out?",
+                "projects": "Projects",
+                "loading_projects": "Loading projects...",
+                "projects_load_error": "Error loading projects.",
+                "no_projects_by_user": "This user has not added any projects yet.",
+                "live_demo": "Live Demo",
+                "achievements": "Achievements",
+                "loading_achievements": "Loading achievements...",
+                "achievements_load_error": "Error loading achievements.",
+                "no_achievements_by_user": "This user has not added any achievements yet."
+            },
+        };
+
+        function getTranslation(key, params = {}) {
+            const lang = document.documentElement.lang || 'en';
+            const langTranslations = translations[lang] || translations.en;
+            let text = langTranslations[key] || (translations.en ? translations.en[key] : key) || key;
+            for (const p in params) {
+                text = text.replace(`{${p}}`, params[p]);
+            }
+            return text;
+        }
+
+        function changeLanguage(lang) {
+            localStorage.setItem('language', lang);
+            document.documentElement.lang = lang;
+
+            document.querySelectorAll('[data-i18n-key]').forEach(el => el.innerHTML = getTranslation(el.getAttribute('data-i18n-key')));
+            document.querySelectorAll('[data-i18n-placeholder-key]').forEach(el => el.placeholder = getTranslation(el.getAttribute('data-i18n-placeholder-key')));
+            document.querySelectorAll('[data-i18n-title-key]').forEach(el => el.title = getTranslation(el.getAttribute('data-i18n-title-key')));
+        }
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+</body>
+</html>

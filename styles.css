@@ -1,0 +1,9 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+/* Add more styles as needed from original classes */

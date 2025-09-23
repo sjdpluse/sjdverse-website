@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses - SJDVerse</title>
+    <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --p1: #d8f4a0; --p2: #fdc7d5; --p3: #bcd8fd; --p4: #ffeca8; --p5: #5d5c5c;
+            --white: #ffffff; --light-gray: #f8f9fa; --medium-gray: #e9ecef; --dark-gray: #343a40;
+            --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.06); 
+            --border-radius: 16px; 
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Light Theme (default) */
+            --bg-primary: var(--white);
+            --bg-secondary: var(--light-gray);
+            --text-primary: var(--dark-gray);
+            --text-secondary: var(--p5);
+            --border-color: var(--medium-gray);
+            --card-bg: var(--bg-primary);
+            --primary: var(--p3);
+            --success: #4caf50;
+            --danger: #f44336;
+        }
+
+        .dark-theme {
+            --bg-primary: #1c1c1e;
+            --bg-secondary: #2c2c2e;
+            --text-primary: #f2f2f7;
+            --text-secondary: #aeaeb2;
+            --border-color: #3a3a3c;
+            --card-bg: var(--bg-secondary);
+            --primary: #5d9bfb;
+            --danger: #f44336;
+            --success: #6abf69;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6, .logo, .btn {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+        }
+
+        /* Re-using header from other pages */
+        .app-header {
+            background: var(--card-bg);
+            padding: 0 5%;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 60px;
+        }
+        .app-header .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .app-nav { display: flex; align-items: center; gap: 20px; }
+        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; position: relative; padding: 8px; }
+        .app-nav .nav-icon:hover { color: var(--text-primary); }
+        .app-nav .profile-link img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; }
+        .app-nav .profile-link:hover img { border-color: var(--text-primary); }
+        .profile-nav-item { position: relative; }
+        .profile-dropdown { display: none; position: absolute; top: calc(100% + 10px); right: 0; background: var(--card-bg); border-radius: 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); width: 200px; z-index: 1001; border: 1px solid var(--border-color); padding: 8px 0; animation: fadeIn 0.2s ease; }
+        .profile-dropdown .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; transition: background-color 0.2s; background: none; border: none; width: 100%; font-family: 'Poppins', sans-serif; font-size: 0.9rem; color: var(--text-primary); text-decoration: none; text-align: left; }
+        .profile-dropdown .dropdown-item:hover { background: var(--bg-secondary); }
+        .profile-dropdown hr { border: none; border-top: 1px solid var(--border-color); margin: 8px 0; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 0 15px;
+            }
+            .app-nav {
+                gap: 10px;
+            }
+            .app-nav .nav-icon {
+                font-size: 1.3rem;
+                padding: 6px;
+            }
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-header > div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Search Box Styles */
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0 15px;
+            min-width: 300px;
+            transition: var(--transition);
+        }
+        .search-container:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(188, 216, 253, 0.3);
+        }
+        .search-container i {
+            color: var(--text-secondary);
+            margin-right: 10px;
+        }
+        .search-input {
+            border: none;
+            background: transparent;
+            padding: 12px 0;
+            width: 100%;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+        .search-input:focus {
+            outline: none;
+        }
+        .btn { padding: 10px 16px; border: none; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-primary { background: var(--primary); color: var(--dark-gray); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--border-color); }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); transition: var(--transition); }
+        .btn-icon:hover { background: var(--bg-tertiary); }
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-danger:hover { filter: brightness(0.9); }
+
+        /* Course Card Actions Dropdown */
+        .course-actions {
+            position: relative;
+        }
+        .course-menu-dropdown {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 5px);
+            right: 0;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            width: 150px;
+            z-index: 10;
+            border: 1px solid var(--border-color);
+            padding: 5px 0;
+            animation: fadeIn 0.2s;
+        }
+        .course-menu-dropdown .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: var(--text-primary);
+        }
+        .course-menu-dropdown .dropdown-item:hover { background: var(--bg-secondary); }
+        .course-menu-dropdown .dropdown-item.delete { color: var(--danger); }
+        .course-menu-dropdown .dropdown-item.delete:hover { background: rgba(244, 67, 54, 0.1); }
+
+        /* Courses Grid */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .verified-badge {
+            font-size: 0.6em; /* Adjust size relative to parent */
+            vertical-align: super; /* Align with top of text */
+            margin-left: 4px;
+        }
+        .verified-badge .fa-certificate {
+            color: #1DA1F2;
+        }
+        .verified-badge .fa-inverse {
+            color: var(--card-bg);
+        }
+
+        /* Instructors Section */
+        .instructors-section {
+            margin-bottom: 40px;
+        }
+        .instructors-grid {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 10px 0 20px 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--bg-secondary);
+        }
+        .instructors-grid::-webkit-scrollbar { height: 8px; }
+        .instructors-grid::-webkit-scrollbar-track { background: var(--bg-secondary); border-radius: 4px; }
+        .instructors-grid::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
+        .instructor-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            text-align: center;
+            flex-shrink: 0;
+            width: 220px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+        }
+        .instructor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+        }
+        .instructor-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+            margin-bottom: 15px;
+        }
+        .instructor-card h4 { font-size: 1.1rem; margin-bottom: 5px; }
+        .instructor-card p { font-size: 0.9rem; color: var(--text-secondary); }
+
+        .course-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+        }
+        .course-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+        }
+
+        .course-thumbnail {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+
+        .course-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .course-title {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .course-instructor {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        .course-instructor img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .course-description {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            flex-grow: 1;
+            margin-bottom: 16px;
+        }
+
+        .course-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .course-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .course-price.free {
+            color: var(--p1);
+        }
+        
+        .placeholder { text-align: center; padding: 60px 20px; font-size: 1.1rem; color: var(--text-secondary); opacity: 0.7; grid-column: 1 / -1; }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 80px; /* Below header */
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            animation: slideInRight 0.4s ease-out forwards;
+            max-width: 400px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        @keyframes slideInRight { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(110%); opacity: 0; } }
+        .notification.success { background: #2ed573; }
+        .notification.error { background: #ff4757; }
+        .notification.info { background: #3742fa; }
+        .notification-content { display: flex; align-items: center; gap: 12px; }
+
+        /* Modal & Form Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.4s ease;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .modal-header h3 { font-size: 1.3rem; }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.3rem; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); transition: var(--transition); }
+        .btn-icon:hover { background: var(--bg-tertiary); }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+        .form-textarea { min-height: 120px; resize: vertical; }
+        .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(188, 216, 253, 0.3); }
+
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+
+        /* Styles for the new proposal form */
+        .form-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            line-height: 1.5;
+        }
+        .form-divider {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 25px 0;
+        }
+        #proposeCourseModal .modal-content {
+            max-width: 750px; /* Increased size */
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        #proposeCourseForm h4 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        #proposeCourseForm h4:first-of-type {
+            margin-top: 0;
+        }
+        .form-group-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .form-group-checkbox input[type="checkbox"] {
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+        .form-group-checkbox label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-container {
+                min-width: 100%;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(5px); background: rgba(0, 0, 0, 0.5); }
+        .spinner { width: 50px; height: 50px; border: 4px solid var(--bg-tertiary); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <a href="indexx.html" class="logo">
+            <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 35px;">
+            <span style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
+        </a>
+        <nav class="app-nav">
+            <a href="indexx.html" class="nav-icon" id="nav-home" title="Home"><i class="fas fa-home"></i></a>
+            <a href="explore.html" class="nav-icon" id="nav-explore" title="Explore"><i class="fas fa-compass"></i></a>
+            <a href="search.html" class="nav-icon" id="nav-search" title="Search"><i class="fas fa-search"></i></a>
+            <a href="courses.html" class="nav-icon" id="nav-courses" title="Courses"><i class="fas fa-book-open"></i></a>
+            <a href="messages.html" class="nav-icon" id="nav-messages" title="Messages"><i class="fas fa-comments"></i></a>
+            <div class="profile-nav-item">
+                <a href="javascript:void(0);" class="nav-icon profile-link" id="nav-profile-trigger" title="Profile">
+                    <img id="headerUserAvatar" src="https://i.postimg.cc/prmTzhSz/man.png" alt="User Avatar">
+                </a>
+                <div id="profileDropdown" class="profile-dropdown">
+                    <a href="profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
+                    <button id="themeToggleDropdown" class="dropdown-item"><i class="fas fa-moon"></i> <span>Theme</span></button>
+                    <hr>
+                    <button class="dropdown-item" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <section id="activeInstructorsSection" class="instructors-section">
+            <h2>Active Instructors</h2>
+            <div id="instructorsGrid" class="instructors-grid"></div>
+        </section>
+
+        <div class="page-header">
+            <h1>All Courses</h1>
+            <div>
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="courseSearchInput" class="search-input" placeholder="Search courses...">
+                </div>
+                <button class="btn btn-primary" onclick="showProposeCourseModal()">
+                    <i class="fas fa-plus"></i> Create a Course
+                </button>
+            </div>
+        </div>
+
+        <div id="coursesGrid" class="courses-grid">
+            <div class="placeholder">Loading courses...</div>
+        </div>
+
+        <section id="myCoursesSection" style="display: none; margin-top: 40px;">
+            <hr class="form-divider" style="margin-bottom: 40px;">
+            <h2>My Courses</h2>
+            <div id="myCoursesGrid" class="courses-grid" style="margin-top: 20px;"></div>
+        </section>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Propose/Create Course Modal -->
+    <div id="proposeCourseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="propose_course_title">Become an Instructor & Create Your First Course</h3>
+                <button class="btn-icon" onclick="closeModal('proposeCourseModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="proposeCourseForm">
+                <p class="form-description" data-i18n-key="propose_form_desc">To ensure quality, we ask new instructors to provide some information about themselves and their first course proposal.</p>
+                
+                <div class="about-you-section">
+                    <h4>Part 1: About You</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="proposeFullName" data-i18n-key="full_name">Full Name</label>
+                            <input type="text" id="proposeFullName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="proposeExpertise" data-i18n-key="expertise_field">Field of Expertise</label>
+                            <input type="text" id="proposeExpertise" class="form-input" placeholder="e.g., Machine Learning, Web Development" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="proposeEducation" data-i18n-key="education_level">Education Level</label>
+                        <input type="text" id="proposeEducation" class="form-input" placeholder="e.g., PhD in Computer Science" required>
+                    </div>
+                </div>
+
+                <h4>Part 2: Your Course</h4>
+                <div class="form-group">
+                    <label for="proposeCourseTitle" data-i18n-key="course_title">What do you want to teach? (Course Title)</label>
+                    <input type="text" id="proposeCourseTitle" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="proposeCourseDescription" data-i18n-key="course_description">Course Description</label>
+                    <textarea id="proposeCourseDescription" class="form-textarea" required></textarea>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="proposeCoursePrice" data-i18n-key="course_price">Price (USD)</label>
+                        <input type="number" id="proposeCoursePrice" class="form-input" min="0" step="0.01" placeholder="Enter 0 for a free course" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proposeCourseThumbnail" data-i18n-key="course_thumbnail">Course Thumbnail</label>
+                        <input type="file" id="proposeCourseThumbnail" class="form-input" accept="image/*" required>
+                    </div>
+                </div>
+
+                <h4>Part 3: Agreement</h4>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="proposeAgreement" required>
+                    <label for="proposeAgreement" data-i18n-key="agreement_text">I agree to the SJDVerse instructor terms and conditions and commit to providing high-quality educational content.</label>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('proposeCourseModal')" data-i18n-key="cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-i18n-key="submit_proposal">Submit & Create Course</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Enroll with Code Modal -->
+    <div id="enrollModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Enroll in a Course</h3>
+                <button class="btn-icon" onclick="closeModal('enrollModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="enrollForm">
+                <input type="hidden" id="enrollCourseId">
+                <div class="form-group">
+                    <label for="enrollmentCode">6-Digit Enrollment Code</label>
+                    <input type="text" id="enrollmentCode" class="form-input" required maxlength="6" pattern="\d{6}" title="Please enter a 6-digit code.">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('enrollModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Enroll</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Course Modal -->
+    <div id="editCourseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Course</h3>
+                <button class="btn-icon" onclick="closeModal('editCourseModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="editCourseForm">
+                <input type="hidden" id="editCourseId">
+                <div class="form-group">
+                    <label for="editCourseTitle">Course Title</label>
+                    <input type="text" id="editCourseTitle" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCourseDescription">Course Description</label>
+                    <textarea id="editCourseDescription" class="form-textarea" required></textarea>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="editCoursePrice">Price (USD)</label>
+                        <input type="number" id="editCoursePrice" class="form-input" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCourseThumbnail">New Thumbnail (Optional)</label>
+                        <input type="file" id="editCourseThumbnail" class="form-input" accept="image/*">
+                        <img id="currentThumbnailPreview" src="" alt="Current Thumbnail" style="max-width: 100px; margin-top: 10px; border-radius: 8px; display: none;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editCourseModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Course Confirmation Modal -->
+    <div id="deleteCourseModal" class="modal">
+        <div class="modal-content" style="max-width: 450px; text-align: center;">
+            <div class="modal-header" style="border: none; justify-content: center;">
+                <h3>Confirm Deletion</h3>
+            </div>
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger); margin-bottom: 20px;"></i>
+            <p id="deleteCourseConfirmText">Are you sure you want to delete this entire course? This action is irreversible.</p>
+            <div class="modal-footer" style="justify-content: center; gap: 15px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('deleteCourseModal')">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn" onclick="executeCourseDeletion()">
+                    Yes, Delete Course
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await _supabase.auth.getUser();
+            currentUser = user;
+
+            initializeNewHeader();
+            setTheme(localStorage.getItem('theme') || 'light', true);
+            await loadMyCourses();
+            await loadCourses();
+            await loadActiveInstructors();
+            
+            document.getElementById('proposeCourseForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                proposeCourse();
+            });
+            document.getElementById('enrollForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                enrollWithCode();
+            });
+
+            const searchInput = document.getElementById('courseSearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', filterCourses);
+            }
+
+            const editCourseForm = document.getElementById('editCourseForm');
+            if (editCourseForm) {
+                editCourseForm.addEventListener('submit', (e) => { e.preventDefault(); updateCourse(); });
+            }
+
+            // Add a global click listener to close course action menus
+            document.addEventListener('click', (e) => {
+                document.querySelectorAll('.course-menu-dropdown').forEach(m => {
+                    m.style.display = 'none';
+                });
+            });
+        });
+
+        async function loadActiveInstructors() {
+            const instructorsGrid = document.getElementById('instructorsGrid');
+            instructorsGrid.innerHTML = `<div class="placeholder" style="grid-column: 1 / -1; padding: 20px 0;">Loading instructors...</div>`;
+
+            // Fetch approved applications and join profile and course info.
+            const { data, error } = await _supabase
+                .from('instructor_applications')
+                .select(`
+                    full_name,
+                    expertise,
+                    profile:profiles!inner (
+                        id,
+                        username,
+                        avatar_url,
+                        is_verified,
+                        courses!inner(id)
+                    )
+                `)
+                .eq('status', 'approved');
+            
+            if (error) {
+                console.error('Error loading active instructors:', error);
+                instructorsGrid.innerHTML = `<div class="placeholder" style="color: red;">Error loading instructors.</div>`;
+                return;
+            }
+ 
+            // The query might return multiple applications for the same instructor. We need a unique list.
+            const instructorsMap = new Map();
+            data.forEach(app => {
+                // The inner joins guarantee that app.profile and app.profile.courses exist and are not empty.
+                if (app.profile && !instructorsMap.has(app.profile.id)) {
+                    instructorsMap.set(app.profile.id, {
+                        ...app.profile,
+                        full_name: app.full_name,
+                        expertise: app.expertise
+                    });
+                }
+            });
+ 
+            const activeInstructors = Array.from(instructorsMap.values());
+ 
+            if (activeInstructors.length === 0) {
+                document.getElementById('activeInstructorsSection').style.display = 'none';
+                return;
+            }
+ 
+            // Render the list
+            instructorsGrid.innerHTML = activeInstructors.map(instructor => {
+                const verifiedBadgeHTML = instructor.is_verified ? `<span class="fa-stack verified-badge" title="Verified"><i class="fas fa-certificate fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span>` : '';
+                return `
+                    <a href="user.html?username=${instructor.username}" class="instructor-card">
+                        <img src="${instructor.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png'}" alt="${instructor.full_name}">
+                        <h4>${escapeHTML(instructor.full_name)}${verifiedBadgeHTML}</h4>
+                        <p>${escapeHTML(instructor.expertise)}</p>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        async function loadCourses() {
+            const coursesGrid = document.getElementById('coursesGrid');
+            coursesGrid.innerHTML = `<div style="text-align: center; padding: 20px 0; font-size: 1.1rem; color: var(--text-secondary); opacity: 0.7; grid-column: 1 / -1;">Loading courses...</div>`;
+
+            const { data: courses, error } = await _supabase
+                .from('courses')
+                .select(`
+                    id, title, description, thumbnail_url, price, created_at, instructor_id, enrollment_code,
+                    instructor:profiles ( avatar_url, full_name, is_verified )
+                `)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading courses:', error);
+                coursesGrid.innerHTML = `<div class="placeholder" style="color: red;">Error loading courses. Please check if a 'courses' table exists in your database.</div>`;
+                return;
+            }
+
+            // Filter out courses the user is already enrolled in from the "All Courses" list
+            const { data: enrollments } = await _supabase
+                .from('course_enrollments')
+                .select('course_id')
+                .eq('user_id', currentUser.id);
+            
+            const enrolledCourseIds = enrollments ? enrollments.map(e => e.course_id) : [];
+            
+            // Filter out courses the user is enrolled in AND courses they have created
+            const exploreCourses = courses.filter(course => !enrolledCourseIds.includes(course.id));
+
+            if (!exploreCourses || exploreCourses.length === 0) {
+                coursesGrid.innerHTML = `<div class="placeholder">No courses available yet. Be the first to create one!</div>`;
+            } else {
+                coursesGrid.innerHTML = '';
+                exploreCourses.forEach(course => renderCourseCard(course, 'coursesGrid'));
+            }
+        }
+
+        async function loadMyCourses() {
+            if (!currentUser) return;
+
+            const { data: enrollments, error } = await _supabase
+                .from('course_enrollments')
+                .select('courses(*, instructor:profiles(avatar_url, full_name, is_verified))')
+                .eq('user_id', currentUser.id);
+
+            if (error) { console.error("Error loading user's courses:", error); return; }
+
+            if (enrollments && enrollments.length > 0) {
+                const myCoursesSection = document.getElementById('myCoursesSection');
+                const myCoursesGrid = document.getElementById('myCoursesGrid');
+                myCoursesGrid.innerHTML = '';
+                enrollments.forEach(enrollment => renderCourseCard(enrollment.courses, 'myCoursesGrid'));
+                myCoursesSection.style.display = 'block';
+            }
+        }
+
+        function renderCourseCard(course, gridId = 'coursesGrid') {
+            const grid = document.getElementById(gridId);
+            if (!grid) { console.error(`Grid with id "${gridId}" not found.`); return; }
+            const courseCard = document.createElement('a');
+            courseCard.className = 'course-card';
+ 
+            const isInstructor = currentUser && course.instructor_id === currentUser.id;
+            const isEnrolled = gridId === 'myCoursesGrid';
+
+            if (isEnrolled || isInstructor) {
+                courseCard.href = `course_details.html?id=${course.id}`;
+                courseCard.onclick = null;
+            } else { // For all other courses in the main grid
+                courseCard.href = '#';
+                courseCard.onclick = (event) => {
+                    event.preventDefault();
+                    promptToEnroll(course.id);
+                };
+            }
+
+            const instructorProfile = course.instructor || {};
+            const instructorName = instructorProfile.full_name || 'SJDVerse';
+            const price = course.price > 0 ? `$${course.price}` : 'Free';
+            const priceClass = course.price > 0 ? '' : 'free';
+            const verifiedBadgeHTML = instructorProfile.is_verified ? `<span class="fa-stack verified-badge" title="Verified"><i class="fas fa-certificate fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span>` : '';
+
+            let actionsHTML = '';
+            if (isInstructor) {
+                actionsHTML = `
+                    <div class="course-actions">
+                        <button class="btn-icon btn-sm" onclick="event.stopPropagation(); event.preventDefault(); toggleCourseMenu(event, '${course.id}')">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div id="menu-${course.id}" class="course-menu-dropdown">
+                            <div class="dropdown-item" onclick="event.stopPropagation(); event.preventDefault(); showEditCourseModal(${JSON.stringify(course).replace(/"/g, '&quot;')})">
+                                <i class="fas fa-edit"></i> Edit
+                            </div>
+                            <div class="dropdown-item" onclick="event.stopPropagation(); event.preventDefault(); showEnrollmentCode('${course.enrollment_code}')">
+                                <i class="fas fa-key"></i> Course Code
+                            </div>
+                            <div class="dropdown-item delete" onclick="event.stopPropagation(); event.preventDefault(); initiateCourseDeletion('${course.id}', '${escapeHTML(course.title)}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </div>
+                        </div>
+                    </div>`;
+            } else {
+                const buttonText = isEnrolled ? 'Start' : 'View Details';
+                actionsHTML = `<button class="btn btn-primary btn-sm">${buttonText}</button>`;
+            }
+
+            courseCard.innerHTML = `
+                <img src="${course.thumbnail_url || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1074&auto=format&fit=crop'}" alt="${course.title}" class="course-thumbnail">
+                <div class="course-content">
+                    <h3 class="course-title">${escapeHTML(course.title)}</h3>
+                    <div class="course-instructor">
+                        <img src="${instructorProfile.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png'}" alt="${instructorName}">
+                        <span>${escapeHTML(instructorName)}${verifiedBadgeHTML}</span>
+                    </div>
+                    <p class="course-description">${escapeHTML(course.description.substring(0, 100))}...</p>
+                    <div class="course-footer">
+                        <span class="course-price ${priceClass}">${price}</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            ${actionsHTML}
+                        </div>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(courseCard);
+        }
+
+        function filterCourses() {
+            const searchTerm = document.getElementById('courseSearchInput').value.toLowerCase();
+            const grid = document.getElementById('coursesGrid');
+            const courseCards = grid.querySelectorAll('.course-card');
+            let visibleCount = 0;
+
+            // If there are no cards to filter, do nothing.
+            if (courseCards.length === 0) return;
+
+            courseCards.forEach(card => {
+                const title = card.querySelector('.course-title').textContent.toLowerCase();
+                const description = card.querySelector('.course-description').textContent.toLowerCase();
+                const instructor = card.querySelector('.course-instructor span').textContent.toLowerCase();
+
+                if (title.includes(searchTerm) || description.includes(searchTerm) || instructor.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Manage the "no results" placeholder
+            let noResultsPlaceholder = grid.querySelector('#no-results-placeholder');
+            if (visibleCount === 0) {
+                if (!noResultsPlaceholder) {
+                    noResultsPlaceholder = document.createElement('div');
+                    noResultsPlaceholder.id = 'no-results-placeholder';
+                    noResultsPlaceholder.className = 'placeholder';
+                    grid.appendChild(noResultsPlaceholder);
+                }
+                noResultsPlaceholder.textContent = `No courses found matching "${escapeHTML(searchTerm)}"`;
+                noResultsPlaceholder.style.display = 'block';
+            } else if (noResultsPlaceholder) {
+                noResultsPlaceholder.style.display = 'none';
+            }
+        }
+
+        function toggleCourseMenu(event, courseId) {
+            event.stopPropagation();
+            const menu = document.getElementById(`menu-${courseId}`);
+            
+            // Close all other menus
+            document.querySelectorAll('.course-menu-dropdown').forEach(m => {
+                if (m.id !== `menu-${courseId}`) {
+                    m.style.display = 'none';
+                }
+            });
+
+            if (menu) {
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            }
+        }
+
+        let courseIdToDelete = null;
+
+        function initiateCourseDeletion(id, title) {
+            courseIdToDelete = id;
+            document.getElementById('deleteCourseConfirmText').innerHTML = `Are you sure you want to delete the course "<strong>${title}</strong>"? This action is irreversible.`;
+            document.getElementById('deleteCourseModal').classList.add('active');
+        }
+
+        async function executeCourseDeletion() {
+            if (!courseIdToDelete) return;
+
+            const courseId = courseIdToDelete;
+            closeModal('deleteCourseModal');
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            try {
+                // Fetch course details to get thumbnail_url and verify ownership
+                const { data: courseToDelete, error: courseFetchError } = await _supabase
+                    .from('courses')
+                    .select('thumbnail_url, instructor_id')
+                    .eq('id', courseId)
+                    .single();
+                
+                if (courseFetchError || !courseToDelete) throw new Error("Course not found or you don't have permission.");
+                if (courseToDelete.instructor_id !== currentUser.id) throw new Error("You are not authorized to delete this course.");
+
+                // Get all lessons for the course to delete their associated data
+                const { data: lessonsToDelete, error: lessonsError } = await _supabase
+                    .from('course_lessons')
+                    .select('id, images, attachment_urls')
+                    .eq('course_id', courseId);
+
+                if (lessonsError) throw lessonsError;
+
+                if (lessonsToDelete && lessonsToDelete.length > 0) {
+                    const lessonIds = lessonsToDelete.map(l => l.id);
+
+                    // Delete all files associated with lessons from storage
+                    const imagePathsToDelete = lessonsToDelete.flatMap(l => l.images || []).map(url => { try { return new URL(url).pathname.split('/lesson-images/')[1]; } catch (e) { return null; } }).filter(Boolean);
+                    if (imagePathsToDelete.length > 0) {
+                        await _supabase.storage.from('lesson-images').remove(imagePathsToDelete);
+                    }
+
+                    const attachmentPathsToDelete = lessonsToDelete.flatMap(l => l.attachment_urls || []).map(url => { try { return new URL(url).pathname.split('/lesson-attachments/')[1]; } catch (e) { return null; } }).filter(Boolean);
+                    if (attachmentPathsToDelete.length > 0) {
+                        await _supabase.storage.from('lesson-attachments').remove(attachmentPathsToDelete);
+                    }
+
+                    // Delete all lesson reviews
+                    await _supabase.from('lesson_reviews').delete().in('lesson_id', lessonIds);
+                    // Delete all lessons themselves
+                    await _supabase.from('course_lessons').delete().in('id', lessonIds);
+                }
+
+                // Delete all course enrollments
+                await _supabase.from('course_enrollments').delete().eq('course_id', courseId);
+
+                // Delete course thumbnail from storage
+                if (courseToDelete.thumbnail_url) {
+                    try {
+                        const thumbnailPath = new URL(courseToDelete.thumbnail_url).pathname.split('/course-thumbnails/')[1];
+                        if (thumbnailPath) await _supabase.storage.from('course-thumbnails').remove([thumbnailPath]);
+                    } catch (e) { console.warn("Could not parse or remove course thumbnail URL:", courseToDelete.thumbnail_url); }
+                }
+                
+                // Delete the course itself
+                const { error: courseDeleteError } = await _supabase.from('courses').delete().eq('id', courseId);
+                if (courseDeleteError) throw courseDeleteError;
+
+                // Check if the instructor has any other courses left
+                const { count: remainingCourses, error: countError } = await _supabase
+                    .from('courses')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('instructor_id', currentUser.id);
+
+                if (countError) {
+                    console.warn("Could not check for remaining courses, instructor status not updated.", countError);
+                } else if (remainingCourses === 0) {
+                    // If no courses are left, update instructor status to 'inactive'
+                    const { error: updateAppError } = await _supabase
+                        .from('instructor_applications')
+                        .update({ status: 'inactive' })
+                        .eq('user_id', currentUser.id);
+
+                    if (!updateAppError) {
+                        showNotification('You have no more active courses. Your instructor profile is now inactive.', 'info');
+                    }
+                }
+
+                showNotification('Course deleted successfully.', 'success');
+                await loadCourses();
+                await loadActiveInstructors(); // Refresh the instructors list
+
+            } catch (error) {
+                console.error('Failed to delete course:', error);
+                showNotification(`Error: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                courseIdToDelete = null;
+            }
+        }
+
+        function showEditCourseModal(course) {
+            if (!course) return;
+            document.getElementById('editCourseId').value = course.id;
+            document.getElementById('editCourseTitle').value = course.title;
+            document.getElementById('editCourseDescription').value = course.description;
+            document.getElementById('editCoursePrice').value = course.price;
+
+            const thumbnailPreview = document.getElementById('currentThumbnailPreview');
+            if (course.thumbnail_url) {
+                thumbnailPreview.src = course.thumbnail_url;
+                thumbnailPreview.style.display = 'block';
+            } else {
+                thumbnailPreview.style.display = 'none';
+            }
+
+            document.getElementById('editCourseModal').classList.add('active');
+        }
+
+        async function updateCourse() {
+            const courseId = document.getElementById('editCourseId').value;
+            const title = document.getElementById('editCourseTitle').value;
+            const description = document.getElementById('editCourseDescription').value;
+            const price = parseFloat(document.getElementById('editCoursePrice').value);
+            const thumbnailFile = document.getElementById('editCourseThumbnail').files[0];
+
+            if (!title || !description || isNaN(price)) {
+                showNotification('Please fill in all required fields.', 'error');
+                return;
+            }
+
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            try {
+                const updatePayload = { title, description, price };
+
+                if (thumbnailFile) {
+                    // A new thumbnail is being uploaded
+                    const { data: courseData } = await _supabase.from('courses').select('thumbnail_url').eq('id', courseId).single();
+                    if (courseData && courseData.thumbnail_url) {
+                        // Delete the old thumbnail
+                        const oldPath = new URL(courseData.thumbnail_url).pathname.split('/course-thumbnails/')[1];
+                        if (oldPath) await _supabase.storage.from('course-thumbnails').remove([oldPath]);
+                    }
+
+                    // Upload the new thumbnail
+                    const newFileName = `${currentUser.id}/courses/${Date.now()}_${thumbnailFile.name}`;
+                    const { error: uploadError } = await _supabase.storage.from('course-thumbnails').upload(newFileName, thumbnailFile);
+                    if (uploadError) throw uploadError;
+
+                    const { data: urlData } = _supabase.storage.from('course-thumbnails').getPublicUrl(newFileName);
+                    updatePayload.thumbnail_url = urlData.publicUrl;
+                }
+
+                const { error: updateError } = await _supabase.from('courses').update(updatePayload).eq('id', courseId);
+                if (updateError) throw updateError;
+
+                showNotification('Course updated successfully!', 'success');
+                closeModal('editCourseModal');
+                await loadCourses(); // Refresh the list
+            } catch (error) {
+                console.error('Error updating course:', error);
+                showNotification(`Error updating course: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        async function showProposeCourseModal() {
+            if (!currentUser) {
+                alert('You must be logged in to create a course.');
+                return;
+            }
+
+            const modal = document.getElementById('proposeCourseModal');
+            const form = document.getElementById('proposeCourseForm');
+            const aboutYouSection = modal.querySelector('.about-you-section');
+            const description = modal.querySelector('.form-description');
+            const title = modal.querySelector('h3');
+
+            // Reset form state
+            form.reset();
+            aboutYouSection.style.display = 'block';
+            description.style.display = 'block';
+            title.textContent = 'Become an Instructor & Create Your First Course'; // Default title
+
+            // Pre-fill name
+            document.getElementById('proposeFullName').value = currentUser.user_metadata.full_name || '';
+            
+            // Check if user is already an instructor to simplify the form
+            const { data, error } = await _supabase
+                .from('instructor_applications')
+                .select('full_name, expertise, education')
+                .eq('user_id', currentUser.id)
+                .single();
+
+            if (error) {
+                // This is expected for new users, so no need to log a warning.
+            }
+
+            if (data) {
+                document.getElementById('proposeFullName').value = data.full_name || currentUser.user_metadata.full_name || '';
+                if (data.expertise) document.getElementById('proposeExpertise').value = data.expertise;
+                if (data.education) document.getElementById('proposeEducation').value = data.education;
+
+                title.textContent = 'Create a New Course';
+                aboutYouSection.style.display = 'none';
+                description.style.display = 'none';
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            if (!document.getElementById(modalId)) return;
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function showEnrollmentCode(code) {
+            alert(`The enrollment code for this course is: ${code}`);
+        }
+
+        function promptToEnroll(courseId) {
+            if (!currentUser) {
+                alert('You must be logged in to enroll in a course.');
+                return;
+            }
+            document.getElementById('enrollCourseId').value = courseId;
+            document.getElementById('enrollModal').classList.add('active');
+            document.getElementById('enrollmentCode').focus();
+        }
+
+        async function enrollWithCode() {
+            const courseId = document.getElementById('enrollCourseId').value;
+            const codeInput = document.getElementById('enrollmentCode');
+            const code = codeInput.value.trim();
+
+            if (!/^\d{6}$/.test(code)) {
+                showNotification('Please enter a valid 6-digit code.', 'error');
+                return;
+            }
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'flex';
+
+            try {
+                // 1. Find the course by ID and check if the code matches
+                const { data: course, error: findError } = await _supabase
+                    .from('courses')
+                    .select('id, instructor_id, enrollment_code')
+                    .eq('id', courseId)
+                    .single();
+
+                if (findError || !course) {
+                    throw new Error('Course not found. It may have been deleted.');
+                }
+
+                if (course.enrollment_code !== code) {
+                    throw new Error('Invalid enrollment code. Please check the code and try again.');
+                }
+
+                // 2. Check if user is the instructor
+                if (course.instructor_id === currentUser.id) {
+                    throw new Error('You cannot enroll in your own course.');
+                }
+
+                // 3. Check if already enrolled (using a count for efficiency)
+                const { count, error: checkError } = await _supabase
+                    .from('course_enrollments')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', currentUser.id)
+                    .eq('course_id', course.id);
+
+                if (checkError) throw checkError;
+                if (count > 0) throw new Error('You are already enrolled in this course.');
+
+                // 4. Enroll the user
+                const { error: enrollError } = await _supabase
+                    .from('course_enrollments')
+                    .insert({ user_id: currentUser.id, course_id: course.id });
+
+                if (enrollError) throw enrollError;
+
+                showNotification('Successfully enrolled in the course!', 'success');
+                closeModal('enrollModal');
+                await loadMyCourses(); // Refresh the "My Courses" section
+                await loadCourses(); // Refresh the "All Courses" section to remove the enrolled course
+
+            } catch (error) {
+                console.error('Enrollment error:', error);
+                showNotification(error.message, 'error');
+            } finally {
+                loadingOverlay.style.display = 'none';
+                codeInput.value = '';
+            }
+        }
+
+        async function proposeCourse() {
+            // 1. Get all form data
+            const fullName = document.getElementById('proposeFullName').value;
+            const expertise = document.getElementById('proposeExpertise').value;
+            const education = document.getElementById('proposeEducation').value;
+            const courseTitle = document.getElementById('proposeCourseTitle').value;
+            const courseDescription = document.getElementById('proposeCourseDescription').value;
+            const coursePrice = document.getElementById('proposeCoursePrice').value;
+            const courseThumbnailFile = document.getElementById('proposeCourseThumbnail').files[0];
+            const agreement = document.getElementById('proposeAgreement').checked;
+
+            const aboutYouSection = document.querySelector('#proposeCourseModal .about-you-section');
+            const isNewInstructor = aboutYouSection.style.display !== 'none';
+
+            // 2. Validate
+            if (isNewInstructor && (!fullName || !expertise || !education)) {
+                showNotification('Please fill out all fields in the "About You" section.', 'error');
+                return;
+            }
+            if (!courseTitle || !courseDescription || coursePrice === '' || !courseThumbnailFile) {
+                showNotification('Please fill out all fields in the "Your Course" section.', 'error');
+                return;
+            }
+            if (!agreement) {
+                showNotification('You must agree to the instructor terms.', 'error');
+                return;
+            }
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'flex';
+
+            try {
+                // 3. Generate 6-digit enrollment code
+                const enrollmentCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+                // 4. Upsert instructor application
+                const { error: appError } = await _supabase
+                    .from('instructor_applications')
+                    .upsert({
+                        user_id: currentUser.id,
+                        full_name: fullName,
+                        expertise: expertise,
+                        education: education,
+                        status: 'approved' // Auto-approve for now
+                    }, { onConflict: 'user_id' });
+                if (appError) throw new Error("Database schema might be outdated. Please ensure 'instructor_applications' table exists and user_id is unique.");
+
+                // 5. Upload thumbnail
+                const thumbnailFileName = `${currentUser.id}/courses/${Date.now()}_${courseThumbnailFile.name}`;
+                const { error: uploadError } = await _supabase.storage
+                    .from('course-thumbnails')
+                    .upload(thumbnailFileName, courseThumbnailFile);
+                if (uploadError) throw uploadError;
+
+                const { data: urlData } = _supabase.storage.from('course-thumbnails').getPublicUrl(thumbnailFileName);
+                const thumbnailUrl = urlData.publicUrl;
+
+                // 6. Insert the new course
+                const { error: insertError } = await _supabase.from('courses').insert({
+                    title: courseTitle,
+                    description: courseDescription,
+                    price: parseFloat(coursePrice),
+                    thumbnail_url: thumbnailUrl,
+                    instructor_id: currentUser.id,
+                    enrollment_code: enrollmentCode
+                });
+                if (insertError) throw new Error("Database schema might be outdated. Please ensure 'courses' table has an 'enrollment_code' (text) column and a foreign key to profiles.");
+
+                // 7. Success
+                closeModal('proposeCourseModal');
+                showEnrollmentCode(enrollmentCode);
+                await loadCourses(); // Refresh the list
+                await loadActiveInstructors(); // Refresh instructors list
+
+            } catch (error) {
+                console.error('Error creating course:', error);
+                showNotification(`Error: ${error.message}`, 'error');
+            } finally {
+                loadingOverlay.style.display = 'none';
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const container = document.body;
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const iconClass = type === 'error' ? 'fa-exclamation-triangle' : 
+                              type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas ${iconClass}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => { notification.style.animation = 'slideOutRight 0.4s ease-in forwards'; setTimeout(() => notification.remove(), 400); }, 5000);
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            const p = document.createElement('p');
+            p.textContent = str;
+            return p.innerHTML;
+        }
+
+        function initializeNewHeader() {
+            const profileTrigger = document.getElementById('nav-profile-trigger');
+            const profileDropdown = document.getElementById('profileDropdown');
+            if (profileTrigger && profileDropdown) {
+                profileTrigger.addEventListener('click', (e) => { e.stopPropagation(); profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block'; });
+                document.addEventListener('click', (e) => {
+                    if (profileDropdown.style.display === 'block' && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
+                        profileDropdown.style.display = 'none';
+                    }
+                });
+            }
+            const themeToggle = document.getElementById('themeToggleDropdown');
+            if(themeToggle) themeToggle.addEventListener('click', toggleTheme);
+            if(currentUser) {
+                document.getElementById('headerUserAvatar').src = currentUser.user_metadata.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
+            }
+        }
+
+        function toggleTheme() {
+            const newTheme = document.body.classList.contains('dark-theme') ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        function setTheme(theme, isInitial = false) {
+            document.body.classList.toggle('dark-theme', theme === 'dark');
+            document.body.classList.toggle('light-theme', theme !== 'dark');
+            const themeToggleDropdown = document.getElementById('themeToggleDropdown');
+            if (themeToggleDropdown) themeToggleDropdown.querySelector('i').className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            if (!isInitial) localStorage.setItem('theme', theme);
+        }
+
+        async function logout() {
+            if (!confirm('Are you sure you want to log out?')) return;
+            await _supabase.auth.signOut();
+            window.location.href = 'indexx.html';
+        }
+    </script>
+</body>
+</html>

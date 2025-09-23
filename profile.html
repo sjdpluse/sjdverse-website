@@ -1,0 +1,3548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - SJDVerse</title>
+    <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hljs-dark-theme" disabled>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" id="hljs-light-theme">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --p1: #d8f4a0; --p2: #fdc7d5; --p3: #bcd8fd; --p4: #ffeca8; --p5: #5d5c5c;
+            --white: #ffffff; --light-gray: #f8f9fa; --medium-gray: #e9ecef; --dark-gray: #343a40;
+            --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.06); 
+            --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --shadow-large: 0 12px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 16px; 
+            --border-radius-sm: 12px;
+            --border-radius-lg: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Light Theme (default) */
+            --bg-primary: var(--white);
+            --bg-secondary: var(--light-gray);
+            --bg-tertiary: var(--medium-gray);
+            --text-primary: var(--dark-gray);
+            --text-secondary: var(--p5);
+            --border-color: var(--medium-gray);
+            --card-bg: var(--bg-primary);
+            --primary: var(--p3);
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --info: #2196f3;
+        }
+
+        .dark-theme {
+            --bg-primary: #1c1c1e;
+            --bg-secondary: #2c2c2e;
+            --bg-tertiary: #3a3a3c;
+            --text-primary: #f2f2f7;
+            --text-secondary: #aeaeb2;
+            --border-color: #3a3a3c;
+            --card-bg: var(--bg-secondary);
+            --primary: #5d9bfb;
+            --success: #6abf69;
+            --warning: #ffb74d;
+            --danger: #f44336;
+            --info: #64b5f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5; /* کاهش فاصله خطوط */
+            transition: var(--transition-slow);
+        }
+        html[lang="fa"] body {
+            font-family: 'Noto Kufi Arabic', 'Poppins', sans-serif;
+        }
+
+        h1, h2, h3, h4, h5, h6, .logo, .btn {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .dark-theme .loading-overlay {
+            background: rgba(0, 0, 0, 0.7);
+        }
+        .light-theme .loading-overlay {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--bg-tertiary);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* New App Header */
+        .app-header {
+            background: var(--card-bg);
+            padding: 0 5%;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 60px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .app-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+        .app-header .logo:hover { transform: scale(1.05); }
+        .app-nav { display: flex; align-items: center; gap: 20px; }
+        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s, transform 0.2s; position: relative; padding: 8px; }
+        .app-nav .nav-icon:hover { color: var(--text-primary); transform: scale(1.1); }
+        .app-nav .nav-icon.active { color: var(--text-primary); }
+        .app-nav .profile-link img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; transition: border-color 0.2s; }
+        .app-nav .profile-link.active img,
+        .app-nav .profile-link:hover img { border-color: var(--text-primary); }
+        .profile-nav-item { position: relative; }
+        .profile-dropdown { display: none; position: absolute; top: calc(100% + 10px); right: 0; background: var(--card-bg); border-radius: 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); width: 200px; z-index: 1001; border: 1px solid var(--border-color); padding: 8px 0; animation: fadeIn 0.2s ease; }
+        .profile-dropdown .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; transition: background-color 0.2s; background: none; border: none; width: 100%; font-family: 'Poppins', sans-serif; font-size: 0.9rem; color: var(--text-primary); text-decoration: none; text-align: left; }
+        .profile-dropdown .dropdown-item:hover { background: var(--bg-secondary); }
+        .profile-dropdown hr { border: none; border-top: 1px solid var(--border-color); margin: 8px 0; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 0 15px;
+            }
+            .app-nav {
+                gap: 10px;
+            }
+            .app-nav .nav-icon {
+                font-size: 1.3rem;
+                padding: 6px;
+            }
+        }
+
+        /* Header Styles */
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--dark-gray);
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(0.95);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
+            transform: translateY(-1px);
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        /* Profile Header */
+        .profile-header {
+            height: 280px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover-photo {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            transition: var(--transition-slow);
+        }
+
+        .cover-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to top, var(--bg-primary), transparent);
+        }
+
+        .edit-cover-btn, .add-cover-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .edit-cover-btn:hover, .add-cover-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: translateY(-2px);
+        }
+        .cover-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-tertiary);
+        }
+        .add-cover-btn {
+            position: static; /* Override absolute positioning */
+            font-size: 1rem;
+            padding: 12px 20px;
+        }
+
+        .profile-avatar-container {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin: -80px auto 16px;
+        }
+
+        /* Main Layout */
+        .container {
+            max-width: 1200px;
+            margin: -100px auto 30px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+            align-items: flex-start;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-sidebar {
+                position: static !important;
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 20px;
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Sidebar */
+        .profile-sidebar {
+            position: sticky;
+            top: 80px;
+        }
+
+        .profile-info {
+            text-align: center;
+            padding-bottom: 16px;
+        }
+
+        .profile-avatar {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            box-shadow: var(--shadow-large);
+            background: var(--card-bg);
+            transition: var(--transition);
+        }
+
+        .edit-avatar-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            color: var(--dark-gray);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-medium);
+            transition: var(--transition);
+            opacity: 0;
+        }
+        .verified-avatar {
+            border: 4px solid #1DA1F2 !important;
+            box-shadow: 0 0 15px rgba(29, 161, 242, 0.4);
+        }
+        .profile-avatar-container:hover .edit-avatar-btn {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-large);
+        }
+
+        .profile-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .profile-username {
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        .profile-bio {
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding: 0 16px;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            background: var(--bg-tertiary);
+            transform: translateY(-3px);
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .profile-details {
+            margin-top: 16px;
+            text-align: right;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            padding: 5px 0;
+            transition: var(--transition);
+        }
+
+        .detail-item:hover {
+            color: var(--text-primary);
+            transform: translateX(-5px);
+        }
+
+        .detail-item i {
+            width: 18px;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 16px;
+        }
+
+        .skill-tag {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 5px 10px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .skill-tag:hover {
+            background: var(--primary);
+            color: var(--dark-gray);
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .content-header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-button {
+            padding: 10px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            position: relative;
+            transition: var(--transition);
+            border-bottom: 2px solid transparent;
+            border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+        }
+
+        .tab-button:hover {
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: var(--bg-secondary);
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.4s;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Create Post */
+        .create-post-card {
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            transition: var(--transition);
+        }
+
+        .create-post-card:hover {
+            box-shadow: var(--shadow-medium);
+        }
+
+        .create-post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .create-post-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+
+        .create-post-textarea {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 12px 0;
+            min-height: 80px;
+            resize: none;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            transition: var(--transition);
+            line-height: 1.5;
+        }
+
+        .create-post-textarea:focus {
+            outline: none;
+        }
+
+        .create-post-textarea::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .create-post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            transition: var(--transition);
+            padding: 6px;
+            border-radius: 50%;
+        }
+
+        .action-button:hover {
+            color: var(--primary);
+            background: var(--bg-secondary);
+            transform: scale(1.1);
+        }
+
+        .post-content p.truncated {
+            max-height: 105px;
+            overflow: hidden;
+            position: relative;
+            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+        }
+
+        .see-more-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 6px;
+            padding: 0;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .see-more-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Post Feed */
+        .post-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .post-card {
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        .post-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .post-author img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            transition: var(--transition);
+        }
+
+        .post-author img:hover {
+            transform: scale(1.1);
+        }
+
+        .post-author-info h4 {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .post-author-info p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .post-menu .btn-icon {
+            font-size: 0.9rem;
+        }
+
+        .post-content p {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .post-image-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius-sm);
+            overflow: hidden;
+            margin-top: 12px;
+            transition: var(--transition);
+        }
+        
+        .post-image-container:hover {
+            transform: scale(1.01);
+        }
+        
+        .post-image, #postImagePreview {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .post-image:hover, #postImagePreview:hover {
+            transform: scale(1.05);
+        }
+
+        .post-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 5px 10px;
+            border-radius: var(--border-radius-sm);
+        }
+
+        .post-action:hover {
+            color: var(--primary);
+            background: var(--bg-secondary);
+        }
+
+        .post-action i {
+            font-size: 1rem;
+        }
+
+        .post-action.liked {
+            color: #ef476f;
+        }
+
+        .comment {
+            display: flex;
+            gap: 8px;
+            animation: fadeIn 0.4s;
+        }
+        
+        .comment img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+        }
+        
+        .comment-body {
+            background: var(--bg-secondary);
+            padding: 10px 14px;
+            border-radius: var(--border-radius);
+            flex-grow: 1;
+            transition: var(--transition);
+        }
+        
+        .comment-body:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .comment-body strong {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .comment-body p {
+            font-size: 0.85rem;
+            margin: 3px 0;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+        
+        .comment-date {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        .comment-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+        }
+        .reply-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0;
+        }
+        .reply-btn:hover { color: var(--primary); }
+        .replies-container {
+            margin-left: 45px;
+            margin-top: 10px;
+            border-left: 2px solid var(--border-color);
+            padding-left: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Projects Grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        pre {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: var(--border-radius-sm);
+            white-space: pre-wrap; /* Allow wrapping */
+            word-break: break-all; /* Break long words */
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .project-card {
+            padding: 16px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .project-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 12px;
+            transition: var(--transition);
+        }
+
+        .project-image:hover {
+            transform: scale(1.03);
+        }
+
+        .project-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .project-description {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+
+        .project-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .tech-tag {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 5px 10px;
+            border-radius: 16px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .tech-tag:hover {
+            background: var(--primary);
+            color: var(--dark-gray);
+            transform: translateY(-2px);
+        }
+
+        .project-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-size: 0.9rem;
+            font-family: 'Vazirmatn', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: var(--transition);
+            line-height: 1.4;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(188, 216, 253, 0.3);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--bg-secondary);
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 0 3px;
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+        }
+
+        .theme-toggle::before {
+            content: '\f186';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 5px;
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+        }
+
+        .theme-toggle::after {
+            content: '\f185';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 5px;
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+        }
+
+        .theme-toggle-handle {
+            width: 18px;
+            height: 18px;
+            background: var(--white);
+            border-radius: 50%;
+            transform: translateX(0);
+            transition: var(--transition);
+            z-index: 1;
+        }
+
+        .dark-theme .theme-toggle {
+            background: var(--primary);
+        }
+
+        .dark-theme .theme-toggle-handle {
+            transform: translateX(24px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px;
+            }
+            
+            .profile-header {
+                height: 220px;
+            }
+            
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+                margin-top: -60px;
+            }
+            
+            .container {
+                grid-template-columns: 1fr;
+                margin-top: -70px;
+                padding: 0 10px;
+                gap: 15px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+
+            .profile-sidebar {
+                position: static !important;
+            }
+            
+            .profile-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .tabs {
+                gap: 3px;
+            }
+            
+            .tab-button {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .post-actions {
+                gap: 15px;
+            }
+            
+            .post-action {
+                padding: 5px 8px;
+            }
+        }
+
+        /* Utilities */
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 20px 0;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-1 { margin-top: 6px; }
+        .mt-2 { margin-top: 12px; }
+        .mt-3 { margin-top: 18px; }
+        .mt-4 { margin-top: 24px; }
+
+        .mb-1 { margin-bottom: 6px; }
+        .mb-2 { margin-bottom: 12px; }
+        .mb-3 { margin-bottom: 18px; }
+        .mb-4 { margin-bottom: 24px; }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .slide-up {
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Settings Dropdown */
+        .settings-menu-container {
+            position: relative;
+        }
+
+        .settings-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-large);
+            width: 200px;
+            padding: 8px 0;
+            z-index: 1001;
+            border: 1px solid var(--border-color);
+            margin-top: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: none;
+            border: none;
+            width: 100%;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .dropdown-item i {
+            width: 18px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .language-switcher {
+            padding: 0 14px 10px;
+        }
+
+        .language-switcher label {
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .language-select {
+            width: 100%;
+            padding: 8px;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: var(--transition);
+            font-size: 0.85rem;
+        }
+
+        .language-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .settings-dropdown hr {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 6px 0;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.4s ease;
+        }
+
+        /* Fix for modals in RTL mode to ensure they are laid out correctly for English content */
+        html[dir="rtl"] .modal-content {
+            direction: ltr;
+            text-align: left;
+        }
+        html[dir="rtl"] .modal-footer {
+            justify-content: flex-end;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        .notification-list { max-height: 400px; overflow-y: auto; }
+        .notification-item { display: flex; gap: 15px; padding: 12px; text-decoration: none; color: inherit; border-bottom: 1px solid var(--border-color); transition: var(--transition); }
+        .notification-item:last-child { border-bottom: none; }
+        .notification-item:hover { background: var(--bg-secondary); }
+        .notification-item.unread { background: rgba(188, 216, 253, 0.2); }
+        .notification-icon { position: relative; flex-shrink: 0; }
+        .notification-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
+        .notification-type-icon { position: absolute; bottom: -2px; right: -2px; background: var(--card-bg); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .notification-content p { margin: 0; font-size: 0.9rem; }
+        .notification-time { font-size: 0.75rem; color: var(--text-secondary); }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            border-radius: var(--border-radius-sm);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-secondary);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-primary);
+        }
+
+        /* New Components */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .notification-container {
+            position: relative;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-sm);
+            padding: 6px 12px;
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            padding: 8px;
+        }
+
+        .search-input:focus {
+            outline: none;
+        }
+
+        .filter-select {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            padding: 6px 10px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .empty-state p {
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background: var(--primary);
+            color: var(--dark-gray);
+        }
+
+        .badge-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .badge-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .badge-info {
+            background: var(--info);
+            color: white;
+        }
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .verified-badge {
+            font-size: 0.5em; /* Makes the badge scale with the parent text */
+            vertical-align: -0.1em; /* Adjust vertical alignment */
+            margin-left: 4px;
+        }
+        .verified-badge .fa-certificate {
+            color: #1DA1F2;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <header class="app-header">
+        <a href="indexx.html" class="logo">
+            <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 35px;">
+            <span style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
+        </a>
+        <nav class="app-nav">
+            <a href="indexx.html" class="nav-icon" id="nav-home" title="Home"><i class="fas fa-home"></i></a>
+            <a href="explore.html" class="nav-icon" id="nav-explore" title="Explore"><i class="fas fa-compass"></i></a>
+            <a href="search.html" class="nav-icon" id="nav-search" title="Search"><i class="fas fa-search"></i></a>
+            <a href="courses.html" class="nav-icon" id="nav-courses" title="Courses"><i class="fas fa-book-open"></i></a>
+            <a href="messages.html" class="nav-icon" id="nav-messages" title="Messages"><i class="fas fa-comments"></i></a>
+            <div class="profile-nav-item">
+                <a href="javascript:void(0);" class="nav-icon profile-link" id="nav-profile-trigger" title="Profile">
+                    <img id="headerUserAvatar" src="https://i.postimg.cc/prmTzhSz/man.png" alt="User Avatar">
+                </a>
+                <div id="profileDropdown" class="profile-dropdown">
+                    <a href="profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
+                    <button id="themeToggleDropdown" class="dropdown-item"><i class="fas fa-moon"></i> <span>Theme</span></button>
+                    <hr>
+                    <button class="dropdown-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="profile-header">
+        <div id="coverPhoto" class="cover-photo"></div>
+        <input type="file" id="coverUploadInput" class="hidden" accept="image/*">
+    </div>
+
+    <main class="container">
+        <!-- Profile Sidebar -->
+        <aside class="profile-sidebar card fade-in-up">
+            <div class="profile-info">
+                <div class="profile-avatar-container">
+                    <img src="https://i.postimg.cc/prmTzhSz/man.png" alt="Profile Avatar" id="sidebarAvatar" class="profile-avatar">
+                    <label for="avatarUploadInput" class="edit-avatar-btn" title="Change profile picture">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" id="avatarUploadInput" class="hidden" accept="image/*">
+                </div>
+                <h2 class="profile-name" id="sidebarUserName">User Name</h2>
+                <p class="profile-username" id="sidebarUserUsername">@username</p>
+                <p class="profile-bio" id="sidebarUserBio">Bio will appear here. This is a short description about the user.</p>
+                
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statPosts">0</div>
+                        <div class="stat-label">Posts</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statConnections">0</div>
+                        <div class="stat-label">Connections</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statProjects">0</div>
+                        <div class="stat-label">Projects</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statAchievements">0</div>
+                        <div class="stat-label">Achievements</div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" style="width: 100%;" onclick="openTab(event, 'about')">
+                    <i class="fas fa-user-edit"></i> <span>Edit Profile</span>
+                </button>
+            </div>
+            
+            <div class="profile-details">
+                <div class="detail-item">
+                    <i class="fas fa-envelope"></i>
+                    <span id="sidebarUserEmail">user@example.com</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span id="sidebarUserEducation">Education not set</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-briefcase"></i>
+                    <span id="sidebarUserField">Field not set</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span><span>Joined:</span> <span id="joinDate"></span></span>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <h3 class="card-title">Skills</h3>
+            <div class="skill-tags" id="skillTags">
+                <span class="skill-tag">No skills added</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content-area">
+            <div class="content-header">
+                <h1>Profile Dashboard</h1>
+                <div class="theme-toggle" id="themeToggleBtn">
+                    <div class="theme-toggle-handle"></div>
+                </div>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab-button active" onclick="openTab(event, 'feed')">
+                    <i class="fas fa-stream"></i> Feed
+                </button>
+                <button class="tab-button" onclick="openTab(event, 'projects')">
+                    <i class="fas fa-project-diagram"></i> Projects
+                </button>
+                <button class="tab-button" onclick="openTab(event, 'about')">
+                    <i class="fas fa-user"></i> About
+                </button>
+                <button class="tab-button" onclick="openTab(event, 'connections')">
+                    <i class="fas fa-users"></i> Connections
+                </button>
+                <button class="tab-button" onclick="openTab(event, 'activity')">
+                    <i class="fas fa-chart-line"></i> Activity
+                </button>
+                <button class="tab-button" onclick="openTab(event, 'achievements')">
+                    <i class="fas fa-trophy"></i> Achievements
+                </button>
+            </div>
+
+            <div class="tab-panels">
+                <!-- Feed Panel -->
+                <div id="feed" class="tab-panel active">
+                    <div class="search-container">
+                        <i class="fas fa-search" style="color: var(--text-secondary);"></i>
+                        <input type="text" id="postSearch" class="search-input" placeholder="Search your posts...">
+                        <select class="filter-select" id="postFilter">
+                            <option value="all">All Posts</option>
+                            <option value="recent">Recent</option>
+                            <option value="popular">Most Liked</option>
+                        </select>
+                    </div>
+                    
+                    <div class="create-post-card">
+                        <div class="create-post-header">
+                            <img src="https://i.postimg.cc/prmTzhSz/man.png" alt="Your Avatar" id="createPostAvatar" class="create-post-avatar">
+                            <div>
+                                <h4 id="createPostName">Your Name</h4>
+                                <p>Post to your profile</p>
+                            </div>
+                        </div>
+                        <textarea id="postContent" class="create-post-textarea" data-i18n-placeholder-key="post_placeholder" placeholder="Share your knowledge, projects, or achievements..."></textarea>
+                        <div id="postImagePreviewContainer" class="post-image-container hidden" style="aspect-ratio: 16 / 9; margin-top: 16px;">
+                            <div style="position: relative; width: 100%; height: 100%;">
+                                <img id="postImagePreview" src="" alt="Image Preview">
+                                <button onclick="removePostImage()" class="btn-icon" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="postFilePreviewContainer" class="hidden" style="margin-top: 16px; padding: 10px; background: var(--bg-secondary); border-radius: var(--border-radius-sm); display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-file-alt" style="color: var(--text-secondary);"></i>
+                                <span id="postFileName"></span>
+                            </div>
+                            <button onclick="removePostFile()" class="btn-icon" style="background: transparent; color: var(--danger);"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div id="postCodePreviewContainer" class="hidden" style="margin-top: 16px; padding: 10px; background: var(--bg-secondary); border-radius: var(--border-radius-sm);">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-code" style="color: var(--text-secondary);"></i>
+                                    <span id="postCodeLanguage">Code snippet attached.</span>
+                                </div>
+                                <button onclick="removePostCode()" class="btn-icon" style="background: transparent; color: var(--danger);"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="create-post-actions">
+                            <div class="action-buttons">
+                                <label for="postImageInput" class="action-button" data-i18n-title-key="add_image" title="Add Image">
+                                    <i class="fas fa-image"></i>
+                                </label>
+                                <input type="file" id="postImageInput" accept="image/*" class="hidden" onchange="previewPostImage(event)">
+                                
+                                <label for="postFileInput" class="action-button" data-i18n-title-key="add_file" title="Add File">
+                                    <i class="fas fa-file-alt"></i>
+                                </label>
+                                <input type="file" id="postFileInput" class="hidden" onchange="previewPostFile(event)">
+                                
+                                <button class="action-button" data-i18n-title-key="add_code" title="Add Code Snippet" onclick="showCodeSnippetModal()">
+                                    <i class="fas fa-code"></i>
+                                </button>
+                            </div>
+                            <button class="btn btn-primary" onclick="createPost()">
+                                <i class="fas fa-paper-plane"></i> Publish
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="postFeed" class="post-feed">
+                        <div class="card text-center">
+                            <p>Loading your posts...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects Panel -->
+                <div id="projects" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">My Projects</h2>
+                            <div>
+                                <button class="btn btn-secondary" onclick="filterProjects('all')">
+                                    <i class="fas fa-filter"></i> Filter
+                                </button>
+                                <button class="btn btn-primary" onclick="showAddProjectModal()">
+                                    <i class="fas fa-plus"></i> Add Project
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="projectsContainer" class="projects-grid">
+                            <div class="card project-card text-center">
+                                <p>You haven't added any projects yet.</p>
+                                <button class="btn btn-primary mt-2" onclick="showAddProjectModal()">
+                                    <i class="fas fa-plus"></i> Add Your First Project
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- About Panel -->
+                <div id="about" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">About Me</h2>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="aboutBio">Bio</label>
+                            <textarea id="aboutBio" class="form-input form-textarea" data-i18n-placeholder-key="bio_placeholder" placeholder="Tell others about yourself, your interests, and your goals..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="aboutEducation">Education</label>
+                            <input type="text" id="aboutEducation" class="form-input" data-i18n-placeholder-key="education_placeholder" placeholder="Your education level"></input>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="aboutField">Field of Study/Expertise</label>
+                            <input type="text" id="aboutField" class="form-input" data-i18n-placeholder-key="field_placeholder" placeholder="Your field of study or expertise"></input>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="aboutSkills">Skills (comma separated)</label>
+                            <input type="text" id="aboutSkills" class="form-input" data-i18n-placeholder-key="skills_placeholder" placeholder="e.g. JavaScript, Python, UI Design"></input>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="saveAboutInfo()" data-i18n-key="save_info">
+                            <i class="fas fa-save"></i> Save Information
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Connections Panel -->
+                <div id="connections" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title" data-i18n-key="my_connections">My Connections</h2>
+                            <button class="btn btn-primary" onclick="window.location.href='search.html'" data-i18n-key="find_connections">
+                                <i class="fas fa-user-plus"></i> Find Connections
+                            </button>
+                        </div>
+                        
+                        <div class="search-container">
+                            <i class="fas fa-search" style="color: var(--text-secondary);"></i>
+                            <input type="text" id="connectionSearch" class="search-input" placeholder="Search connections...">
+                        </div>
+                        
+                        <div id="connectionsContainer">
+                            <div class="text-center">
+                                <p data-i18n-key="no_connections">You don't have any connections yet.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Panel -->
+                <div id="activity" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title" data-i18n-key="profile_activity">Profile Activity</h2>
+                            <select class="filter-select" id="activityRange">
+                                <option value="7">Last 7 days</option>
+                                <option value="30" selected>Last 30 days</option>
+                                <option value="90">Last 90 days</option>
+                            </select>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="empty-state">
+                                <i class="fas fa-chart-bar"></i>
+                                <p data-i18n-key="activity_placeholder">Your activity analytics will appear here.</p>
+                                <button class="btn btn-primary" onclick="generateSampleData()">
+                                    <i class="fas fa-chart-pie"></i> Generate Sample Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievements Panel -->
+                <div id="achievements" class="tab-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">My Achievements</h2>
+                            <button class="btn btn-primary" onclick="showAddAchievementModal()">
+                                <i class="fas fa-plus"></i> Add Achievement
+                            </button>
+                        </div>
+                        <div id="achievementsContainer" class="projects-grid">
+                            <!-- Achievements will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Project Modal -->
+    <div id="addProjectModal" class="modal hidden">
+        <div class="modal-content card">
+            <div class="card-header">
+                <h3 class="card-title" data-i18n-key="add_new_project">Add New Project</h3>
+                <button class="btn-icon" onclick="closeModal('addProjectModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label for="projectTitle" data-i18n-key="project_title">Project Title</label>
+                    <input type="text" id="projectTitle" class="form-input" data-i18n-placeholder-key="project_title_placeholder" placeholder="Enter project title">
+                </div>
+                <div class="form-group">
+                    <label for="projectDescription" data-i18n-key="project_description">Description</label>
+                    <textarea id="projectDescription" class="form-input form-textarea" data-i18n-placeholder-key="project_description_placeholder" placeholder="Describe your project..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="projectTechnologies" data-i18n-key="project_technologies">Technologies Used (comma separated)</label>
+                    <input type="text" id="projectTechnologies" class="form-input" data-i18n-placeholder-key="project_technologies_placeholder" placeholder="e.g. React, Node.js, MongoDB">
+                </div>
+                <div class="form-group">
+                    <label for="projectLink" data-i18n-key="project_link">Project Link (optional)</label>
+                    <input type="url" id="projectLink" class="form-input" data-i18n-placeholder-key="project_link_placeholder" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label for="projectGitHub" data-i18n-key="project_github">GitHub Repository (optional)</label>
+                    <input type="url" id="projectGitHub" class="form-input" data-i18n-placeholder-key="project_github_placeholder" placeholder="https://github.com/...">
+                </div>
+                <div class="form-group">
+                    <label for="projectImage" data-i18n-key="project_image">Project Image (optional)</label>
+                    <input type="file" id="projectImage" class="form-input" accept="image/*">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addProjectModal')" data-i18n-key="cancel">Cancel</button>
+                <button class="btn btn-primary" onclick="addProject()" data-i18n-key="add_project_btn">Add Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Post Modal -->
+    <div id="editPostModal" class="modal hidden">
+        <div class="modal-content card">
+            <div class="card-header">
+                <h3 class="card-title">Edit Post</h3>
+                <button class="btn-icon" onclick="closeModal('editPostModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div>
+                <input type="hidden" id="editPostId">
+                <div class="form-group">
+                    <label for="editPostContent">Content</label>
+                    <textarea id="editPostContent" class="form-input form-textarea" style="min-height: 120px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editPostImage">Change Image (optional)</label>
+                    <input type="file" id="editPostImage" class="form-input" accept="image/*">
+                    <img id="currentPostImage" src="" alt="Current post image" style="max-width: 100px; margin-top: 10px; border-radius: 8px; display: none;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('editPostModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="updatePost()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Project Modal -->
+    <div id="editProjectModal" class="modal hidden">
+        <div class="modal-content card">
+            <div class="card-header">
+                <h3 class="card-title">Edit Project</h3>
+                <button class="btn-icon" onclick="closeModal('editProjectModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div>
+                <input type="hidden" id="editProjectId">
+                <div class="form-group">
+                    <label for="editProjectTitle">Project Title</label>
+                    <input type="text" id="editProjectTitle" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="editProjectDescription">Description</label>
+                    <textarea id="editProjectDescription" class="form-input form-textarea"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editProjectTechnologies">Technologies Used (comma separated)</label>
+                    <input type="text" id="editProjectTechnologies" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="editProjectLink">Project Link (optional)</label>
+                    <input type="url" id="editProjectLink" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="editProjectGitHub">GitHub Repository (optional)</label>
+                    <input type="url" id="editProjectGitHub" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="editProjectImage">New Project Image (optional)</label>
+                    <input type="file" id="editProjectImage" class="form-input" accept="image/*">
+                    <img id="currentProjectImage" src="" alt="Current project image" style="max-width: 100px; margin-top: 10px; border-radius: 8px; display: none;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('editProjectModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="updateProject()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Achievement Modal -->
+    <div id="addAchievementModal" class="modal hidden">
+        <div class="modal-content card">
+            <div class="card-header">
+                <h3 class="card-title">Add New Achievement</h3>
+                <button class="btn-icon" onclick="closeModal('addAchievementModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label for="achievementTitle">Title / Certificate Name</label>
+                    <input type="text" id="achievementTitle" class="form-input" placeholder="e.g., Certified Cloud Practitioner">
+                </div>
+                <div class="form-group">
+                    <label for="achievementDescription">Description</label>
+                    <textarea id="achievementDescription" class="form-input form-textarea" placeholder="Describe the achievement..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="achievementImage">Certificate Image</label>
+                    <input type="file" id="achievementImage" class="form-input" accept="image/*">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addAchievementModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addAchievement()">Add Achievement</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Achievement Modal -->
+    <div id="editAchievementModal" class="modal hidden">
+        <div class="modal-content card">
+            <div class="card-header">
+                <h3 class="card-title">Edit Achievement</h3>
+                <button class="btn-icon" onclick="closeModal('editAchievementModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div>
+                <input type="hidden" id="editAchievementId">
+                <div class="form-group">
+                    <label for="editAchievementTitle">Title / Certificate Name</label>
+                    <input type="text" id="editAchievementTitle" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="editAchievementDescription">Description</label>
+                    <textarea id="editAchievementDescription" class="form-input form-textarea"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editAchievementImage">New Certificate Image (optional)</label>
+                    <input type="file" id="editAchievementImage" class="form-input" accept="image/*">
+                    <img id="currentAchievementImage" src="" alt="Current certificate" style="max-width: 100px; margin-top: 10px; border-radius: 8px;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('editAchievementModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="updateAchievement()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div id="imageViewerModal" class="modal hidden" onclick="closeModal('imageViewerModal')">
+        <img id="modalImage" src="" style="max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: var(--border-radius); box-shadow: var(--shadow-heavy);">
+    </div>
+
+    <!-- Add Code Snippet Modal -->
+    <div id="addCodeModal" class="modal hidden">
+        <div class="modal-content card">
+            <div class="card-header">
+                <h3 class="card-title">Add Code Snippet</h3>
+                <button class="btn-icon" onclick="closeModal('addCodeModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label for="codeLanguage">Language</label>
+                    <select id="codeLanguage" class="form-input">
+                        <option value="javascript">JavaScript</option>
+                        <option value="python">Python</option>
+                        <option value="html">HTML</option>
+                        <option value="css">CSS</option>
+                        <option value="sql">SQL</option>
+                        <option value="java">Java</option>
+                        <option value="csharp">C#</option>
+                        <option value="cpp">C++</option>
+                        <option value="plaintext">Plain Text</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="codeContent">Code</label>
+                    <textarea id="codeContent" class="form-input form-textarea" style="min-height: 200px; font-family: 'Courier New', Courier, monospace;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addCodeModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="attachCodeSnippet()">Attach Code</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase initialization
+        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Global variables
+        const loadingOverlay = document.getElementById('loading');
+        let currentUser = null;
+        let loadedProfileData = null;
+        let attachedCodeSnippet = null;
+        let scrollObserver = null;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', async () => {
+            loadingOverlay.style.display = 'flex';
+            
+            // Initialize scroll observer
+            scrollObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        scrollObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            scrollObserver.observe(document.querySelector('.profile-sidebar'));
+
+            // Check authentication
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'indexx.html';
+                return;
+            }
+            
+            currentUser = session.user;
+            
+            // Load profile data
+            await loadProfile();
+            await loadPosts();
+            await loadProjects();
+            await loadConnections();
+            await loadAchievements();
+            
+            // Initialize theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.classList.add(savedTheme === 'dark' ? 'dark-theme' : 'light-theme');
+            setTheme(savedTheme, true); // Pass true to avoid saving again
+            
+            // Initialize language
+            changeLanguage('en');
+            
+            loadingOverlay.style.display = 'none';
+            
+            // Initialize event listeners
+            initEventListeners();
+
+            // Handle notification clicks
+            const urlParams = new URLSearchParams(window.location.search);
+            const postIdToHighlight = urlParams.get('postId');
+            const commentIdToHighlight = urlParams.get('highlightCommentId');
+
+            if (postIdToHighlight) {
+                handlePostHighlight(postIdToHighlight, commentIdToHighlight);
+            }
+        });
+
+        // Initialize event listeners
+        function initEventListeners() {
+            // New Header Dropdown
+            const profileTrigger = document.getElementById('nav-profile-trigger');
+            const profileDropdown = document.getElementById('profileDropdown');
+
+            if (profileTrigger && profileDropdown) {
+                profileTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (profileDropdown.style.display === 'block' && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
+                        profileDropdown.style.display = 'none';
+                    }
+                });
+            }
+
+            // Theme Toggles
+            document.getElementById('themeToggleDropdown').addEventListener('click', toggleTheme);
+            document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+            // Search functionality
+            document.getElementById('postSearch').addEventListener('input', filterPosts);
+            document.getElementById('postFilter').addEventListener('change', filterPosts);
+            document.getElementById('connectionSearch').addEventListener('input', filterConnections);
+
+            // Mark active nav item
+            document.getElementById('nav-profile-trigger').classList.add('active');
+
+            // Add listeners for photo uploads
+            document.getElementById('avatarUploadInput').addEventListener('change', handleAvatarUpload);
+            document.getElementById('coverUploadInput').addEventListener('change', handleCoverUpload);
+        }
+
+        // Theme functionality
+        function toggleTheme() {
+            const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        }
+
+        function setTheme(theme, isInitial = false) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.body.classList.remove('light-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+                document.body.classList.add('light-theme');
+            }
+            const darkThemeHljs = document.getElementById('hljs-dark-theme');
+            const lightThemeHljs = document.getElementById('hljs-light-theme');
+            if (darkThemeHljs && lightThemeHljs) {
+                darkThemeHljs.disabled = theme !== 'dark';
+                lightThemeHljs.disabled = theme === 'dark';
+            }
+            // Update icon for the new dropdown toggle
+            const themeToggleDropdown = document.getElementById('themeToggleDropdown');
+            if (themeToggleDropdown) {
+                themeToggleDropdown.querySelector('i').className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            }
+            if (!isInitial) localStorage.setItem('theme', theme);
+        }
+
+        // Load user profile
+        async function loadProfile() {
+            const { data, error } = await _supabase
+                .from('profiles')
+                .select('*, is_verified')
+                .eq('id', currentUser.id)
+                .single();
+
+            if (error) {
+                console.error('Error loading profile:', error);
+                return;
+            }
+
+            if (data) {
+                loadedProfileData = data;
+                
+                // Populate form fields
+                document.getElementById('aboutBio').value = data.bio ?? '';
+                document.getElementById('aboutEducation').value = data.education ?? '';
+                document.getElementById('aboutField').value = data.field_of_study ?? '';
+                document.getElementById('aboutSkills').value = data.skills ?? '';
+                
+                // Update cover photo
+                const coverPhoto = document.getElementById('coverPhoto');
+                if (data.cover_url) {
+                    coverPhoto.style.backgroundImage = `url('${data.cover_url}')`;
+                    coverPhoto.innerHTML = `
+                        <label for="coverUploadInput" class="edit-cover-btn" title="Change cover photo">
+                            <i class="fas fa-camera"></i> <span>Change Cover</span>
+                        </label>
+                    `;
+                } else {
+                    coverPhoto.style.backgroundImage = 'none';
+                    coverPhoto.innerHTML = `
+                        <div class="cover-placeholder">
+                            <label for="coverUploadInput" class="add-cover-btn">
+                                <i class="fas fa-camera"></i>
+                                <span>Add Cover Photo</span>
+                            </label>
+                        </div>
+                    `;
+                }
+                
+                // Update avatar
+                const avatarUrl = data.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
+                document.getElementById('sidebarAvatar').src = avatarUrl;
+                if (data.is_verified) {
+                    document.getElementById('sidebarAvatar').classList.add('verified-avatar');
+                } else {
+                    document.getElementById('sidebarAvatar').classList.remove('verified-avatar');
+                }
+                document.getElementById('createPostAvatar').src = avatarUrl;
+                document.getElementById('headerUserAvatar').src = avatarUrl;
+                
+                // Update user info
+                const userName = data.full_name || 'User Name';
+                document.getElementById('sidebarUserName').textContent = userName;
+                document.getElementById('createPostName').textContent = userName;
+                if (data.is_verified) {
+                    const badge = ' <span class="fa-stack verified-badge" title="Verified"><i class="fas fa-certificate fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span>';
+                    document.getElementById('sidebarUserName').innerHTML += badge;
+                }
+                
+                document.getElementById('sidebarUserUsername').textContent = data.username ? `@${data.username}` : '@username';
+                document.getElementById('sidebarUserEmail').textContent = currentUser.email;
+                document.getElementById('sidebarUserEducation').textContent = data.education || getTranslation('education_not_set');
+                document.getElementById('sidebarUserField').textContent = data.field_of_study || getTranslation('field_not_set');
+                document.getElementById('sidebarUserBio').textContent = data.bio || getTranslation('bio_placeholder_short');
+                
+                // Update dates and skills
+                document.getElementById('joinDate').textContent = new Date(currentUser.created_at).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                
+                // Update skills
+                document.getElementById('aboutSkills').value = Array.isArray(data.skills) ? data.skills.join(', ') : (data.skills ?? '');
+                updateSkillTags(data.skills); // Pass the array directly
+                
+                // Update stats (these would come from different tables in a real app)
+                document.getElementById('statPosts').textContent = '0'; // Will be updated by loadPosts
+                document.getElementById('statConnections').textContent = '0'; // Placeholder
+                document.getElementById('statProjects').textContent = '0'; // Will be updated by loadProjects
+                document.getElementById('statAchievements').textContent = '0'; // Will be updated by loadAchievements
+            }
+        }
+
+        // Update skill tags display
+        function updateSkillTags(skillsArray) {
+            const skillsContainer = document.getElementById('skillTags');
+            
+            // Check if it's a valid array and has items
+            if (!Array.isArray(skillsArray) || skillsArray.length === 0) {
+                skillsContainer.innerHTML = `<span class="skill-tag">${getTranslation('no_skills')}</span>`;
+                return;
+            }
+            
+            // The input is already an array, just filter out empty values
+            const skills = skillsArray.filter(skill => skill && skill.trim() !== '');
+            
+            if (skills.length === 0) {
+                skillsContainer.innerHTML = `<span class="skill-tag">${getTranslation('no_skills')}</span>`;
+                return;
+            }
+            
+            skillsContainer.innerHTML = '';
+            skills.forEach(skill => {
+                const tag = document.createElement('span');
+                tag.className = 'skill-tag';
+                tag.textContent = skill;
+                skillsContainer.appendChild(tag);
+            });
+        }
+
+        // Handle Avatar Upload
+        async function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            loadingOverlay.style.display = 'flex';
+
+            // Use a consistent file name to overwrite, or a unique one to keep history
+            const filePath = `${currentUser.id}/avatar.png`;
+
+            const { error: uploadError } = await _supabase.storage
+                .from('avatars')
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: true // Overwrite existing file
+                });
+
+            if (uploadError) {
+                loadingOverlay.style.display = 'none';
+                if (uploadError.message === 'Bucket not found') {
+                    alert('Error: Bucket "avatars" not found in Supabase Storage. Please create a public bucket named "avatars".');
+                } else {
+                    alert('Error uploading avatar: ' + uploadError.message);
+                }
+                return;
+            }
+
+            // Get public URL, adding a timestamp to bust cache
+            const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(filePath);
+            const publicUrl = `${urlData.publicUrl}?t=${new Date().getTime()}`;
+
+            // Update the user's profile
+            const { error: updateError } = await _supabase
+                .from('profiles')
+                .update({ avatar_url: publicUrl })
+                .eq('id', currentUser.id);
+
+            if (updateError) {
+                loadingOverlay.style.display = 'none';
+                alert('Error updating profile with new avatar: ' + updateError.message);
+            } else {
+                // Reload profile to show all changes
+                await loadProfile();
+                loadingOverlay.style.display = 'none';
+                alert('Profile picture updated successfully!');
+            }
+        }
+
+        // Handle Cover Photo Upload
+        async function handleCoverUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            loadingOverlay.style.display = 'flex';
+            const filePath = `${currentUser.id}/cover.png`;
+
+            const { error: uploadError } = await _supabase.storage.from('covers').upload(filePath, file, { upsert: true });
+            if (uploadError) {
+                loadingOverlay.style.display = 'none';
+                if (uploadError.message === 'Bucket not found') {
+                    alert('Error: Bucket "covers" not found in Supabase Storage. Please create a public bucket named "covers".');
+                } else {
+                    alert('Error uploading cover: ' + uploadError.message);
+                }
+                return;
+            }
+
+            const { data: urlData } = _supabase.storage.from('covers').getPublicUrl(filePath);
+            const publicUrl = `${urlData.publicUrl}?t=${new Date().getTime()}`;
+
+            const { error: updateError } = await _supabase.from('profiles').update({ cover_url: publicUrl }).eq('id', currentUser.id);
+            if (updateError) { loadingOverlay.style.display = 'none'; alert('Error updating profile with new cover: ' + updateError.message); } 
+            else { 
+                await loadProfile(); 
+                loadingOverlay.style.display = 'none'; 
+                alert('Cover photo updated successfully!'); 
+            }
+        }
+
+        // Tab navigation
+        function openTab(evt, tabName) {
+            // Hide all tab panels
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show the selected tab panel
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to the clicked button
+            evt.currentTarget.classList.add('active');
+        }
+
+        // Save about information
+        async function saveAboutInfo() {
+            loadingOverlay.style.display = 'flex';
+            
+            const bio = document.getElementById('aboutBio').value;
+            const education = document.getElementById('aboutEducation').value;
+            const field = document.getElementById('aboutField').value;
+            const skillsString = document.getElementById('aboutSkills').value;
+            const skillsArray = skillsString.split(',').map(s => s.trim()).filter(s => s); // Convert to array
+            
+            const { error } = await _supabase
+                .from('profiles')
+                .update({
+                    bio,
+                    education,
+                    field_of_study: field,
+                    skills: skillsArray,
+                    updated_at: new Date()
+                })
+                .eq('id', currentUser.id);
+            
+            if (error) {
+                console.error('Error updating profile:', error);
+                alert(getTranslation('profile_update_error'));
+            } else {
+                // Update the sidebar with new data
+                await loadProfile();
+                alert(getTranslation('profile_update_success'));
+            }
+            
+            loadingOverlay.style.display = 'none';
+        }
+
+        // Post functionality
+        async function createPost() {
+            const content = document.getElementById('postContent').value.trim();
+            const imageFile = document.getElementById('postImageInput').files[0];
+            const genericFile = document.getElementById('postFileInput').files[0];
+
+            
+
+            if (!content && !imageFile && !genericFile && !attachedCodeSnippet) {
+                alert(getTranslation('post_empty_alert'));
+                return;
+            }
+
+            loadingOverlay.style.display = 'flex';
+
+            let imageUrl = null;
+            let attachmentUrl = null;
+            let attachmentMetadata = null;
+
+            // Upload image if exists
+            if (imageFile) {
+                const fileName = `${currentUser.id}/posts/${Date.now()}_${imageFile.name}`;
+                const { error: uploadError } = await _supabase.storage
+                    .from('post-images')
+                    .upload(fileName, imageFile);
+
+                if (uploadError) {
+                    loadingOverlay.style.display = 'none';
+                    if (uploadError.message === 'Bucket not found') {
+                        alert('Error: Bucket "post-images" not found in Supabase Storage. Please create a public bucket named "post-images".');
+                    } else {
+                        alert(getTranslation('image_upload_error') + ': ' + uploadError.message);
+                    }
+                    console.error('Image upload error:', uploadError);
+                    return;
+                }
+
+                const { data: urlData } = _supabase.storage
+                    .from('post-images')
+                    .getPublicUrl(fileName);
+                imageUrl = urlData.publicUrl;
+            }
+
+            // Upload generic file if exists
+            if (genericFile) {
+                const fileName = `${currentUser.id}/attachments/${Date.now()}_${genericFile.name}`;
+                const { error: uploadError } = await _supabase.storage
+                    .from('post-attachments')
+                    .upload(fileName, genericFile);
+
+                if (uploadError) {
+                    loadingOverlay.style.display = 'none';
+                    if (uploadError.message === 'Bucket not found') {
+                        alert('Error: Bucket "post-attachments" not found. Please create a public bucket with this name in Supabase Storage.');
+                    } else {
+                        alert('Error uploading file: ' + uploadError.message);
+                    }
+                    console.error('File upload error:', uploadError);
+                    return;
+                }
+
+                const { data: urlData } = _supabase.storage
+                    .from('post-attachments')
+                    .getPublicUrl(fileName);
+                attachmentUrl = urlData.publicUrl;
+                attachmentMetadata = { name: genericFile.name, type: genericFile.type, size: genericFile.size };
+            }
+
+            // Insert post into database
+            const { data, error } = await _supabase
+                .from('user_posts')
+                .insert({
+                    user_id: currentUser.id,
+                    content: content,
+                    image_url: imageUrl,
+                    attachment_url: attachmentUrl,
+                    attachment_metadata: attachmentMetadata,
+                    code_snippet: attachedCodeSnippet
+                })
+                .select(`
+                    id,
+                    content,
+                    created_at,
+                    image_url,
+                    attachment_url,
+                    code_snippet,
+                    attachment_metadata,
+                    post_likes (user_id),
+                    post_comments (id)
+                `)
+                .single();
+
+            loadingOverlay.style.display = 'none';
+
+            if (error) {
+                console.error('Error creating post:', error);
+                alert(getTranslation('post_publish_error'));
+            } else {
+                // Add the new post to the feed
+                addPostToFeed(data);
+                
+                // Clear the form
+                document.getElementById('postContent').value = '';
+                removePostImage();
+                removePostCode();
+                removePostFile();
+                
+                // Update post count
+                document.getElementById('statPosts').textContent = parseInt(document.getElementById('statPosts').textContent) + 1;
+            }
+        }
+
+        async function loadPosts() {
+            const postFeed = document.getElementById('postFeed');
+            postFeed.innerHTML = '<div class="card text-center"><p>Loading your posts...</p></div>';
+
+            const { data: posts, error } = await _supabase
+                .from('user_posts')
+                .select(`
+                    id,
+                    content,
+                    created_at,
+                    image_url,
+                    attachment_url,
+                    code_snippet,
+                    attachment_metadata, 
+                    post_likes (user_id)
+                `)
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading posts:', error);
+                postFeed.innerHTML = '<div class="card text-center"><p>Error loading posts. Please try again later.</p></div>';
+                return;
+            }
+
+            if (!posts || posts.length === 0) {
+                postFeed.innerHTML = '<div class="card text-center"><p>You haven\'t posted anything yet. Share your first post!</p></div>';
+            } else {
+                postFeed.innerHTML = ''; // Clear loading/empty message
+                posts.forEach(post => {
+                    const postElement = createPostElement(post); // New helper function
+                    postFeed.appendChild(postElement); // Use append to keep order
+                    scrollObserver.observe(postElement);
+                });
+                // Highlight all code blocks after adding them
+                postFeed.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+            }
+
+            // Update stats counter
+            if (document.getElementById('statPosts')) {
+                document.getElementById('statPosts').textContent = posts?.length || '0';
+            }
+        }
+
+        function createPostElement(post) {
+            const postElement = document.createElement('div');
+            postElement.className = 'card post-card fade-in-up';
+            postElement.id = `post-${post.id}`;
+            
+            const postDate = new Date(post.created_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const likes = post.post_likes?.length || 0;
+            const isLikedByCurrentUser = currentUser && post.post_likes ? post.post_likes.some(like => like.user_id === currentUser.id) : false;
+            
+            const imageHtml = post.image_url ? `
+                <div class="post-image-container">
+                    <img src="${post.image_url}" alt="Post image" class="post-image" onclick="openImageViewer('${post.image_url}')">
+                </div>` : '';
+
+            let attachmentHtml = '';
+            if (post.attachment_url && post.attachment_metadata) {
+                const meta = post.attachment_metadata;
+                const fileSize = meta.size ? `(${(meta.size / 1024 / 1024).toFixed(2)} MB)` : '';
+                attachmentHtml = `
+                    <div class="file-attachment" style="margin-top: 12px;">
+                        <a href="${post.attachment_url}" target="_blank" download="${meta.name}" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg-secondary); border-radius: var(--border-radius-sm); text-decoration: none; color: var(--text-primary);">
+                            <i class="fas fa-file-alt" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                            <div>
+                                <strong>${escapeHTML(meta.name)}</strong>
+                                <small style="display: block; color: var(--text-secondary);">${fileSize}</small>
+                            </div>
+                        </a>
+                    </div>`;
+            }
+
+            let codeHtml = '';
+            if (post.code_snippet && post.code_snippet.code) {
+                const language = post.code_snippet.language || 'plaintext';
+                codeHtml = `
+                    <pre><code class="language-${language}">${escapeHTML(post.code_snippet.code)}</code></pre>
+                `;
+            }
+
+            const postContent = escapeHTML(post.content);
+            let contentHtml = `<p>${postContent}</p>`;
+            const isLongText = postContent.length > 350; // Character limit for truncation
+
+            if (isLongText) {
+                contentHtml = `
+                    <p class="truncated" id="post-text-${post.id}">${postContent}</p>
+                    <button class="see-more-btn" id="see-more-${post.id}" onclick="expandPostText('${post.id}')">See More</button>
+                `;
+            }
+            
+            postElement.innerHTML = `
+                <div class="post-header">
+                    <div class="post-author">
+                        <a href="profile.html">
+                            <img src="${loadedProfileData?.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png'}" alt="Avatar">
+                        </a>
+                        <div class="post-author-info">
+                            <h4>${loadedProfileData?.full_name || 'User Name'}</h4>
+                            <p>${postDate}</p>
+                        </div>
+                    </div>
+                    <div class="post-menu">
+                        <button class="btn-icon" onclick='showEditPostModal(${JSON.stringify(post)})' title="Edit Post"><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon" onclick="deletePost('${post.id}')" data-i18n-title-key="delete_post" title="Delete Post" style="color: var(--danger);">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="post-content">
+                    ${contentHtml}
+                    ${imageHtml}
+                    ${codeHtml}
+                    ${attachmentHtml}
+                </div>
+                <div class="post-actions">
+                    <div class="post-action ${isLikedByCurrentUser ? 'liked' : ''}" onclick="toggleLike('${post.id}')">
+                        <i class="fas fa-heart"></i>
+                        <span id="like-count-${post.id}">${likes}</span>
+                    </div>
+                    <div class="post-action" data-i18n-key="share">
+                        <i class="fas fa-share-alt"></i>
+                        <span>Share</span>
+                    </div>
+                    <div class="post-action" data-i18n-key="save">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Save</span>
+                    </div>
+                </div>
+            `;
+            return postElement;
+        }
+
+        // Add post to feed
+        function addPostToFeed(post) {
+            const postFeed = document.getElementById('postFeed');
+            
+            // Remove the empty state if it exists
+            if (postFeed.querySelector('.text-center')) {
+                postFeed.innerHTML = '';
+            }
+            
+            const postElement = createPostElement(post);
+            postFeed.prepend(postElement);
+
+            const codeBlock = postElement.querySelector('pre code');
+            if (codeBlock) {
+                hljs.highlightElement(codeBlock);
+            }
+        }
+
+        // Function to expand truncated post text
+        function expandPostText(postId) {
+            const textElement = document.getElementById(`post-text-${postId}`);
+            const seeMoreBtn = document.getElementById(`see-more-${postId}`);
+            
+            textElement.classList.remove('truncated');
+            seeMoreBtn.remove();
+        }
+
+        function showEditPostModal(post) {
+            document.getElementById('editPostId').value = post.id;
+            document.getElementById('editPostContent').value = post.content || '';
+            
+            const currentImage = document.getElementById('currentPostImage');
+            if (post.image_url) {
+                currentImage.src = post.image_url;
+                currentImage.style.display = 'block';
+            } else {
+                currentImage.style.display = 'none';
+            }
+            
+            document.getElementById('editPostImage').value = ''; // Clear file input
+            document.getElementById('editPostModal').classList.remove('hidden');
+        }
+
+        async function updatePost() {
+            const id = document.getElementById('editPostId').value;
+            const content = document.getElementById('editPostContent').value;
+            const imageFile = document.getElementById('editPostImage').files[0];
+
+            loadingOverlay.style.display = 'flex';
+            let newImageUrl = document.getElementById('currentPostImage').src;
+
+            if (imageFile) {
+                const fileName = `${currentUser.id}/posts/${Date.now()}_${imageFile.name}`;
+                const { error: uploadError } = await _supabase.storage.from('post-images').upload(fileName, imageFile, { upsert: true });
+                if (uploadError) {
+                    loadingOverlay.style.display = 'none';
+                    alert('Error uploading new image: ' + uploadError.message);
+                    return;
+                }
+                const { data: urlData } = _supabase.storage.from('post-images').getPublicUrl(fileName);
+                newImageUrl = urlData.publicUrl;
+            }
+
+            const updatePayload = { content, image_url: newImageUrl };
+
+            const { error } = await _supabase
+                .from('user_posts')
+                .update(updatePayload)
+                .eq('id', id);
+            
+            loadingOverlay.style.display = 'none';
+
+            if (error) {
+                console.error('Error updating post:', error);
+                alert('Failed to update post.');
+            } else {
+                // Optimistically update the UI without a full reload
+                const postCard = document.getElementById(`post-${id}`);
+                if (postCard) {
+                    postCard.querySelector('.post-content p').textContent = content;
+                    if (newImageUrl) postCard.querySelector('.post-image').src = newImageUrl;
+                }
+                closeModal('editPostModal');
+                alert('Post updated successfully!');
+            }
+        }
+
+        // Delete post
+        async function deletePost(postId) {
+            if (!confirm(getTranslation('confirm_delete_post'))) return;
+            
+            loadingOverlay.style.display = 'flex';
+
+            // First, get the image URL to delete it from storage
+            const { data: postData, error: fetchError } = await _supabase
+                .from('user_posts')
+                .select('image_url')
+                .eq('id', postId)
+                .single();
+
+            if (fetchError) {
+                console.error("Could not fetch post to delete image:", fetchError);
+            }
+
+            const { error } = await _supabase
+                .from('user_posts')
+                .delete()
+                .eq('id', postId)
+                .eq('user_id', currentUser.id);
+            
+            loadingOverlay.style.display = 'none';
+            
+            if (error) {
+                console.error('Error deleting post:', error);
+                alert(getTranslation('post_delete_error'));
+            } else {
+                // If DB deletion was successful, delete the image from storage
+                if (postData && postData.image_url) {
+                    const filePath = new URL(postData.image_url).pathname.split('/post-images/')[1];
+                    await _supabase.storage.from('post-images').remove([filePath]);
+                }
+
+                const postElement = document.getElementById(`post-${postId}`);
+                if (postElement) {
+                    postElement.remove();
+                }
+                
+                // Update post count
+                document.getElementById('statPosts').textContent = parseInt(document.getElementById('statPosts').textContent || '1') - 1;
+                
+                // Show empty state if no posts left
+                const postFeed = document.getElementById('postFeed');
+                if (postFeed.children.length === 0) {
+                    postFeed.innerHTML = `<div class="card text-center"><p>${getTranslation('no_posts_yet_profile')}</p></div>`;
+                }
+            }
+        }
+
+        // Post image preview
+        function previewPostImage(event) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('postImagePreview').src = e.target.result; // This is correct
+                    document.getElementById('postImagePreviewContainer').classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function removePostImage() {
+            document.getElementById('postImageInput').value = '';
+            document.getElementById('postImagePreview').src = '';
+            document.getElementById('postImagePreviewContainer').classList.add('hidden');
+        }
+
+        function previewPostFile(event) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                document.getElementById('postFileName').textContent = file.name;
+                document.getElementById('postFilePreviewContainer').classList.remove('hidden');
+            }
+        }
+
+        function removePostFile() {
+            document.getElementById('postFileInput').value = '';
+            document.getElementById('postFileName').textContent = '';
+            document.getElementById('postFilePreviewContainer').classList.add('hidden');
+        }
+
+        function showCodeSnippetModal() {
+            document.getElementById('addCodeModal').classList.remove('hidden');
+        }
+
+        function attachCodeSnippet() {
+            const language = document.getElementById('codeLanguage').value;
+            const code = document.getElementById('codeContent').value;
+
+            if (!code.trim()) {
+                alert('Please enter some code.');
+                return;
+            }
+
+            attachedCodeSnippet = { language, code };
+            document.getElementById('postCodeLanguage').textContent = `Code snippet attached (${language}).`;
+            document.getElementById('postCodePreviewContainer').classList.remove('hidden');
+            closeModal('addCodeModal');
+        }
+
+        function removePostCode() {
+            attachedCodeSnippet = null;
+            document.getElementById('codeContent').value = '';
+            document.getElementById('postCodePreviewContainer').classList.add('hidden');
+        }
+
+        // Filter posts
+        function filterPosts() {
+            const searchText = document.getElementById('postSearch').value.toLowerCase();
+            const filterValue = document.getElementById('postFilter').value;
+            
+            const posts = document.querySelectorAll('.post-card');
+            
+            posts.forEach(post => {
+                const content = post.querySelector('.post-content').textContent.toLowerCase();
+                const shouldShow = content.includes(searchText);
+                
+                post.style.display = shouldShow ? 'block' : 'none';
+            });
+        }
+
+        // Projects functionality
+        async function loadProjects() {
+            const projectsContainer = document.getElementById('projectsContainer');
+            projectsContainer.innerHTML = `<p class="text-center">${getTranslation('loading_projects')}</p>`;
+
+            const { data: projects, error } = await _supabase
+                .from('user_projects')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading projects:', error);
+                projectsContainer.innerHTML = `<p class="text-center">${getTranslation('projects_load_error')}</p>`;
+                return;
+            }
+
+            if (!projects || projects.length === 0) {
+                projectsContainer.innerHTML = `<div class="card project-card text-center"><p data-i18n-key="no_projects_yet">${getTranslation('no_projects_yet')}</p><button class="btn btn-primary mt-2" onclick="showAddProjectModal()" data-i18n-key="add_first_project">${getTranslation('add_first_project')}</button></div>`;
+            } else {
+                projectsContainer.innerHTML = '';
+                projects.forEach(project => renderProject(project));
+            }
+            document.getElementById('statProjects').textContent = projects?.length || '0';
+        }
+
+        function showAddProjectModal() {
+            document.getElementById('addProjectModal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        async function addProject() {
+            // Get form values
+            const title = document.getElementById('projectTitle').value;
+            const description = document.getElementById('projectDescription').value;
+            const technologies = document.getElementById('projectTechnologies').value;
+            const link = document.getElementById('projectLink').value;
+            const github = document.getElementById('projectGitHub').value;
+            const imageFile = document.getElementById('projectImage').files[0];
+            
+            if (!title || !description) {
+                alert(getTranslation('project_validation_error'));
+                return;
+            }
+            
+            loadingOverlay.style.display = 'flex';
+            
+            let imageUrl = null;
+            
+            // Upload image if provided
+            if (imageFile) {
+                const fileName = `${currentUser.id}/projects/${Date.now()}_${imageFile.name}`;
+                const { error: uploadError } = await _supabase.storage
+                    .from('project-images')
+                    .upload(fileName, imageFile);
+                
+                if (uploadError) {
+                    loadingOverlay.style.display = 'none';
+                    if (uploadError.message === 'Bucket not found') {
+                        alert('Error: Bucket "project-images" not found in Supabase Storage. Please create a public bucket named "project-images".');
+                    } else {
+                        alert(getTranslation('project_image_upload_error') + ': ' + uploadError.message);
+                    }
+                    console.error('Project image upload error:', uploadError);
+                    return;
+                }
+                
+                const { data: urlData } = _supabase.storage
+                    .from('project-images')
+                    .getPublicUrl(fileName);
+                imageUrl = urlData.publicUrl;
+            }
+            
+            const { data: newProject, error } = await _supabase
+                .from('user_projects')
+                .insert({
+                    user_id: currentUser.id,
+                    title,
+                    description,
+                    technologies,
+                    project_url: link,
+                    github_url: github,
+                    image_url: imageUrl
+                })
+                .select()
+                .single();
+
+            loadingOverlay.style.display = 'none';
+
+            if (error) {
+                console.error('Error adding project:', error);
+                alert(getTranslation('project_add_error'));
+                return;
+            }
+            
+            renderProject(newProject);
+            
+            // Close modal and reset form
+            closeModal('addProjectModal');
+            document.getElementById('projectTitle').value = '';
+            document.getElementById('projectDescription').value = '';
+            document.getElementById('projectTechnologies').value = '';
+            document.getElementById('projectLink').value = '';
+            document.getElementById('projectGitHub').value = '';
+            document.getElementById('projectImage').value = '';
+            
+            // Update project count
+            document.getElementById('statProjects').textContent = parseInt(document.getElementById('statProjects').textContent || '0') + 1;
+        }
+
+        function renderProject(project) {
+            const projectsContainer = document.getElementById('projectsContainer');
+            // Remove the empty state if it exists
+            if (projectsContainer.querySelector('.text-center')) {
+                projectsContainer.innerHTML = '';
+            }
+            const projectElement = document.createElement('div');
+            projectElement.className = 'card project-card fade-in-up';
+            projectElement.id = `project-${project.id}`;
+            
+            const techTags = project.technologies ? project.technologies.split(',').map(tech => 
+                `<span class="tech-tag">${tech.trim()}</span>`
+            ).join('') : '';
+            
+            const imageHtml = project.image_url ? 
+                `<img src="${project.image_url}" alt="${project.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${project.image_url}')">` : 
+                '<div class="project-image" style="background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;"><i class="fas fa-project-diagram" style="font-size: 3rem; color: var(--text-tertiary);"></i></div>';
+            
+            const linksHtml = `
+                ${project.project_url ? `<a href="${project.project_url}" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-external-link-alt"></i> <span data-i18n-key="live_demo">Live Demo</span></a>` : ''}
+                ${project.github_url ? `<a href="${project.github_url}" target="_blank" class="btn btn-secondary btn-sm"><i class="fab fa-github"></i> GitHub</a>` : ''}
+            `;
+            
+            projectElement.innerHTML = `
+                ${imageHtml}
+                <h3 class="project-title">${project.title}</h3>
+                <p class="project-description">${project.description}</p>
+                <div class="project-tech">
+                    ${techTags}
+                </div>
+                <div class="project-links" style="margin-top: auto; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">${linksHtml}</div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary btn-sm" onclick='showEditProjectModal(${JSON.stringify(project)})'><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteProject('${project.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `;
+            projectsContainer.appendChild(projectElement);
+            scrollObserver.observe(projectElement);
+        }
+
+        function filterProjects(filter) {
+            // Implementation for filtering projects
+            console.log(`Filtering projects by: ${filter}`);
+        }
+
+        function showEditProjectModal(project) {
+            document.getElementById('editProjectId').value = project.id;
+            document.getElementById('editProjectTitle').value = project.title;
+            document.getElementById('editProjectDescription').value = project.description || '';
+            document.getElementById('editProjectTechnologies').value = project.technologies || '';
+            document.getElementById('editProjectLink').value = project.project_url || '';
+            document.getElementById('editProjectGitHub').value = project.github_url || '';
+            
+            const currentImage = document.getElementById('currentProjectImage');
+            if (project.image_url) {
+                currentImage.src = project.image_url;
+                currentImage.style.display = 'block';
+            } else {
+                currentImage.style.display = 'none';
+            }
+            
+            document.getElementById('editProjectImage').value = ''; // Clear file input
+            document.getElementById('editProjectModal').classList.remove('hidden');
+        }
+
+        async function updateProject() {
+            const id = document.getElementById('editProjectId').value;
+            const title = document.getElementById('editProjectTitle').value;
+            const description = document.getElementById('editProjectDescription').value;
+            const technologies = document.getElementById('editProjectTechnologies').value;
+            const project_url = document.getElementById('editProjectLink').value;
+            const github_url = document.getElementById('editProjectGitHub').value;
+            const imageFile = document.getElementById('editProjectImage').files[0];
+
+            if (!title || !description) {
+                alert('Title and description are required.');
+                return;
+            }
+
+            loadingOverlay.style.display = 'flex';
+            let newImageUrl = document.getElementById('currentProjectImage').src;
+
+            if (imageFile) {
+                const fileName = `${currentUser.id}/projects/${Date.now()}_${imageFile.name}`;
+                const { error: uploadError } = await _supabase.storage.from('project-images').upload(fileName, imageFile, { upsert: true });
+                if (uploadError) {
+                    loadingOverlay.style.display = 'none';
+                    alert('Error uploading new image: ' + uploadError.message);
+                    return;
+                }
+                const { data: urlData } = _supabase.storage.from('project-images').getPublicUrl(fileName);
+                newImageUrl = urlData.publicUrl;
+            }
+
+            const updatePayload = { title, description, technologies, project_url, github_url, image_url: newImageUrl };
+
+            const { error } = await _supabase
+                .from('user_projects')
+                .update(updatePayload)
+                .eq('id', id);
+            
+            loadingOverlay.style.display = 'none';
+
+            if (error) {
+                console.error('Error updating project:', error);
+                alert('Failed to update project.');
+            } else {
+                await loadProjects(); // Reload all projects to reflect changes
+                closeModal('editProjectModal');
+                alert('Project updated successfully!');
+            }
+        }
+
+        async function deleteProject(projectId) {
+            if (!confirm('Are you sure you want to delete this project? This action cannot be undone.')) return;
+
+            loadingOverlay.style.display = 'flex';
+
+            const { data: projectData } = await _supabase.from('user_projects').select('image_url').eq('id', projectId).single();
+            const { error: deleteError } = await _supabase.from('user_projects').delete().eq('id', projectId);
+
+            if (deleteError) {
+                loadingOverlay.style.display = 'none';
+                alert('Failed to delete project.');
+                return;
+            }
+
+            if (projectData && projectData.image_url) {
+                const filePath = new URL(projectData.image_url).pathname.split('/project-images/')[1];
+                await _supabase.storage.from('project-images').remove([filePath]);
+            }
+
+            await loadProjects(); // Reload all projects to update UI and count
+            loadingOverlay.style.display = 'none';
+            alert('Project deleted successfully.');
+        }
+
+        // Achievements functionality
+        async function loadAchievements() {
+            const container = document.getElementById('achievementsContainer');
+            container.innerHTML = `<p class="text-center">${getTranslation('loading_achievements')}</p>`;
+
+            const { data, error } = await _supabase
+                .from('user_achievements')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading achievements:', error);
+                container.innerHTML = `<p class="text-center">${getTranslation('achievements_load_error')}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div class="card project-card text-center"><p>${getTranslation('no_achievements_yet')}</p><button class="btn btn-primary mt-2" onclick="showAddAchievementModal()">${getTranslation('add_first_achievement')}</button></div>`;
+            } else {
+                container.innerHTML = '';
+                data.forEach(item => renderAchievement(item));
+            }
+            document.getElementById('statAchievements').textContent = data?.length || '0';
+        }
+
+        function renderAchievement(achievement) {
+            const container = document.getElementById('achievementsContainer');
+            if (container.querySelector('.text-center')) {
+                container.innerHTML = '';
+            }
+            const element = document.createElement('div');
+            element.className = 'card project-card fade-in-up'; // Reusing project card style
+            element.id = `achievement-${achievement.id}`;
+
+            const imageHtml = achievement.certificate_url ?
+                `<img src="${achievement.certificate_url}" alt="${achievement.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${achievement.certificate_url}')">` :
+                '<div class="project-image" style="background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;"><i class="fas fa-trophy" style="font-size: 3rem; color: var(--text-tertiary);"></i></div>';
+
+            element.innerHTML = `
+                ${imageHtml}
+                <h3 class="project-title">${achievement.title}</h3>
+                <p class="project-description">${achievement.description || ''}</p>
+                <div class="project-links">
+                    <button class="btn btn-secondary btn-sm" onclick='showEditAchievementModal(${JSON.stringify(achievement)})'><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteAchievement('${achievement.id}')"><i class="fas fa-trash"></i> Delete</button>
+                </div>
+            `;
+            container.appendChild(element);
+            scrollObserver.observe(element);
+        }
+
+        function showAddAchievementModal() {
+            document.getElementById('addAchievementModal').classList.remove('hidden');
+        }
+
+        async function addAchievement() {
+            const title = document.getElementById('achievementTitle').value;
+            const description = document.getElementById('achievementDescription').value;
+            const imageFile = document.getElementById('achievementImage').files[0];
+
+            if (!title || !imageFile) {
+                alert(getTranslation('achievement_validation_error'));
+                return;
+            }
+
+            loadingOverlay.style.display = 'flex';
+            let imageUrl = null;
+
+            const fileName = `${currentUser.id}/achievements/${Date.now()}_${imageFile.name}`;
+            const { error: uploadError } = await _supabase.storage.from('achievements-images').upload(fileName, imageFile);
+
+            if (uploadError) {
+                loadingOverlay.style.display = 'none';
+                if (uploadError.message === 'Bucket not found') {
+                    alert('Error: Bucket "achievements-images" not found. Please create a public bucket with this name in Supabase Storage.');
+                } else {
+                    alert(getTranslation('achievement_image_upload_error') + ': ' + uploadError.message);
+                }
+                console.error('Achievement image upload error:', uploadError);
+                return;
+            }
+
+            const { data: urlData } = _supabase.storage.from('achievements-images').getPublicUrl(fileName);
+            imageUrl = urlData.publicUrl;
+
+            const { data: newAchievement, error } = await _supabase.from('user_achievements').insert({ user_id: currentUser.id, title, description, certificate_url: imageUrl }).select().single();
+
+            loadingOverlay.style.display = 'none';
+
+            if (error) {
+                console.error('Error adding achievement:', error);
+                alert(getTranslation('achievement_add_error'));
+                return;
+            }
+
+            renderAchievement(newAchievement);
+            closeModal('addAchievementModal');
+            document.getElementById('achievementTitle').value = '';
+            document.getElementById('achievementDescription').value = '';
+            document.getElementById('achievementImage').value = '';
+            document.getElementById('statAchievements').textContent = parseInt(document.getElementById('statAchievements').textContent || '0') + 1;
+        }
+
+        function openImageViewer(imageUrl) {
+            document.getElementById('modalImage').src = imageUrl;
+            document.getElementById('imageViewerModal').classList.remove('hidden');
+        }
+
+        function showEditAchievementModal(achievement) {
+            document.getElementById('editAchievementId').value = achievement.id;
+            document.getElementById('editAchievementTitle').value = achievement.title;
+            document.getElementById('editAchievementDescription').value = achievement.description || '';
+            document.getElementById('currentAchievementImage').src = achievement.certificate_url;
+            document.getElementById('editAchievementImage').value = ''; // Clear file input
+            document.getElementById('editAchievementModal').classList.remove('hidden');
+        }
+
+        async function updateAchievement() {
+            const id = document.getElementById('editAchievementId').value;
+            const title = document.getElementById('editAchievementTitle').value;
+            const description = document.getElementById('editAchievementDescription').value;
+            const imageFile = document.getElementById('editAchievementImage').files[0];
+
+            if (!title) {
+                alert('Title is required.');
+                return;
+            }
+
+            loadingOverlay.style.display = 'flex';
+            let newImageUrl = document.getElementById('currentAchievementImage').src;
+
+            if (imageFile) {
+                const fileName = `${currentUser.id}/achievements/${Date.now()}_${imageFile.name}`;
+                const { error: uploadError } = await _supabase.storage.from('achievements-images').upload(fileName, imageFile);
+                if (uploadError) {
+                    loadingOverlay.style.display = 'none';
+                    alert('Error uploading new image: ' + uploadError.message);
+                    return;
+                }
+                const { data: urlData } = _supabase.storage.from('achievements-images').getPublicUrl(fileName);
+                newImageUrl = urlData.publicUrl;
+            }
+
+            const { data: updatedAchievement, error } = await _supabase
+                .from('user_achievements')
+                .update({ title, description, certificate_url: newImageUrl })
+                .eq('id', id)
+                .select()
+                .single();
+            
+            loadingOverlay.style.display = 'none';
+
+            if (error) {
+                console.error('Error updating achievement:', error);
+                alert('Failed to update achievement.');
+            } else {
+                const achievementCard = document.getElementById(`achievement-${id}`);
+                if (achievementCard) {
+                    achievementCard.querySelector('.project-image').src = updatedAchievement.certificate_url;
+                    achievementCard.querySelector('.project-image').setAttribute('onclick', `openImageViewer('${updatedAchievement.certificate_url}')`);
+                    achievementCard.querySelector('.project-title').textContent = updatedAchievement.title;
+                    achievementCard.querySelector('.project-description').textContent = updatedAchievement.description || '';
+                    achievementCard.querySelector('.btn-secondary').setAttribute('onclick', `showEditAchievementModal(${JSON.stringify(updatedAchievement)})`);
+                }
+                closeModal('editAchievementModal');
+                alert('Achievement updated successfully!');
+            }
+        }
+
+        async function deleteAchievement(achievementId) {
+            if (!confirm('Are you sure you want to delete this achievement? This action cannot be undone.')) return;
+
+            loadingOverlay.style.display = 'flex';
+
+            const { data: achievementData } = await _supabase.from('user_achievements').select('certificate_url').eq('id', achievementId).single();
+            const { error: deleteError } = await _supabase.from('user_achievements').delete().eq('id', achievementId);
+
+            if (deleteError) {
+                loadingOverlay.style.display = 'none';
+                alert('Failed to delete achievement.');
+                return;
+            }
+
+            if (achievementData && achievementData.certificate_url) {
+                const filePath = new URL(achievementData.certificate_url).pathname.split('/achievements-images/')[1];
+                await _supabase.storage.from('achievements-images').remove([filePath]);
+            }
+
+            await loadAchievements(); // Reload all achievements to update UI and count
+            loadingOverlay.style.display = 'none';
+            alert('Achievement deleted successfully.');
+        }
+
+        // Connections functionality
+        async function loadConnections() {
+            const connectionsContainer = document.getElementById('connectionsContainer');
+            connectionsContainer.innerHTML = `<p class="text-center">${getTranslation('loading_connections')}</p>`;
+
+            // Get users I am following
+            const { data: following, error: followingError } = await _supabase
+                .from('connections')
+                .select('profile:following_id (id, username, full_name, avatar_url, bio)')
+                .eq('follower_id', currentUser.id);
+
+            // Get users who are following me
+            const { data: followers, error: followersError } = await _supabase
+                .from('connections')
+                .select('profile:follower_id (id, username, full_name, avatar_url, bio)')
+                .eq('following_id', currentUser.id);
+
+            if (followingError || followersError) {
+                console.error('Error loading connections:', followingError || followersError);
+                connectionsContainer.innerHTML = `<p class="text-center">${getTranslation('connections_load_error')}</p>`;
+                return;
+            }
+
+            // Update stat in sidebar. Let's use the number of people I'm following + followers.
+            document.getElementById('statConnections').textContent = (following?.length || 0) + (followers?.length || 0);
+
+            if (followers.length === 0 && following.length === 0) {
+                connectionsContainer.innerHTML = `
+                    <div class="text-center">
+                        <p data-i18n-key="no_connections">${getTranslation('no_connections')}</p>
+                    </div>`;
+                return;
+            }
+
+            // Render the lists
+            connectionsContainer.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h3 class="card-title mb-3">${getTranslation('following')} (${following.length})</h3>
+                        <div id="followingList" class="post-feed"></div>
+                    </div>
+                    <div>
+                        <h3 class="card-title mb-3">${getTranslation('followers')} (${followers.length})</h3>
+                        <div id="followersList" class="post-feed"></div>
+                    </div>
+                </div>
+            `;
+
+            const followingList = document.getElementById('followingList');
+            if (following.length > 0) {
+                followingList.innerHTML = following.map(conn => renderConnectionCard(conn.profile)).join('');
+            } else {
+                followingList.innerHTML = `<p class="text-center">${getTranslation('not_following_anyone')}</p>`;
+            }
+
+            const followersList = document.getElementById('followersList');
+            if (followers.length > 0) {
+                followersList.innerHTML = followers.map(conn => renderConnectionCard(conn.profile)).join('');
+            } else {
+                followersList.innerHTML = `<p class="text-center">${getTranslation('no_followers_yet')}</p>`;
+            }
+        }
+
+        function filterConnections() {
+            const searchText = document.getElementById('connectionSearch').value.toLowerCase();
+            
+            const connections = document.querySelectorAll('.connection-card');
+            
+            connections.forEach(connection => {
+                const name = connection.querySelector('h4').textContent.toLowerCase();
+                const username = connection.querySelector('p').textContent.toLowerCase();
+                const shouldShow = name.includes(searchText) || username.includes(searchText);
+                
+                connection.style.display = shouldShow ? 'flex' : 'none';
+            });
+        }
+
+        function renderConnectionCard(profile) {
+            return `
+                <a href="user.html?username=${profile.username}" class="connection-card" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--border-radius-sm); background: var(--bg-secondary); margin-bottom: 10px;">
+                    <img src="${profile.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png'}" alt="${profile.full_name}" style="width: 45px; height: 45px; border-radius: 50%;">
+                    <div>
+                        <h4 style="margin: 0; font-size: 0.95rem;">${profile.full_name || 'User'}</h4>
+                        <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary);">@${profile.username}</p>
+                    </div>
+                </a>
+            `;
+        }
+
+        // Like and comment functionality
+        async function toggleLike(postId) {
+            const likeButton = document.querySelector(`#post-${postId} .post-action`);
+            const likeCountSpan = document.getElementById(`like-count-${postId}`);
+            const isLiked = likeButton.classList.contains('liked');
+
+            likeButton.style.pointerEvents = 'none';
+
+            if (isLiked) {
+                const { error } = await _supabase.from('post_likes').delete().match({ post_id: postId, user_id: currentUser.id });
+                if (error) { alert(getTranslation('unlike_error')); console.error(error); } 
+                else { likeButton.classList.remove('liked'); likeCountSpan.textContent = parseInt(likeCountSpan.textContent) - 1; }
+            } else {
+                const { error } = await _supabase.from('post_likes').insert({ post_id: postId, user_id: currentUser.id });
+                if (error) { alert(getTranslation('like_error')); console.error(error); } 
+                else { likeButton.classList.add('liked'); likeCountSpan.textContent = parseInt(likeCountSpan.textContent) + 1; }
+            }
+            likeButton.style.pointerEvents = 'auto';
+        }
+
+        // Activity panel functionality
+        function generateSampleData() {
+            const activityPanel = document.getElementById('activity');
+            activityPanel.innerHTML = `
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Profile Activity</h2>
+                        <select class="filter-select" id="activityRange">
+                            <option value="7">Last 7 days</option>
+                            <option value="30" selected>Last 30 days</option>
+                            <option value="90">Last 90 days</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div class="card text-center">
+                                <h3>Profile Views</h3>
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--primary);">124</div>
+                                <p>+12% from last month</p>
+                            </div>
+                            <div class="card text-center">
+                                <h3>Post Engagement</h3>
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--info);">86</div>
+                                <p>Likes and comments</p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3>Weekly Activity</h3>
+                            <div style="height: 200px; background: var(--bg-secondary); border-radius: var(--border-radius-sm); display: flex; align-items: flex-end; justify-content: space-around; padding: 10px;">
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="width: 30px; background: var(--primary); height: 60px; border-radius: 5px;"></div>
+                                    <span style="font-size: 0.8rem; margin-top: 5px;">Mon</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="width: 30px; background: var(--primary); height: 90px; border-radius: 5px;"></div>
+                                    <span style="font-size: 0.8rem; margin-top: 5px;">Tue</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="width: 30px; background: var(--primary); height: 120px; border-radius: 5px;"></div>
+                                    <span style="font-size: 0.8rem; margin-top: 5px;">Wed</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="width: 30px; background: var(--primary); height: 80px; border-radius: 5px;"></div>
+                                    <span style="font-size: 0.8rem; margin-top: 5px;">Thu</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="width: 30px; background: var(--primary); height: 140px; border-radius: 5px;"></div>
+                                    <span style="font-size: 0.8rem; margin-top: 5px;">Fri</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="width: 30px; background: var(--primary); height: 100px; border-radius: 5px;"></div>
+                                    <span style="font-size: 0.8rem; margin-top: 5px;">Sat</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="width: 30px; background: var(--primary); height: 70px; border-radius: 5px;"></div>
+                                    <span style="font-size: 0.8rem; margin-top: 5px;">Sun</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Helper functions
+        function escapeHTML(str) {
+            if (!str) return '';
+            const p = document.createElement('p');
+            p.textContent = str;
+            return p.innerHTML;
+        }
+
+        // Logout function
+        async function logout() {
+            if (!confirm(getTranslation('confirm_logout'))) return;
+            
+            loadingOverlay.style.display = 'flex';
+            const { error } = await _supabase.auth.signOut();
+            
+            if (error) {
+                alert('Error logging out: ' + error.message);
+                loadingOverlay.style.display = 'none';
+            } else {
+                window.location.href = 'indexx.html';
+            }
+        }
+
+        // Language functionality
+        const translations = {
+            en: {
+                "back_to_home": "Back to Home", "language": "Language", "logout": "Logout", "stat_posts": "Posts", "stat_connections": "Connections",
+                "stat_projects": "Projects", "edit_profile": "Edit Profile", "joined": "Joined:", "skills": "Skills",
+                "no_skills": "No skills added", "profile_dashboard": "Profile Dashboard", "tab_feed": "Feed", "tab_projects": "Projects", "tab_about": "About",
+                "tab_connections": "Connections", "tab_activity": "Activity", "post_to_profile": "Post to your profile", "post_placeholder": "Share your knowledge, projects, or achievements...",
+                "add_image": "Add Image", "add_file": "Add File", "add_code": "Add Code Snippet", "publish": "Publish", "loading_posts": "Loading your posts...",
+                "my_projects": "My Projects", "add_project_btn": "Add Project", "no_projects_yet": "You haven't added any projects yet.", "add_first_project": "Add Your First Project",
+                "about_me": "About Me", "edit_bio": "Bio", "bio_placeholder": "Tell others about yourself, your interests, and your goals...", "edit_education": "Education",
+                "education_placeholder": "Your education level", "edit_field_of_study": "Field of Study/Expertise", "field_placeholder": "Your field of study or expertise",
+                "edit_skills": "Skills (comma separated)", "skills_placeholder": "e.g. JavaScript, Python, UI Design", "edit_achievements": "Achievements",
+                "achievements_placeholder": "List your achievements, certifications, awards...", "save_info": "Save Information", "my_connections": "My Connections",
+                "no_connections": "You don't have any connections yet.", "find_connections": "Find Connections", "profile_activity": "Profile Activity",
+                "activity_placeholder": "Your activity analytics will appear here.", "add_new_project": "Add New Project", "project_title": "Project Title",
+                "project_title_placeholder": "Enter project title", "project_description": "Description", "project_description_placeholder": "Describe your project...",
+                "project_technologies": "Technologies Used (comma separated)", "project_technologies_placeholder": "e.g. React, Node.js, MongoDB",
+                "project_link": "Project Link (optional)", "project_link_placeholder": "https://...", "project_github": "GitHub Repository (optional)",
+                "project_github_placeholder": "https://github.com/...", "project_image": "Project Image (optional)", "cancel": "Cancel",
+                "confirm_logout": "Are you sure you want to log out?", "education_not_set": "Education not set", "field_not_set": "Field not set",
+                "bio_placeholder_short": "Bio will appear here.", "profile_update_error": "Error saving information. Please try again.", "profile_update_success": "Profile updated successfully!",
+                "post_empty_alert": "Please enter content or add an image for your post.", "image_upload_error": "Error uploading image. Please try again.",
+                "post_publish_error": "Error publishing post. Please try again.", "posts_load_error": "Error loading posts. Please try again later.",
+                "no_posts_yet_profile": "You haven't posted anything yet. Share your first post!", "confirm_delete_post": "Are you sure you want to delete this post?",
+                "post_delete_error": "Error deleting post. Please try again.", "loading_projects": "Loading projects...", "projects_load_error": "Error loading projects.",
+                "project_validation_error": "Please provide at least a title and description for your project.", "project_image_upload_error": "Error uploading project image. Please try again.",
+                "project_add_error": "Failed to add project.", "live_demo": "Live Demo", "unlike_error": "Error unliking.", "like_error": "Error liking.",
+                "loading_comments": "Loading comments...", "load_comments_error": "Error loading comments.", "no_comments_yet": "No comments yet.", "no_achievements_yet": "You haven't added any achievements yet.", "add_first_achievement": "Add Your First Achievement", "achievement_validation_error": "Please provide a title and certificate image.", "achievement_image_upload_error": "Error uploading certificate image.", "achievement_add_error": "Failed to add achievement.",
+                "delete_post": "Delete Post",
+                "share": "Share", "save": "Save", "user_name_placeholder": "User Name", "following": "Following", "followers": "Followers", "not_following_anyone": "Not following anyone", "no_followers_yet": "No followers yet"
+            },
+        };
+        function getTranslation(key, params = {}) {
+            const lang = document.documentElement.lang || 'en';
+            const langTranslations = translations[lang] || translations.en;
+            let text = langTranslations[key] || (translations.en ? translations.en[key] : key) || key;
+            for (const p in params) {
+                text = text.replace(`{${p}}`, params[p]);
+            }
+            return text;
+        }
+
+        function changeLanguage(lang) {
+            localStorage.setItem('language', lang);
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
+            document.querySelectorAll('[data-i18n-key]').forEach(el => el.innerHTML = getTranslation(el.getAttribute('data-i18n-key')));
+            document.querySelectorAll('[data-i18n-placeholder-key]').forEach(el => el.placeholder = getTranslation(el.getAttribute('data-i18n-placeholder-key')));
+            document.querySelectorAll('[data-i18n-title-key]').forEach(el => el.title = getTranslation(el.getAttribute('data-i18n-title-key')));
+        }
+        async function handlePostHighlight(postId, commentId) {
+            // Use a small timeout to ensure posts are rendered
+            setTimeout(async () => {
+                const postElement = document.getElementById(`post-${postId}`);
+                if (!postElement) {
+                    console.warn(`Post with ID ${postId} not found on the page.`);
+                    return;
+                }
+
+                // 1. Scroll to the post
+                postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // 2. Add a temporary highlight to the post card
+                postElement.style.transition = 'background-color 1s ease-out';
+                postElement.style.backgroundColor = 'rgba(188, 216, 253, 0.3)';
+                setTimeout(() => {
+                    postElement.style.backgroundColor = '';
+                }, 2500);
+
+                // 3. If there's a comment to highlight, open comments and find it
+                if (commentId) {
+                    const commentsSection = document.getElementById(`comments-section-${postId}`);
+                    const isCommentsVisible = !commentsSection.classList.contains('hidden');
+
+                    if (!isCommentsVisible) {
+                        await showComments(postId);
+                    }
+
+                    setTimeout(() => {
+                        const commentElement = document.getElementById(`comment-${commentId}`);
+                        if (commentElement) {
+                            commentElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            commentElement.style.transition = 'background-color 1s ease-out';
+                            commentElement.style.backgroundColor = 'rgba(188, 216, 253, 0.5)';
+                            setTimeout(() => {
+                                commentElement.style.backgroundColor = '';
+                            }, 3000);
+                        }
+                    }, 200);
+                }
+            }, 500);
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+</body>
+</html>

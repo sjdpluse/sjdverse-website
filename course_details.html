@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Details - SJDVerse</title>
+    <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/hubot-sans" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <!-- TinyMCE Rich Text Editor with your API key -->
+    <script src="https://cdn.tiny.cloud/1/qeb0slxpyhvq1pasb3elckze1ekoacc7ark5khb7li7g9mm4/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <style>
+        :root {
+            --p1: #d8f4a0; --p2: #fdc7d5; --p3: #bcd8fd; --p4: #ffeca8; --p5: #5d5c5c;
+            --white: #ffffff; --light-gray: #f8f9fa; --medium-gray: #e6e6e6; --dark-gray: #343a40;
+            --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.06); 
+            --border-radius: 16px; 
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Light Theme (default) */
+            --bg-primary: var(--white);
+            --bg-secondary: var(--light-gray);
+            --text-primary: var(--dark-gray);
+            --text-secondary: var(--p5);
+            --border-color: var(--medium-gray);
+            --card-bg: var(--bg-primary);
+            --primary: var(--p3);
+        }
+
+        .dark-theme {
+            --bg-primary: #1c1c1e;
+            --bg-secondary: #2c2c2e;
+            --text-primary: #f2f2f7;
+            --text-secondary: #aeaeb2;
+            --border-color: #3a3a3c;
+            --card-bg: var(--bg-secondary);
+            --primary: #5d9bfb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6, .logo, .btn {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+        }
+
+        .course-main-content[dir="rtl"] {
+            font-family: 'Noto Kufi Arabic', 'Poppins', sans-serif;
+        }
+        .modal[dir="rtl"] {
+            font-family: 'Noto Kufi Arabic', 'Poppins', sans-serif;
+        }
+
+        /* Re-using header from other pages */
+        .app-header {
+            background: var(--card-bg);
+            padding: 0 5%;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 60px;
+        }
+        .app-header .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .app-nav { display: flex; align-items: center; gap: 20px; }
+        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; position: relative; padding: 8px; }
+        .app-nav .nav-icon:hover { color: var(--text-primary); }
+        .app-nav .profile-link img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; }
+        .app-nav .profile-link:hover img { border-color: var(--text-primary); }
+        .profile-nav-item { position: relative; }
+        .profile-dropdown { display: none; position: absolute; top: calc(100% + 10px); right: 0; background: var(--card-bg); border-radius: 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); width: 200px; z-index: 1001; border: 1px solid var(--border-color); padding: 8px 0; animation: fadeIn 0.2s ease; }
+        .profile-dropdown .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; transition: background-color 0.2s; background: none; border: none; width: 100%; font-family: 'Poppins', sans-serif; font-size: 0.9rem; color: var(--text-primary); text-decoration: none; text-align: left; }
+        .profile-dropdown .dropdown-item:hover { background: var(--bg-secondary); }
+        .profile-dropdown hr { border: none; border-top: 1px solid var(--border-color); margin: 8px 0; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 0 15px;
+            }
+            .app-nav {
+                gap: 10px;
+            }
+            .app-nav .nav-icon {
+                font-size: 1.3rem;
+                padding: 6px;
+            }
+        }
+
+        /* Main Layout */
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+            /* The main content area */
+            gap: 24px;
+            padding-bottom: 300px; /* Add space for the fixed footer */
+        }
+
+        .course-main-content {
+            background: var(--medium-gray);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            min-height: 70vh;
+        }
+        .dark-theme .course-main-content {
+            background: var(--bg-primary);
+        }
+
+        .lesson-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #lessonHeaderActions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .action-separator {
+            width: 1px;
+            height: 24px;
+            background-color: var(--border-color);
+            margin: 0 8px;
+        }
+        .align-btn.active {
+            background-color: var(--primary);
+            color: var(--dark-gray);
+            box-shadow: 0 0 10px var(--primary);
+        }
+        .card-alt-bg {
+            background-color: #dbdcdd;
+        }
+        .dark-theme .card-alt-bg {
+            background-color: var(--bg-tertiary);
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: var(--text-secondary);
+            padding-right: 15px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .drag-handle:hover { opacity: 1; }
+        .sortable-ghost {
+            opacity: 0.4;
+            background: var(--primary);
+        }
+
+        /* Lesson Reviews Section */
+        .lesson-reviews-section {
+            /* Styles are now handled by the parent card */
+        }
+        .lesson-reviews-section h3 {
+            margin-bottom: 20px;
+        }
+
+        /* Review Form */
+        .review-form {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+        }
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        .star-rating input { display: none; }
+        .star-rating label {
+            font-size: 1.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #ffc107;
+        }
+
+        /* Review List */
+        .reviews-list { display: flex; flex-direction: column; gap: 20px; }
+        .review-item { display: flex; gap: 15px; align-items: flex-start; }
+        .review-item img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
+        .review-content { flex: 1; }
+        .review-header { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .review-header strong { font-weight: 600; }
+        .review-stars { color: #ffc107; }
+        .review-comment { font-size: 0.95rem; line-height: 1.6; }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .lesson-content-area {
+            line-height: 1.7;
+        }
+        .lesson-content-area p { margin-bottom: 1rem; }
+
+        .attachment-link {
+            display: inline-flex; align-items: center; gap: 10px; padding: 12px 18px;
+            background: var(--bg-secondary); border-radius: 12px; text-decoration: none;
+            color: var(--text-primary); font-weight: 500; transition: var(--transition);
+            margin-top: 20px;
+        }
+        .attachment-link:hover { background: var(--primary); color: var(--dark-gray); }
+
+        .content-separator {
+            border: none;
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 30px 0;
+        }
+
+        .course-sidebar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.1);
+            z-index: 1001;
+            padding: 16px 20px;
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+        .course-info-card {
+            margin-bottom: 0;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .lesson-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex: 2;
+            min-width: 0;
+        }
+        #currentLessonTitleInFooter {
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+            text-align: center;
+        }
+        #currentLessonTitleInFooter.placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+        .lesson-navigation .btn-icon {
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .lesson-navigation .btn-icon:hover {
+            background: var(--bg-tertiary);
+            transform: scale(1.05);
+        }
+        .lesson-navigation .btn-icon:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            background: var(--bg-secondary);
+        }
+
+        .lessons-icon-bar {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: var(--border-radius);
+            height: 80px;
+        }
+
+        .lesson-icons-scroll {
+            flex: 1;
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--bg-tertiary);
+        }
+        .lesson-icons-scroll::-webkit-scrollbar { height: 6px; }
+        .lesson-icons-scroll::-webkit-scrollbar-track { background: var(--bg-tertiary); border-radius: 3px; }
+        .lesson-icons-scroll::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+        .lesson-icon {
+            flex-shrink: 0;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            margin-bottom: 0;
+            flex: 1;
+        }
+
+        .lesson-icon:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
+        .lesson-icon.active {
+            background: var(--primary);
+            color: var(--dark-gray);
+            border-color: var(--primary);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(188, 216, 253, 0.5);
+        }
+
+        .lesson-body-container {
+            /* This is now just a simple container */
+        }
+
+        .lesson-top-content {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+        }
+
+        .lesson-main-text {
+            flex: 1;
+            min-width: 0;
+            transition: text-align 0.3s ease;
+        }
+        .lesson-main-text[dir="rtl"] {
+            text-align: right;
+        }
+        .lesson-main-text[dir="ltr"] {
+            text-align: left;
+        }
+
+        .lesson-first-image-wrapper {
+            flex: 0 0 300px;
+            max-width: 40%;
+        }
+
+        .lesson-first-image-wrapper .lesson-image-item {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .lesson-first-image-wrapper .lesson-image-item:hover {
+            transform: scale(1.05);
+        }
+
+        .lesson-remaining-images-container {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-top: 24px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+        }
+
+        .lesson-image-item-small {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+        .lesson-image-item-small:hover {
+            transform: scale(1.05);
+        }
+
+        .lesson-editor-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 50vh;
+            color: var(--text-secondary);
+            opacity: 0.5;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            user-select: none;
+        }
+        .lesson-editor-placeholder h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+        .lesson-editor-placeholder p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            max-width: 400px;
+        }
+        .lesson-editor-placeholder .add-image-btn {
+            display: flex; align-items: center; justify-content: center; width: 60px; height: 60px;
+            border-radius: 50%; border: 2px dashed currentColor; background: transparent; color: currentColor;
+            font-size: 1.5rem; cursor: pointer; transition: var(--transition);
+        }
+        .lesson-editor-placeholder .add-image-btn:hover { background: var(--bg-secondary); color: var(--text-primary); border-style: solid; transform: scale(1.1); }
+
+        #addLessonBtn.btn-icon {
+            width: 56px; height: 56px; border-radius: 50%; font-size: 1.5rem; flex-shrink: 0;
+        }
+        /* #lessonHeaderActions is now styled above */
+
+        .btn { padding: 10px 16px; border: none; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-primary { background: var(--primary); color: var(--dark-gray); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--border-color); }
+
+        /* Instructor Info Styles */
+        #instructorInfo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .instructor-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+        }
+        .instructor-avatar.verified {
+            border-color: #1DA1F2;
+        }
+        .instructor-name-container {
+            font-family: 'Hubot Sans', sans-serif;
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+        .instructor-name { font-weight: 500; /* Medium */ font-size: 1.1rem; }
+        .instructor-presents { font-weight: 200; /* ExtraLight */ font-size: 1rem; color: var(--text-secondary); }
+        .verified-badge {
+            font-size: 0.6em;
+            vertical-align: super;
+            margin-left: 2px;
+        }
+        .verified-badge .fa-certificate { color: #1DA1F2; }
+        .verified-badge .fa-inverse { color: var(--card-bg); }
+
+        .lessons-actions {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 16px;
+        }
+        #modalLessonsContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        .modal-lesson-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            color: var(--text-primary);
+            border: 2px solid transparent;
+        }
+        .modal-lesson-item:hover {
+            background: var(--bg-tertiary);
+            transform: translateX(5px);
+        }
+        .modal-lesson-item.active {
+            background: var(--primary);
+            color: var(--dark-gray);
+            border-color: var(--primary);
+        }
+        .modal-lesson-item .lesson-number {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .modal-lesson-item.active .lesson-number {
+            background: var(--dark-gray);
+            color: var(--white);
+            border-color: var(--dark-gray);
+        }
+        .modal-lesson-item .lesson-title-text {
+            font-weight: 500;
+        }
+
+        .modal-lesson-item .lesson-rating {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .modal-lesson-item .lesson-rating .fa-star {
+            color: #ffc107;
+        }
+
+        /* Re-using modal styles from courses.html */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 2000; animation: fadeIn 0.3s ease; }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--card-bg); padding: 24px; border-radius: var(--border-radius); width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.4s ease;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .modal-header h3 { font-size: 1.3rem; }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.3rem; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); transition: var(--transition); }
+        .btn-icon:hover { background: var(--bg-tertiary); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-input, .form-textarea { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 1rem; background: var(--bg-primary); color: var(--text-primary); transition: var(--transition); }
+        .form-textarea { min-height: 120px; resize: vertical; }
+        .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(188, 216, 253, 0.3); }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+        
+        .image-previews-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .image-preview-wrapper {
+            position: relative;
+        }
+        .image-preview-item {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .remove-preview-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 22px;
+            height: 22px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            line-height: 1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .file-previews-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .file-preview-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(5px); background: rgba(0, 0, 0, 0.5); }
+        .spinner { width: 50px; height: 50px; border: 4px solid var(--bg-tertiary); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .placeholder { text-align: center; padding: 60px 20px; font-size: 1.1rem; color: var(--text-secondary); opacity: 0.7; }
+        .language-switcher { padding: 5px 15px; }
+        .language-switcher label { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 5px; display: block; }
+        .language-select { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); }
+
+        .modal[dir="rtl"] .modal-header {
+            flex-direction: row-reverse;
+        }
+        .modal[dir="rtl"] .form-group label {
+            text-align: right;
+        }
+        .modal[dir="rtl"] .form-input,
+        .modal[dir="rtl"] .form-textarea,
+        .modal[dir="rtl"] .tox-tinymce {
+            font-family: 'Noto Kufi Arabic', 'Poppins', sans-serif;
+        }
+
+        @keyframes line-fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .lesson-text-content > * {
+            opacity: 0; /* Start hidden, JS will trigger animation */
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+                margin-top: 20px;
+                padding-bottom: 280px; /* More space for taller footer */
+            }
+            .course-sidebar {
+                flex-direction: column;
+                height: auto;
+                padding: 10px;
+                gap: 10px;
+            }
+            .lesson-navigation {
+                order: 1; /* Move nav buttons to top */
+                width: 100%;
+            }
+            .course-info-card {
+                order: 2;
+                text-align: center;
+                padding: 10px;
+            }
+            .course-info-card h2 {
+                font-size: 1.1rem;
+            }
+            .lessons-actions {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+            }
+            .lesson-top-content { flex-direction: column; }
+            .lesson-first-image-wrapper { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <a href="indexx.html" class="logo">
+            <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 35px;">
+            <span style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
+        </a>
+        <nav class="app-nav">
+            <a href="indexx.html" class="nav-icon" id="nav-home" title="Home" data-i18n-title-key="home"><i class="fas fa-home"></i></a>
+            <a href="explore.html" class="nav-icon" id="nav-explore" title="Explore" data-i18n-title-key="explore"><i class="fas fa-compass"></i></a>
+            <a href="search.html" class="nav-icon" id="nav-search" title="Search" data-i18n-title-key="search"><i class="fas fa-search"></i></a>
+            <a href="courses.html" class="nav-icon" id="nav-courses" title="Courses" data-i18n-title-key="courses"><i class="fas fa-book-open"></i></a>
+            <a href="messages.html" class="nav-icon" id="nav-messages" title="Messages" data-i18n-title-key="messages"><i class="fas fa-comments"></i></a>
+            <div class="profile-nav-item">
+                <button class="nav-icon" id="settingsBtn" title="Settings" data-i18n-title-key="settings" style="background: none; border: none; cursor: pointer;"><i class="fas fa-cog"></i></button>
+                <div id="settingsDropdown" class="profile-dropdown">
+                    <button id="themeToggleSettings" class="dropdown-item"><i class="fas fa-moon"></i> <span data-i18n-key="theme">Theme</span></button>
+                    <hr>
+                    <div class="language-switcher">
+                        <label for="languageSelect" data-i18n-key="language">Language</label>
+                        <select id="languageSelect" class="language-select" onchange="changeLanguage(this.value)">
+                            <option value="en">English</option>
+                            <option value="fa">فارسی</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-nav-item">
+                <a href="javascript:void(0);" class="nav-icon profile-link" id="nav-profile-trigger" title="Profile">
+                    <img id="headerUserAvatar" src="https://i.postimg.cc/prmTzhSz/man.png" alt="User Avatar">
+                </a>
+                <div id="profileDropdown" class="profile-dropdown">
+                    <a href="profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i> <span data-i18n-key="profile">Profile</span></a>
+                    <hr>
+                    <button class="dropdown-item" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> <span data-i18n-key="logout">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container" id="mainContainer">
+        <div class="course-main-content">
+            <div class="lesson-header">
+                <h1 id="lessonTitle" data-i18n-key="welcome_to_course">Welcome to the Course</h1>
+                <div id="lessonHeaderActions"></div>
+            </div>
+            <div id="lessonContent" class="lesson-content-area">
+                <p class="placeholder" data-i18n-key="select_lesson_prompt">Select a lesson from the list to begin.</p>
+            </div>
+        </div>
+        <div class="card card-alt-bg" style="margin-top: 24px;">
+            <div id="lessonReviewsSection" class="lesson-reviews-section">
+                <!-- Reviews and form will be rendered here by JS -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Fixed Footer Sidebar -->
+    <aside class="course-sidebar">
+    <div class="course-info-card">
+            <h2 id="courseTitle">Loading Course...</h2>
+            <div id="instructorInfo"></div>
+        </div>
+        <div class="lesson-navigation">
+            <button id="prevLessonBtn" class="btn-icon" onclick="navigateToLesson('prev')" title="Previous Lesson">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span id="currentLessonTitleInFooter" class="placeholder">Select a lesson</span>
+            <button id="nextLessonBtn" class="btn-icon" onclick="navigateToLesson('next')" title="Next Lesson">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        <div class="lessons-actions">
+            <button id="showLessonsBtn" class="btn btn-primary" onclick="openModal('lessonsListModal')">
+                <i class="fas fa-bars"></i>
+                <span data-i18n-key="lessons">Lessons</span>
+            </button>
+            <button id="addLessonBtn" class="btn btn-secondary" style="display: none;" onclick="showAddLessonModal()">
+                <i class="fas fa-plus"></i>
+                <span data-i18n-key="add_lesson">Add Lesson</span>
+            </button>
+        </div>
+    </aside>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div id="imageViewerModal" class="modal" onclick="closeModal('imageViewerModal')">
+        <img id="modalImage" src="" style="max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 12px;" onclick="event.stopPropagation()">
+    </div>
+
+    <!-- Lessons List Modal -->
+    <div id="lessonsListModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 data-i18n-key="lessons">Lessons</h3>
+                <button class="btn-icon" onclick="closeModal('lessonsListModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="modalLessonsContainer">
+                <!-- Lessons will be rendered here by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Lesson Modal -->
+    <div id="addLessonModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="add_new_lesson">Add New Lesson</h3>
+                <button class="btn-icon" onclick="closeModal('addLessonModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="addLessonForm">
+                <div class="form-group full-width">
+                    <label for="lessonTitleInput" data-i18n-key="lesson_title">Lesson Title</label>
+                    <input type="text" id="lessonTitleInput" class="form-input" required>
+                </div>
+                <div class="form-group full-width">
+                    <label for="lessonContentInput" data-i18n-key="content_description">Content (Text or Description)</label>
+                    <textarea id="lessonContentInput" class="form-textarea"></textarea>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="lessonImagesInput" data-i18n-key="images_for_description">Images for Description</label>
+                        <input type="file" id="lessonImagesInput" class="form-input" accept="image/*" multiple>
+                        <div id="imagePreviews" class="image-previews-container"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lessonAttachmentInput" data-i18n-key="attachments_multiple">Attachments</label>
+                        <input type="file" id="lessonAttachmentInput" class="form-input" multiple>
+                        <div id="attachmentPreviews" class="file-previews-container"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addLessonModal')" data-i18n-key="cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-i18n-key="add_lesson">Add Lesson</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Lesson Modal -->
+    <div id="editLessonModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n-key="edit_lesson">Edit Lesson</h3>
+                <button class="btn-icon" onclick="closeModal('editLessonModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="editLessonForm">
+                <input type="hidden" id="editLessonId">
+                <div class="form-group full-width">
+                    <label for="editLessonTitleInput" data-i18n-key="lesson_title">Lesson Title</label>
+                    <input type="text" id="editLessonTitleInput" class="form-input" required>
+                </div>
+                <div class="form-group full-width">
+                    <label for="editLessonContentInput" data-i18n-key="content_description">Content (Text or Description)</label>
+                    <textarea id="editLessonContentInput" class="form-textarea"></textarea>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="editLessonImagesInput" data-i18n-key="replace_images">Replace Images (Optional)</label>
+                        <input type="file" id="editLessonImagesInput" class="form-input" accept="image/*" multiple>
+                        <div id="editImagePreviews" class="image-previews-container"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLessonAttachmentInput" data-i18n-key="replace_attachments">Replace Attachments</label>
+                        <input type="file" id="editLessonAttachmentInput" class="form-input" multiple>
+                        <div id="editAttachmentPreviews" class="file-previews-container"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editLessonModal')" data-i18n-key="cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-i18n-key="save_changes">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
+        let courseId = null;
+        let courseData = null;
+        let lessons = [];
+        let isEnrolled = false;
+        let lessonImageFiles = [];
+        let lessonAttachmentFiles = [];
+        let editLessonImageFiles = [];
+        let editLessonAttachmentFiles = [];
+
+        const translations = {
+            en: {
+                "welcome_to_course": "Welcome to the Course", "select_lesson_prompt": "Select a lesson from the list to begin.",
+                "loading_course": "Loading Course...", "by_instructor": "By", "lessons": "Lessons", "loading_lessons": "Loading lessons...", "no_lessons_yet": "No lessons yet.", "add_lesson": "Add Lesson", "add_new_lesson": "Add New Lesson", "edit_lesson": "Edit Lesson",
+                "lesson_title": "Lesson Title", "content_description": "Content (Text or Description)", "images_for_description": "Images for Description",
+                "attachments_multiple": "Attachments", "replace_images": "Replace Images (Optional)", "replace_attachments": "Replace Attachments (Optional)",
+                "cancel": "Cancel", "save_changes": "Save Changes", "course_id_not_found": "Course ID not found.", "could_not_load_course": "Could not load course details.",
+                "error_loading_lessons": "Error loading lessons.", "no_lessons_added_by_instructor": "The instructor has not added any lessons to this course yet.",
+                "confirm_delete_lesson": "Are you sure you want to delete this lesson? This action is irreversible.", "lesson_deleted_success": "Lesson deleted successfully.",
+                "lesson_not_found": "Lesson not found.", "error_deleting_lesson": "Error deleting lesson:", "provide_one_title": "Please provide a title for the lesson.",
+                "lesson_added_success": "Lesson added successfully!", "error_adding_lesson": "Error adding lesson:", "lesson_updated_success": "Lesson updated successfully!",
+                "error_updating_lesson": "Error updating lesson:", "theme": "Theme",
+                "profile": "Profile", "logout": "Logout", "settings": "Settings", "home": "Home", "explore": "Explore", "search": "Search",
+                "messages": "Messages", "attachments_title": "Attachments:", "language": "Language",
+                "courses": "Courses"
+            },
+            fa: {
+                "welcome_to_course": "به دوره خوش آمدید", "select_lesson_prompt": "برای شروع، یک درس از لیست انتخاب کنید.",
+                "loading_course": "در حال بارگذاری دوره...", "by_instructor": "توسط", "lessons": "درس‌ها", "loading_lessons": "در حال بارگذاری درس‌ها...", "no_lessons_yet": "هنوز درسی اضافه نشده است.", "add_lesson": "افزودن درس", "add_new_lesson": "افزودن درس جدید", "edit_lesson": "ویرایش درس",
+                "lesson_title": "عنوان درس", "content_description": "محتوا (متن یا توضیحات)", "images_for_description": "تصاویر توضیحات",
+                "attachments_multiple": "فایل‌های ضمیمه", "replace_images": "جایگزینی تصاویر (اختیاری)", "replace_attachments": "جایگزینی ضمیمه‌ها (اختیاری)",
+                "cancel": "انصراف", "save_changes": "ذخیره تغییرات", "course_id_not_found": "شناسه دوره یافت نشد.", "could_not_load_course": "جزئیات دوره بارگذاری نشد.",
+                "error_loading_lessons": "خطا در بارگذاری درس‌ها.", "no_lessons_added_by_instructor": "مربی هنوز هیچ درسی به این دوره اضافه نکرده است.",
+                "confirm_delete_lesson": "آیا از حذف این درس مطمئن هستید؟ این عمل غیرقابل بازگشت است.", "lesson_deleted_success": "درس با موفقیت حذف شد.",
+                "lesson_not_found": "درس یافت نشد.", "error_deleting_lesson": "خطا در حذف درس:", "provide_one_title": "لطفاً یک عنوان برای درس وارد کنید.",
+                "lesson_added_success": "درس با موفقیت اضافه شد!", "error_adding_lesson": "خطا در افزودن درس:", "lesson_updated_success": "درس با موفقیت به‌روزرسانی شد!",
+                "error_updating_lesson": "خطا در به‌روزرسانی درس:", "theme": "پوسته",
+                "profile": "پروفایل", "logout": "خروج", "settings": "تنظیمات", "home": "خانه", "explore": "کاوش", "search": "جستجو", "courses": "دوره‌ها",
+                "messages": "پیام‌ها", "attachments_title": "ضمیمه‌ها:", "language": "زبان",
+                "create_quiz": "ایجاد آزمون", "edit_quiz": "ویرایش آزمون", "start_quiz": "شروع آزمون", "submit_quiz": "ارسال آزمون",
+                "quiz_completed": "آزمون تمام شد!", "your_score": "امتیاز شما:", "quiz_result_desc": "شما به {score} سوال از {total} سوال پاسخ صحیح دادید."
+            }
+        };
+
+        // Initialize TinyMCE Rich Text Editor
+        function initTinyMCE(selector) {
+            const lang = localStorage.getItem('language') || 'en';
+            tinymce.init({
+                selector: selector,
+                plugins: 'anchor autolink charmap codesample emoticons link lists media searchreplace table visualblocks wordcount markdown',
+                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+                height: 350,
+                menubar: true,
+                language: lang === 'fa' ? 'fa_IR' : '',
+                language_url: lang === 'fa' ? `https://cdn.tiny.cloud/1/qeb0slxpyhvq1pasb3elckze1ekoacc7ark5khb7li7g9mm4/tinymce/6/langs/fa_IR.js` : '',
+                directionality: lang === 'fa' ? 'rtl' : 'ltr',
+                // Match the site's theme
+                skin: (document.body.classList.contains('dark-theme') ? 'oxide-dark' : 'oxide'),
+                content_css: (document.body.classList.contains('dark-theme') ? 'dark' : 'default'),
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            courseId = params.get('id');
+            if (!courseId) {
+                document.getElementById('mainContainer').innerHTML = `<p class="placeholder">${getTranslation('course_id_not_found')}</p>`;
+                return;
+            }
+
+            const { data: { user } } = await _supabase.auth.getUser();
+            currentUser = user;
+
+            await loadCourseDetails();
+
+            if (currentUser) {
+                // Check if user is enrolled in this course
+                const { count, error } = await _supabase
+                    .from('course_enrollments')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', currentUser.id)
+                    .eq('course_id', courseId);
+                if (!error && count > 0) isEnrolled = true;
+            }
+
+            initializeNewHeader();
+            const savedLang = localStorage.getItem('language') || 'en';
+            changeLanguage(savedLang);
+
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme, true);
+
+            await loadLessons();
+
+            document.getElementById('addLessonForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                addLesson();
+            });
+
+            document.getElementById('editLessonForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                updateLesson();
+            });
+            
+            document.getElementById('lessonImagesInput').addEventListener('change', (e) => handleFileSelection(e, 'image', false));
+            document.getElementById('lessonAttachmentInput').addEventListener('change', (e) => handleFileSelection(e, 'attachment', false));
+            document.getElementById('editLessonImagesInput').addEventListener('change', (e) => handleFileSelection(e, 'image', true));
+            document.getElementById('editLessonAttachmentInput').addEventListener('change', (e) => handleFileSelection(e, 'attachment', true));
+        });
+
+        async function loadCourseDetails() {
+            const { data, error } = await _supabase
+                .from('courses')
+                .select('*, instructor:profiles(id, full_name, avatar_url, is_verified)')
+                .eq('id', courseId)
+                .single();
+
+            if (error || !data) {
+                console.error('Error loading course details:', error);
+                document.getElementById('mainContainer').innerHTML = `<p class="placeholder">${getTranslation('could_not_load_course')}</p>`;
+                return;
+            }
+            courseData = data;
+            document.title = `${data.title} - SJDVerse`;
+            document.getElementById('courseTitle').textContent = data.title;
+            const instructor = data.instructor || { full_name: 'SJDVerse', avatar_url: 'https://i.postimg.cc/5tQ2wfY2/logo.png', is_verified: false };
+            const verifiedBadgeHTML = instructor.is_verified ? `<span class="fa-stack verified-badge" title="Verified"><i class="fas fa-certificate fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span>` : '';
+            document.getElementById('instructorInfo').innerHTML = `
+                <img src="${instructor.avatar_url}" alt="${instructor.full_name}" class="instructor-avatar ${instructor.is_verified ? 'verified' : ''}">
+                <div class="instructor-name-container">
+                    <span class="instructor-name">${escapeHTML(instructor.full_name)}</span>
+                    ${verifiedBadgeHTML}
+                    <span class="instructor-presents">Presents</span>
+                </div>
+            `;
+
+            // Show 'Add Lesson' button if the current user is the instructor
+            if (currentUser && currentUser.id === data.instructor.id) {
+                document.getElementById('addLessonBtn').style.display = 'block';
+                // Set the initial placeholder for the instructor
+                document.getElementById('lessonContent').innerHTML = `
+                    <div class="lesson-editor-placeholder">
+                        <h2>Your Title Here</h2>
+                        <p>Lessons Description here</p>
+                        <button class="add-image-btn" title="Add Image">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadLessons() {
+            const { data, error } = await _supabase
+                .from('course_lessons')
+                .select('*')
+                .eq('course_id', courseId)
+                .order('lesson_order', { ascending: true });
+
+            if (error) {
+                console.error('Error loading lessons:', error);
+                document.getElementById('modalLessonsContainer').innerHTML = `<p class="placeholder">${getTranslation('error_loading_lessons')}</p>`;
+                return;
+            }
+            lessons = data;
+
+            let ratings = {};
+            if (lessons.length > 0) {
+                const lessonIds = lessons.map(l => l.id);
+                const { data: reviews, error: reviewsError } = await _supabase
+                    .from('lesson_reviews')
+                    .select('lesson_id, rating')
+                    .in('lesson_id', lessonIds);
+
+                if (!reviewsError && reviews) {
+                    const reviewMap = new Map();
+                    reviews.forEach(review => {
+                        if (!reviewMap.has(review.lesson_id)) {
+                            reviewMap.set(review.lesson_id, { total: 0, count: 0 });
+                        }
+                        const lessonStats = reviewMap.get(review.lesson_id);
+                        lessonStats.total += review.rating;
+                        lessonStats.count++;
+                    });
+                    reviewMap.forEach((stats, lessonId) => {
+                        ratings[lessonId] = { average: (stats.total / stats.count).toFixed(1), count: stats.count };
+                    });
+                }
+            }
+            renderLessonList(ratings);
+            initSortableLessons(); // Initialize drag and drop for instructor
+
+            // If there are lessons, display the first one. Otherwise, if the user is not the instructor, show a placeholder.
+            if (lessons.length > 0) {
+                displayLesson(lessons[0].id);
+            } else {
+                if (!currentUser || currentUser.id !== courseData.instructor.id) {
+                    document.getElementById('lessonTitle').textContent = getTranslation('no_lessons_yet');
+                    document.getElementById('lessonContent').innerHTML = `<p class="placeholder">${getTranslation('no_lessons_added_by_instructor')}</p>`;
+                }
+                // Handle footer nav initial state
+                const prevBtn = document.getElementById('prevLessonBtn');
+                const nextBtn = document.getElementById('nextLessonBtn');
+                const footerTitle = document.getElementById('currentLessonTitleInFooter');
+                if(prevBtn) prevBtn.disabled = true;
+                if(nextBtn) nextBtn.disabled = true;
+                if(footerTitle) {
+                    footerTitle.textContent = getTranslation('no_lessons_yet');
+                    footerTitle.classList.add('placeholder');
+                }
+            }
+        }
+
+        function renderLessonList(ratings = {}) {
+            const modalLessonsContainer = document.getElementById('modalLessonsContainer');
+            if (lessons.length === 0) {
+                modalLessonsContainer.innerHTML = `<p class="placeholder">${getTranslation('no_lessons_yet')}</p>`;
+                return;
+            }
+            
+            const isInstructor = currentUser && courseData && currentUser.id === courseData.instructor.id;
+
+            modalLessonsContainer.innerHTML = lessons.map((lesson, index) => {
+                const ratingInfo = ratings[lesson.id];
+                let ratingHTML = '';
+                if (ratingInfo) {
+                    ratingHTML = `
+                        <div class="lesson-rating" title="${ratingInfo.count} reviews">
+                            <i class="fas fa-star"></i>
+                            <span>${ratingInfo.average}</span>
+                        </div>
+                    `;
+                }
+                const dragHandleHTML = isInstructor ? `<span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>` : '';
+                return `
+                    <a href="#" class="modal-lesson-item" id="modal-lesson-item-${lesson.id}" onclick="event.preventDefault(); displayLesson('${lesson.id}'); closeModal('lessonsListModal');">
+                        ${dragHandleHTML}
+                        <div class="lesson-number">${index + 1}</div>
+                        <span class="lesson-title-text">${escapeHTML(lesson.title || 'Untitled')}</span>
+                        ${ratingHTML}
+                    </a>
+                `;
+            }).join('');
+        }
+
+        function initSortableLessons() {
+            if (!currentUser || !courseData || currentUser.id !== courseData.instructor.id) {
+                return; // Only instructors can reorder
+            }
+
+            const container = document.getElementById('modalLessonsContainer');
+            if (container && container.children.length > 1) { // Only make sortable if there's more than one lesson
+                new Sortable(container, {
+                    animation: 150,
+                    handle: '.drag-handle',
+                    ghostClass: 'sortable-ghost',
+                    onEnd: async function (evt) {
+                        const { oldIndex, newIndex } = evt;
+                        if (oldIndex === newIndex) return;
+
+                        // Update the local 'lessons' array order to reflect the change
+                        const [movedItem] = lessons.splice(oldIndex, 1);
+                        lessons.splice(newIndex, 0, movedItem);
+
+                        // Prepare updates for Supabase
+                        const updates = lessons.map((lesson, index) => ({
+                            id: lesson.id,
+                            lesson_order: index + 1
+                        }));
+
+                        document.getElementById('loadingOverlay').style.display = 'flex';
+
+                        // Update Supabase with the new order
+                        const { error } = await _supabase.from('course_lessons').upsert(updates);
+                        
+                        document.getElementById('loadingOverlay').style.display = 'none';
+
+                        if (error) {
+                            console.error('Error reordering lessons:', error);
+                            alert('Failed to save new lesson order. The list will be refreshed.');
+                        }
+                        await loadLessons(); // Reload to refresh numbers and ensure consistency
+                    }
+                });
+            }
+        }
+
+        function displayLesson(lessonId) {
+            const lesson = lessons.find(l => l.id === lessonId);
+            if (!lesson) return;
+        
+            document.querySelectorAll('.modal-lesson-item').forEach(item => item.classList.remove('active'));
+            const activeItem = document.getElementById(`modal-lesson-item-${lessonId}`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+            }
+        
+            document.getElementById('lessonTitle').textContent = lesson.title || 'Untitled';
+
+            // Update footer navigation
+            const currentLessonIndex = lessons.findIndex(l => l.id === lessonId);
+            const prevBtn = document.getElementById('prevLessonBtn');
+            const nextBtn = document.getElementById('nextLessonBtn');
+            const footerTitle = document.getElementById('currentLessonTitleInFooter');
+
+            if (footerTitle) {
+                footerTitle.textContent = lesson.title || 'Untitled';
+                footerTitle.classList.remove('placeholder');
+            }
+            if (prevBtn) prevBtn.disabled = (currentLessonIndex <= 0);
+            if (nextBtn) nextBtn.disabled = (currentLessonIndex >= lessons.length - 1);
+
+
+            // Add edit/delete buttons for instructor
+            const lessonHeaderActions = document.getElementById('lessonHeaderActions');
+            let instructorActionsHTML = '';
+            const isInstructor = currentUser && currentUser.id === courseData.instructor.id;
+            if (isInstructor) {
+                instructorActionsHTML = `
+                    <button class="btn-icon" title="Edit Lesson" onclick="showEditLessonModal('${lesson.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn-icon" title="Delete Lesson" onclick="deleteLesson('${lesson.id}')" style="color: var(--danger);"><i class="fas fa-trash"></i></button>
+                `;
+            }
+
+            lessonHeaderActions.innerHTML = `
+                <button class="btn-icon align-btn" id="align-left-btn" title="Align Left" onclick="setTextDirection('ltr')"><i class="fas fa-align-left"></i></button>
+                <button class="btn-icon align-btn" id="align-right-btn" title="Align Right" onclick="setTextDirection('rtl')"><i class="fas fa-align-right"></i></button>
+                ${instructorActionsHTML ? '<div class="action-separator"></div>' : ''}
+                ${instructorActionsHTML}
+            `;
+
+            const lessonHTMLContent = lesson.content || '<p>No description for this lesson.</p>';
+            let firstImageHTML = '';
+            let remainingImagesHTML = '';
+
+            if (lesson.images && Array.isArray(lesson.images) && lesson.images.length > 0) {
+                const [firstImage, ...remainingImages] = lesson.images;
+
+                firstImageHTML = `
+                    <div class="lesson-first-image-wrapper">
+                        <img src="${firstImage}" class="lesson-image-item" onclick="openImageViewer('${firstImage}')">
+                    </div>
+                `;
+
+                if (remainingImages.length > 0) {
+                    remainingImagesHTML = `
+                        <div class="lesson-remaining-images-container">
+                            ${remainingImages.map(imgUrl => `<img src="${imgUrl}" class="lesson-image-item-small" onclick="openImageViewer('${imgUrl}')">`).join('')}
+                        </div>
+                    `;
+                }
+            }
+        
+            let contentHTML = `
+                <div class="lesson-body-container">
+                    <div class="lesson-top-content">
+                        <div class="lesson-main-text">
+                            ${lessonHTMLContent}
+                        </div>
+                        ${firstImageHTML}
+                    </div>
+                    ${remainingImagesHTML}
+                </div>
+            `;
+
+            if (lesson.attachment_urls && Array.isArray(lesson.attachment_urls) && lesson.attachment_urls.length > 0) {
+                let attachmentsHTML = '<hr class="content-separator">';
+                attachmentsHTML += `<h4 style="margin-top: 20px;" data-i18n-key="attachments_title">${getTranslation('attachments_title')}</h4>`;
+                lesson.attachment_urls.forEach((url, index) => {
+                    const metadata = lesson.attachment_metadatas[index] || { name: 'Download' };
+                    attachmentsHTML += `
+                        <a href="${url}" class="attachment-link" target="_blank" download="${metadata.name}">
+                            <i class="fas fa-download"></i><span>${escapeHTML(metadata.name)}</span></a>`;
+                });
+                contentHTML += attachmentsHTML;
+            }
+            document.getElementById('lessonContent').innerHTML = contentHTML;
+
+            // Animate the lesson content lines
+            const textContentContainer = document.querySelector('#lessonContent .lesson-main-text');
+            if (textContentContainer) {
+                const children = Array.from(textContentContainer.children);
+                children.forEach((child, index) => {
+                    // Apply a staggered animation delay
+                    child.style.animation = `line-fade-in 0.6s ease-out ${index * 0.1}s forwards`;
+                });
+            }
+
+            const lang = localStorage.getItem('language') || 'en';
+            setTextDirection(lang === 'fa' ? 'rtl' : 'ltr');
+            loadLessonReviews(lessonId);
+        }
+
+        function showAddLessonModal() {
+            document.getElementById('addLessonModal').classList.add('active');
+            // Initialize TinyMCE for the 'Add Lesson' modal
+            initTinyMCE('#lessonContentInput');
+        }
+
+        async function loadLessonReviews(lessonId) {
+            const reviewsSection = document.getElementById('lessonReviewsSection');
+            reviewsSection.innerHTML = '<p>Loading reviews...</p>';
+
+            const { data: reviews, error: reviewsError } = await _supabase
+                .from('lesson_reviews')
+                .select('*, profile:profiles(full_name, avatar_url)')
+                .eq('lesson_id', lessonId)
+                .order('created_at', { ascending: false });
+
+            if (reviewsError) {
+                console.error('Error fetching reviews:', reviewsError);
+                reviewsSection.innerHTML = '<p>Could not load reviews.</p>';
+                return;
+            }
+
+            let hasUserReviewed = false;
+            if (currentUser) {
+                hasUserReviewed = reviews.some(review => review.user_id === currentUser.id);
+            }
+
+            let reviewsHTML = '<h3>Ratings & Reviews</h3>';
+
+            const canReview = isEnrolled && currentUser && currentUser.id !== courseData.instructor.id;
+            if (canReview && !hasUserReviewed) {
+                reviewsHTML += `
+                    <form id="reviewForm" class="review-form" onsubmit="event.preventDefault(); submitReview('${lessonId}');">
+                        <h4>Leave a Review</h4>
+                        <div class="star-rating">
+                            <input type="radio" id="rate-5" name="rating" value="5" required><label for="rate-5" title="5 stars">★</label>
+                            <input type="radio" id="rate-4" name="rating" value="4"><label for="rate-4" title="4 stars">★</label>
+                            <input type="radio" id="rate-3" name="rating" value="3"><label for="rate-3" title="3 stars">★</label>
+                            <input type="radio" id="rate-2" name="rating" value="2"><label for="rate-2" title="2 stars">★</label>
+                            <input type="radio" id="rate-1" name="rating" value="1"><label for="rate-1" title="1 star">★</label>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="reviewComment" class="form-textarea" placeholder="Share your thoughts on this lesson..."></textarea>
+                        </div>
+                        <div class="modal-footer" style="margin-top: 10px; padding: 0;">
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </div>
+                    </form>
+                `;
+            }
+
+            if (reviews.length > 0) {
+                reviewsHTML += '<div class="reviews-list">';
+                reviews.forEach(review => {
+                    const profile = review.profile || { full_name: 'Anonymous', avatar_url: 'https://i.postimg.cc/prmTzhSz/man.png' };
+                    const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                    reviewsHTML += `
+                        <div class="review-item">
+                            <img src="${profile.avatar_url}" alt="${profile.full_name}">
+                            <div class="review-content">
+                                <div class="review-header">
+                                    <strong>${escapeHTML(profile.full_name)}</strong>
+                                    <span class="review-stars">${stars}</span>
+                                </div>
+                                <p class="review-comment">${escapeHTML(review.comment)}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                reviewsHTML += '</div>';
+            } else {
+                reviewsHTML += '<p class="placeholder" style="padding: 20px 0;">No reviews for this lesson yet.</p>';
+            }
+            reviewsSection.innerHTML = reviewsHTML;
+        }
+
+        async function submitReview(lessonId) {
+            if (!currentUser) {
+                alert('You must be logged in to leave a review.');
+                return;
+            }
+
+            const ratingInput = document.querySelector('input[name="rating"]:checked');
+            const comment = document.getElementById('reviewComment').value.trim();
+
+            if (!ratingInput) {
+                alert('Please select a star rating.');
+                return;
+            }
+
+            const rating = parseInt(ratingInput.value);
+
+            const { error } = await _supabase
+                .from('lesson_reviews')
+                .insert({
+                    lesson_id: lessonId,
+                    user_id: currentUser.id,
+                    rating: rating,
+                    comment: comment
+                });
+
+            if (error) {
+                console.error('Error submitting review:', error);
+                if (error.code === '23505') { // unique constraint violation
+                    alert('You have already reviewed this lesson.');
+                } else {
+                    alert('Failed to submit review. Please try again.');
+                }
+            } else {
+                alert('Thank you for your review!');
+                loadLessonReviews(lessonId); // Refresh the reviews list
+            }
+        }
+
+        function setTextDirection(direction) {
+            const contentArea = document.querySelector('#lessonContent .lesson-main-text');
+            if (contentArea) {
+                contentArea.dir = direction;
+            }
+            // Also handle active state for buttons
+            const alignLeftBtn = document.getElementById('align-left-btn');
+            const alignRightBtn = document.getElementById('align-right-btn');
+            if (alignLeftBtn) alignLeftBtn.classList.toggle('active', direction === 'ltr');
+            if (alignRightBtn) alignRightBtn.classList.toggle('active', direction === 'rtl');
+        }
+
+        function navigateToLesson(direction) {
+            const activeItem = document.querySelector('.modal-lesson-item.active');
+            if (!activeItem && lessons.length > 0) {
+                // This case should ideally not happen if a lesson is always displayed first.
+                // But as a fallback, let's just not do anything or start from first.
+                return;
+            }
+            if (!activeItem) return; // No lessons at all
+
+            const currentLessonId = activeItem.id.replace('modal-lesson-item-', '');
+            const currentLessonIndex = lessons.findIndex(l => l.id === currentLessonId);
+
+            if (direction === 'prev' && currentLessonIndex > 0) {
+                displayLesson(lessons[currentLessonIndex - 1].id);
+            } else if (direction === 'next' && currentLessonIndex < lessons.length - 1) {
+                displayLesson(lessons[currentLessonIndex + 1].id);
+            }
+        }
+
+        function openImageViewer(imageUrl) {
+            const modal = document.getElementById('imageViewerModal');
+            document.getElementById('modalImage').src = imageUrl;
+            modal.classList.add('active');
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            // Reset forms inside modals when closed
+            const form = document.getElementById(modalId).querySelector('form');
+            if (form) form.reset(); // Resetting the form
+            
+            // Clear file arrays and previews
+            lessonImageFiles = []; lessonAttachmentFiles = []; editLessonImageFiles = []; editLessonAttachmentFiles = [];
+            document.getElementById('imagePreviews').innerHTML = '';
+            document.getElementById('attachmentPreviews').innerHTML = '';
+            document.getElementById('editImagePreviews').innerHTML = '';
+            document.getElementById('editAttachmentPreviews').innerHTML = '';
+
+
+            // Destroy TinyMCE instances to prevent issues
+            if (modalId === 'addLessonModal' && tinymce.get('lessonContentInput')) {
+                tinymce.get('lessonContentInput').destroy();
+            }
+            if (modalId === 'editLessonModal' && tinymce.get('editLessonContentInput')) {
+                tinymce.get('editLessonContentInput').destroy();
+            }
+        }
+
+        async function addLesson() {
+            const title = document.getElementById('lessonTitleInput').value;
+            const content = tinymce.get('lessonContentInput').getContent();
+            
+            if (!title) {
+                alert(getTranslation('provide_one_title'));
+                return;
+            }
+
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            try {
+                let imageUrls = [];
+
+                // Upload images from the global array
+                if (lessonImageFiles.length > 0) {
+                    const uploadPromises = lessonImageFiles.map(file => {
+                        const fileName = `${currentUser.id}/lesson-images/${Date.now()}_${file.name}`;
+                        return _supabase.storage.from('lesson-images').upload(fileName, file);
+                    });
+                    const uploadResults = await Promise.all(uploadPromises);
+                    
+                    for (const result of uploadResults) {
+                        if (result.error) {
+                            if (result.error.message === 'Bucket not found') {
+                                alert('Error: Bucket "lesson-images" not found in Supabase Storage. Please create a public bucket with this name.');
+                            }
+                            throw result.error;
+                        }
+                        const { data: urlData } = _supabase.storage.from('lesson-images').getPublicUrl(result.data.path);
+                        imageUrls.push(urlData.publicUrl);
+                    }
+                }
+
+                // Upload multiple attachments
+                let attachmentUrls = [];
+                let attachmentMetadatas = [];
+                if (lessonAttachmentFiles.length > 0) {
+                    const uploadTasks = lessonAttachmentFiles.map(async (file) => {
+                        const fileName = `${currentUser.id}/lesson-attachments/${Date.now()}_${file.name}`;
+                        const { data, error } = await _supabase.storage.from('lesson-attachments').upload(fileName, file);
+                        if (error) {
+                            if (error.message === 'Bucket not found') {
+                                alert('Error: Bucket "lesson-attachments" not found. Please create a public bucket with this name and adjust table schema.');
+                            }
+                            throw error;
+                        }
+                        const { data: urlData } = _supabase.storage.from('lesson-attachments').getPublicUrl(data.path);
+                        return {
+                            url: urlData.publicUrl,
+                            metadata: { name: file.name, type: file.type, size: file.size }
+                        };
+                    });
+                    const results = await Promise.all(uploadTasks);
+                    attachmentUrls = results.map(r => r.url);
+                    attachmentMetadatas = results.map(r => r.metadata);
+                }
+
+                const { error: insertError } = await _supabase.from('course_lessons').insert({
+                    course_id: courseId,
+                    title: title,
+                    content,
+                    images: imageUrls.length > 0 ? imageUrls : null,
+                    attachment_urls: attachmentUrls.length > 0 ? attachmentUrls : null,
+                    attachment_metadatas: attachmentMetadatas.length > 0 ? attachmentMetadatas : null,
+                    lesson_order: lessons.length + 1
+                });
+
+                if (insertError) throw insertError;
+
+                alert(getTranslation('lesson_added_success'));
+                closeModal('addLessonModal');
+                document.getElementById('addLessonForm').reset();
+                await loadLessons();
+
+            } catch (error) {
+                console.error(getTranslation('error_adding_lesson'), error);
+                alert(`${getTranslation('error_adding_lesson')} ${error.message}`);
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        async function deleteLesson(lessonId) {
+            if (!confirm(getTranslation('confirm_delete_lesson'))) {
+                return;
+            }
+
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            try {
+                // 1. Find the lesson to get file URLs
+                const lessonToDelete = lessons.find(l => l.id === lessonId);
+                if (!lessonToDelete) throw new Error(getTranslation('lesson_not_found'));
+
+                // 2. Delete associated files from storage
+                const filesToDelete = [];
+                if (lessonToDelete.images && lessonToDelete.images.length > 0) {
+                    lessonToDelete.images.forEach(url => {
+                        const path = new URL(url).pathname.split('/lesson-images/')[1];
+                        if (path) filesToDelete.push(path);
+                    });
+                    if (filesToDelete.length > 0) {
+                        await _supabase.storage.from('lesson-images').remove(filesToDelete);
+                    }
+                }
+                if (lessonToDelete.attachment_urls && lessonToDelete.attachment_urls.length > 0) {
+                    const attachmentPaths = lessonToDelete.attachment_urls.map(url => {
+                        const path = new URL(url).pathname.split('/lesson-attachments/')[1];
+                        return path;
+                    }).filter(Boolean);
+
+                    if (attachmentPaths.length > 0)
+                        await _supabase.storage.from('lesson-attachments').remove(attachmentPaths);
+                }
+
+                // 3. Delete the lesson record from the database
+                const { error: deleteError } = await _supabase
+                    .from('course_lessons')
+                    .delete()
+                    .eq('id', lessonId);
+
+                if (deleteError) throw deleteError;
+
+                alert(getTranslation('lesson_deleted_success'));
+                
+                // Reset view if the deleted lesson was active
+                const activeLessonEl = document.querySelector('.modal-lesson-item.active');
+                if (activeLessonEl && activeLessonEl.id === `modal-lesson-item-${lessonId}`) {
+                    document.getElementById('lessonTitle').textContent = getTranslation('welcome_to_course');
+                    document.getElementById('lessonContent').innerHTML = `<p class="placeholder">${getTranslation('select_lesson_prompt')}</p>`;
+                }
+
+                await loadLessons(); // Refresh the list
+
+            } catch (error) {
+                console.error(getTranslation('error_deleting_lesson'), error);
+                alert(`${getTranslation('error_deleting_lesson')} ${error.message}`);
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        function showEditLessonModal(lessonId) {
+            const lesson = lessons.find(l => l.id === lessonId);
+            if (!lesson) return;
+
+            document.getElementById('editLessonId').value = lesson.id;
+            document.getElementById('editLessonTitleInput').value = lesson.title || '';
+
+            document.getElementById('editLessonContentInput').value = lesson.content || '';
+            
+            // Show current images
+            const imagePreviews = document.getElementById('editImagePreviews');
+            imagePreviews.innerHTML = '';
+            if (lesson.images && lesson.images.length > 0) {
+                lesson.images.forEach(imgUrl => {
+                    const img = document.createElement('img');
+                    img.src = imgUrl;
+                    img.className = 'image-preview-item';
+                    imagePreviews.appendChild(img);
+                });
+            }
+
+            document.getElementById('editLessonModal').classList.add('active');
+            
+            // Initialize TinyMCE for the edit modal
+            initTinyMCE('#editLessonContentInput');
+        }
+
+        async function updateLesson() {
+            const lessonId = document.getElementById('editLessonId').value;
+            const title = document.getElementById('editLessonTitleInput').value;
+            const content = tinymce.get('editLessonContentInput').getContent();
+
+            if (!title) {
+                alert(getTranslation('provide_one_title'));
+                return;
+            }
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            try {
+                const originalLesson = lessons.find(l => l.id === lessonId);
+                const updatePayload = {
+                    title: title,
+                    content
+                };
+
+                // --- Full File Replacement Logic ---
+                const newImageFiles = editLessonImageFiles;
+                const newAttachmentFiles = editLessonAttachmentFiles;
+
+                // If new images are selected, replace all old ones.
+                if (newImageFiles.length > 0) {
+                    // 1. Delete old images from storage
+                    if (originalLesson.images && originalLesson.images.length > 0) {
+                        const oldImagePaths = originalLesson.images.map(url => new URL(url).pathname.split('/lesson-images/')[1]).filter(Boolean);
+                        if (oldImagePaths.length > 0) await _supabase.storage.from('lesson-images').remove(oldImagePaths);
+                    }
+                    // 2. Upload new images
+                    const imageUploadTasks = newImageFiles.map(async (file) => {
+                        const fileName = `${currentUser.id}/lesson-images/${Date.now()}_${file.name}`;
+                        const { data, error } = await _supabase.storage.from('lesson-images').upload(fileName, file);
+                        if (error) throw error;
+                        return _supabase.storage.from('lesson-images').getPublicUrl(data.path).data.publicUrl;
+                    });
+                    updatePayload.images = await Promise.all(imageUploadTasks);
+                }
+
+                // If new attachments are selected, replace all old ones.
+                if (newAttachmentFiles.length > 0) {
+                    // 1. Delete old attachments
+                    if (originalLesson.attachment_urls && originalLesson.attachment_urls.length > 0) {
+                        const oldAttachmentPaths = originalLesson.attachment_urls.map(url => new URL(url).pathname.split('/lesson-attachments/')[1]).filter(Boolean);
+                        if (oldAttachmentPaths.length > 0) await _supabase.storage.from('lesson-attachments').remove(oldAttachmentPaths);
+                    }
+                    // 2. Upload new attachments
+                    const attachmentUploadTasks = newAttachmentFiles.map(async (file) => {
+                        const fileName = `${currentUser.id}/lesson-attachments/${Date.now()}_${file.name}`;
+                        const { data, error } = await _supabase.storage.from('lesson-attachments').upload(fileName, file);
+                        if (error) throw error;
+                        return {
+                            url: _supabase.storage.from('lesson-attachments').getPublicUrl(data.path).data.publicUrl,
+                            metadata: { name: file.name, type: file.type, size: file.size }
+                        };
+                    });
+                    const results = await Promise.all(attachmentUploadTasks);
+                    updatePayload.attachment_urls = results.map(r => r.url);
+                    updatePayload.attachment_metadatas = results.map(r => r.metadata);
+                } else {
+                    // If the user interacted with the file input but selected nothing, it means they want to clear the attachments.
+                    const attachmentInput = document.getElementById('editLessonAttachmentInput');
+                    if (attachmentInput.files.length === 0 && editLessonAttachmentFiles.length === 0) {
+                        updatePayload.attachment_urls = null;
+                        updatePayload.attachment_metadatas = null;
+                    }
+                }
+
+                // If user clears images but doesn't add new ones, we should clear them from DB
+                if (newImageFiles.length === 0 && document.getElementById('editLessonImagesInput').value === '') {
+                    if (originalLesson.images && originalLesson.images.length > 0) {
+                         // Deletion logic here
+                    }
+                    updatePayload.images = null;
+                }
+
+                const { error: updateError } = await _supabase.from('course_lessons').update(updatePayload).eq('id', lessonId);
+                if (updateError) throw updateError;
+
+                alert(getTranslation('lesson_updated_success'));
+                closeModal('editLessonModal');
+                await loadLessons();
+                displayLesson(lessonId); // Re-display the updated lesson
+
+            } catch (error) {
+                console.error(getTranslation('error_updating_lesson'), error);
+                alert(`${getTranslation('error_updating_lesson')} ${error.message}`);
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        function handleFileSelection(event, fileType, isEditMode) {
+            const input = event.target;
+            const newFiles = Array.from(input.files);
+            if (newFiles.length === 0) return;
+
+            const fileArray = isEditMode
+                ? (fileType === 'image' ? editLessonImageFiles : editLessonAttachmentFiles)
+                : (fileType === 'image' ? lessonImageFiles : lessonAttachmentFiles);
+
+            fileArray.push(...newFiles);
+            renderPreviews(fileType, isEditMode);
+            input.value = ''; // Reset input to allow selecting the same file again
+        }
+
+        function removeFile(index, fileType, isEditMode) {
+            const fileArray = isEditMode
+                ? (fileType === 'image' ? editLessonImageFiles : editLessonAttachmentFiles)
+                : (fileType === 'image' ? lessonImageFiles : lessonAttachmentFiles);
+            
+            fileArray.splice(index, 1);
+            renderPreviews(fileType, isEditMode);
+        }
+
+        function renderPreviews(fileType, isEditMode) {
+            const fileArray = isEditMode
+                ? (fileType === 'image' ? editLessonImageFiles : editLessonAttachmentFiles)
+                : (fileType === 'image' ? lessonImageFiles : lessonAttachmentFiles);
+
+            const previewContainerId = isEditMode
+                ? (fileType === 'image' ? 'editImagePreviews' : 'editAttachmentPreviews')
+                : (fileType === 'image' ? 'imagePreviews' : 'attachmentPreviews');
+            
+            const previewContainer = document.getElementById(previewContainerId);
+            previewContainer.innerHTML = '';
+
+            fileArray.forEach((file, index) => {
+                const removeBtnHTML = `<button class="remove-preview-btn" onclick="removeFile(${index}, '${fileType}', ${isEditMode})">&times;</button>`;
+
+                if (fileType === 'image') {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'image-preview-wrapper';
+                    const img = document.createElement('img');
+                    img.className = 'image-preview-item';
+                    wrapper.innerHTML = removeBtnHTML;
+                    wrapper.appendChild(img);
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => { img.src = e.target.result; };
+                    reader.readAsDataURL(file);
+                    
+                    previewContainer.appendChild(wrapper);
+                } else { // attachment
+                    const item = document.createElement('div');
+                    item.className = 'file-preview-item';
+                    item.innerHTML = `
+                        <i class="fas fa-file-alt"></i>
+                        <span class="file-name" title="${escapeHTML(file.name)}">${escapeHTML(file.name)}</span>
+                        <button class="btn-icon" style="color: var(--danger);" onclick="removeFile(${index}, '${fileType}', ${isEditMode})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    previewContainer.appendChild(item);
+                }
+            });
+        }
+
+        function previewLessonImages(files, previewContainer) { // This function is now replaced by renderPreviews
+            /*
+            // Kept for reference, but logic is now in renderPreviews
+            previewContainer.innerHTML = '';
+            if (!files) return;
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'image-preview-item';
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+            */
+        }
+
+        function getTranslation(key) {
+            const lang = localStorage.getItem('language') || 'en';
+            return translations[lang][key] || translations.en[key] || key;
+        }
+
+        function changeLanguage(lang) {
+            localStorage.setItem('language', lang);
+            document.documentElement.lang = lang;
+            document.documentElement.dir = 'ltr'; // Always set main document to LTR
+
+            // Selectively set direction for the main content area
+            const mainContent = document.querySelector('.course-main-content');
+            if (mainContent) {
+                mainContent.dir = lang === 'fa' ? 'rtl' : 'ltr';
+            }
+
+            // Also set direction for modals
+            const addModal = document.getElementById('addLessonModal');
+            const editModal = document.getElementById('editLessonModal');
+            const direction = lang === 'fa' ? 'rtl' : 'ltr';
+            if (addModal) addModal.dir = direction;
+            if (editModal) editModal.dir = direction;
+
+            document.querySelectorAll('[data-i18n-key]').forEach(el => {
+                const key = el.getAttribute('data-i18n-key');
+                el.textContent = getTranslation(key);
+            });
+
+            document.querySelectorAll('[data-i18n-title-key]').forEach(el => {
+                const key = el.getAttribute('data-i18n-title-key');
+                el.title = getTranslation(key);
+            });
+
+            // Update language selector value
+            const langSelect = document.getElementById('languageSelect');
+            if (langSelect) langSelect.value = lang;
+        }
+
+        // Re-using header and theme logic
+        function initializeNewHeader() {
+            const profileTrigger = document.getElementById('nav-profile-trigger');
+            const profileDropdown = document.getElementById('profileDropdown');
+            const settingsBtn = document.getElementById('settingsBtn');
+            const settingsDropdown = document.getElementById('settingsDropdown');
+
+            if (profileTrigger && profileDropdown) {
+                profileTrigger.addEventListener('click', (e) => { e.stopPropagation(); profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block'; });
+            }
+            if (settingsBtn && settingsDropdown) {
+                settingsBtn.addEventListener('click', (e) => { e.stopPropagation(); settingsDropdown.style.display = settingsDropdown.style.display === 'block' ? 'none' : 'block'; });
+            }
+
+            document.addEventListener('click', (e) => {
+                if (profileDropdown && profileDropdown.style.display === 'block' && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) { profileDropdown.style.display = 'none'; }
+                if (settingsDropdown && settingsDropdown.style.display === 'block' && !settingsBtn.contains(e.target) && !settingsDropdown.contains(e.target)) { settingsDropdown.style.display = 'none'; }
+            });
+
+            const themeToggle = document.getElementById('themeToggleSettings');
+            if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+
+            if(currentUser) {
+                _supabase.from('profiles').select('avatar_url').eq('id', currentUser.id).single().then(({data}) => {
+                    if(data) document.getElementById('headerUserAvatar').src = data.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
+                });
+            }
+        }
+
+        function toggleTheme() {
+            const newTheme = document.body.classList.contains('dark-theme') ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        function setTheme(theme, isInitial = false) {
+            document.body.classList.toggle('dark-theme', theme === 'dark');
+            document.body.classList.toggle('light-theme', theme !== 'dark');
+            const themeToggle = document.getElementById('themeToggleSettings');
+            if (themeToggle) themeToggle.querySelector('i').className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            if (!isInitial) localStorage.setItem('theme', theme);
+            // If TinyMCE editors are active, we might need to re-initialize them to apply the theme
+            if (tinymce.get('lessonContentInput')) {
+                tinymce.get('lessonContentInput').destroy();
+                initTinyMCE('#lessonContentInput');
+            }
+            if (tinymce.get('editLessonContentInput')) {
+                tinymce.get('editLessonContentInput').destroy();
+            }
+        }
+
+        async function logout() {
+            if (!confirm(getTranslation('confirm_delete_lesson'))) return;
+            await _supabase.auth.signOut();
+            window.location.href = 'indexx.html';
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            const p = document.createElement('p');
+            p.textContent = str;
+            return p.innerHTML;
+        }
+    </script>
+</body>
+</html>

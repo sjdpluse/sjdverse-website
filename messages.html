@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - SJDVerse</title>
+    <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --p1: #d8f4a0; --p2: #fdc7d5; --p3: #bcd8fd; --p4: #ffeca8; --p5: #5d5c5c;
+            --white: #ffffff; --light-gray: #f8f9fa; --medium-gray: #e9ecef; --dark-gray: #343a40;
+            --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --border-radius: 16px; --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-heavy: 0 15px 50px rgba(0, 0, 0, 0.15);
+
+            /* Light Theme (default) */
+            --bg-primary: var(--white);
+            --bg-secondary: var(--light-gray);
+            --text-primary: var(--dark-gray);
+            --text-secondary: var(--p5);
+            --border-color: var(--medium-gray);
+            --card-bg: var(--white);
+            --primary: var(--p3);
+            --success: #4caf50;
+            --danger: #f44336;
+            --info: #2196f3;
+        }
+
+        .dark-theme {
+            --bg-primary: #1c1c1e;
+            --bg-secondary: #2c2c2e;
+            --text-primary: #f2f2f7;
+            --text-secondary: #aeaeb2;
+            --border-color: #3a3a3c;
+            --card-bg: #2c2c2e;
+            --primary: #5d9bfb;
+            --success: #6abf69;
+            --danger: #f44336;
+            --info: #64b5f6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        h1, h2, h3, h4, h5, h6, .logo, .btn {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+        }
+        /* New App Header */
+        .app-header {
+            background: var(--card-bg);
+            padding: 0 5%;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 60px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .app-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+        .app-header .logo:hover { transform: scale(1.05); }
+        .app-nav { display: flex; align-items: center; gap: 20px; }
+        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s, transform 0.2s; position: relative; padding: 8px; }
+        .app-nav .nav-icon:hover { color: var(--text-primary); transform: scale(1.1); }
+        .app-nav .nav-icon.active { color: var(--text-primary); }
+        .app-nav .profile-link img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; transition: border-color 0.2s; }
+        .app-nav .profile-link.active img,
+        .app-nav .profile-link:hover img { border-color: var(--text-primary); }
+        .profile-nav-item { position: relative; }
+        .profile-dropdown { display: none; position: absolute; top: calc(100% + 10px); right: 0; background: var(--card-bg); border-radius: 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); width: 200px; z-index: 1001; border: 1px solid var(--border-color); padding: 8px 0; animation: fadeIn 0.2s ease; }
+        .profile-dropdown .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; transition: background-color 0.2s; background: none; border: none; width: 100%; font-family: 'Poppins', sans-serif; font-size: 0.9rem; color: var(--text-primary); text-decoration: none; text-align: left; }
+        .profile-dropdown .dropdown-item:hover { background: var(--bg-secondary); }
+        .profile-dropdown hr { border: none; border-top: 1px solid var(--border-color); margin: 8px 0; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 0 15px;
+            }
+            .app-nav {
+                gap: 10px;
+            }
+            .app-nav .nav-icon {
+                font-size: 1.3rem;
+                padding: 6px;
+            }
+        }
+
+        .btn { padding: 10px 20px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-primary { background: var(--primary); color: var(--dark-gray); }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.3rem; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); transition: var(--transition); }
+
+        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        
+        .conversations-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .conversation-card {
+            text-decoration: none;
+            color: inherit;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: var(--transition);
+        }
+        .conversation-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); }
+
+        .profile-container {
+            position: relative;
+            flex-shrink: 0; /* جلوگیری از کوچک شدن عکس */
+        }
+
+        .unread-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--card-bg);
+        }
+
+        .conversation-card img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); }
+        .conversation-details h4 { font-size: 1.2rem; margin-bottom: 2px; }
+        .conversation-details p { color: var(--text-secondary); opacity: 0.8; }
+        .verified-badge {
+            font-size: 0.5em; /* Makes the badge scale with the parent text */
+            vertical-align: -0.1em; /* Adjust vertical alignment */
+            margin-left: 4px;
+        }
+        .verified-badge .fa-certificate {
+            color: #1DA1F2;
+        }
+        .verified-avatar {
+            border: 3px solid #1DA1F2;
+            box-shadow: 0 0 10px rgba(29, 161, 242, 0.4);
+        }
+        .conversation-details h4 { display: inline-flex; align-items: center; }
+        .placeholder { text-align: center; color: var(--text-secondary); opacity: 0.7; padding: 40px; }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+                padding: 0 10px;
+            }
+            .conversation-card {
+                padding: 15px;
+                gap: 15px;
+            }
+            .conversation-card img {
+                width: 50px; height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <a href="indexx.html" class="logo">
+            <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 35px;">
+            <span style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
+        </a>
+        <nav class="app-nav">
+            <a href="indexx.html" class="nav-icon" id="nav-home" title="Home"><i class="fas fa-home"></i></a>
+            <a href="explore.html" class="nav-icon" id="nav-explore" title="Explore"><i class="fas fa-compass"></i></a>
+            <a href="search.html" class="nav-icon" id="nav-search" title="Search"><i class="fas fa-search"></i></a>
+            <a href="courses.html" class="nav-icon" id="nav-courses" title="Courses"><i class="fas fa-book-open"></i></a>
+            <a href="messages.html" class="nav-icon" id="nav-messages" title="Messages"><i class="fas fa-comments"></i></a>
+            <div class="profile-nav-item">
+                <a href="javascript:void(0);" class="nav-icon profile-link" id="nav-profile-trigger" title="Profile"><img id="headerUserAvatar" src="https://i.postimg.cc/prmTzhSz/man.png" alt="User Avatar"></a>
+                <div id="profileDropdown" class="profile-dropdown">
+                    <a href="profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
+                    <button id="themeToggleDropdown" class="dropdown-item"><i class="fas fa-moon"></i> <span>Theme</span></button>
+                    <hr>
+                    <button class="dropdown-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h2 style="text-align: center; margin-bottom: 30px;" data-i18n-key="your_conversations">Your Conversations</h2>
+        <div id="conversationsContainer" class="conversations-container">
+            <p class="placeholder" data-i18n-key="loading_conversations">Loading conversations...</p>
+        </div>
+    </main>
+
+    <script>
+        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'indexx.html';
+                return;
+            }
+            changeLanguage('en'); // Ensure English is set
+
+            currentUser = session.user;
+            updateUserNav(currentUser);
+            await loadConversations();
+
+            // Initialize theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.classList.add(savedTheme === 'dark' ? 'dark-theme' : 'light-theme');
+            setTheme(savedTheme, true);
+
+            // Initialize event listeners
+            document.getElementById('nav-messages').classList.add('active');
+            initializeNewHeader();
+        });
+
+        async function loadConversations() {
+            const conversationsContainer = document.getElementById('conversationsContainer');
+            
+            const { data, error } = await _supabase
+                .rpc('get_user_conversations');
+
+            if (error) {
+                console.error('Error loading conversations:', error);
+                conversationsContainer.innerHTML = `<p class="placeholder">${getTranslation('conversations_load_error')}</p>`;
+                return;
+            }
+
+            if (data.length === 0) {
+                conversationsContainer.innerHTML = `<p class="placeholder">${getTranslation('no_conversations_yet')}</p>`;
+                return;
+            }
+
+            // دریافت تعداد پیام‌های خوانده‌نشده برای هر گفتگو
+            const conversationsWithUnread = await Promise.all(
+                data.map(async (convo) => {
+                    const { count, error: countError } = await _supabase
+                        .from('messages')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('conversation_id', convo.conversation_id)
+                        .neq('sender_id', currentUser.id)
+                        .is('read_at', null);
+                    
+                    if (countError) {
+                        console.error(`خطا در دریافت تعداد پیام‌های خوانده‌نشده برای گفتگوی ${convo.conversation_id}:`, countError);
+                        return { ...convo, unread_count: 0 };
+                    }
+                    
+                    return { ...convo, unread_count: count };
+                })
+            );
+
+            // مرتب‌سازی گفتگوها بر اساس جدیدترین پیام (نزولی)
+            conversationsWithUnread.sort((a, b) => new Date(b.last_message_at) - new Date(a.last_message_at));
+
+            const lang = document.documentElement.lang || 'en';
+            conversationsContainer.innerHTML = conversationsWithUnread.map(convo => {
+                const unreadBadge = convo.unread_count > 0 
+                    ? `<span class="unread-badge">${convo.unread_count > 9 ? '9+' : convo.unread_count}</span>` 
+                    : '';
+                
+                const verifiedBadge = convo.is_verified ? `<span class="fa-stack verified-badge" title="Verified"><i class="fas fa-certificate fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span>` : '';
+                const verifiedClass = convo.is_verified ? 'verified-avatar' : '';
+
+                return `
+                    <a href="chat.html?id=${convo.conversation_id}" class="conversation-card">
+                        <div class="profile-container">
+                            <img src="${convo.avatar_url || 'https://i.postimg.cc/m2b2pS5T/default-avatar.png'}" alt="${convo.full_name}" class="${verifiedClass}">
+                            ${unreadBadge}
+                        </div>
+                        <div class="conversation-details">
+                            <h4>${convo.full_name || getTranslation('user_name_placeholder')}${verifiedBadge}</h4>
+                            <p style="font-size: 0.9rem; opacity: 0.7; margin: 0;">${getTranslation('last_message')} ${new Date(convo.last_message_at).toLocaleString(lang === 'fa' ? 'fa-IR' : 'en-US')}</p>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        function updateUserNav(user) {
+            if (!user) return;
+            const avatarUrl = user?.user_metadata?.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
+            document.getElementById('headerUserAvatar').src = avatarUrl;
+        }
+
+        async function logout() {
+            if (!confirm(getTranslation('confirm_logout'))) return;
+            await _supabase.auth.signOut();
+            window.location.href = 'indexx.html';
+        }
+
+        // --- Internationalization (i18n) & Settings ---
+        const translations = {
+            en: {
+                "settings": "Settings", "language": "Language", "privacy": "Privacy", "logout": "Logout", "view_profile": "View Profile",
+                "my_profile": "My Profile", "your_conversations": "Your Conversations", "loading_conversations": "Loading conversations...",
+                "conversations_load_error": "Error loading conversations.", "no_conversations_yet": "You haven't started any conversations yet. Search for a user and send them a message to begin.",
+                "last_message": "Last message:", "user_name_placeholder": "User", "confirm_logout": "Are you sure you want to log out?"
+            }
+        };
+
+        function getTranslation(key, params = {}) {
+            const lang = document.documentElement.lang || 'en';
+            const langTranslations = translations[lang] || translations.en;
+            let text = langTranslations[key] || (translations.en ? translations.en[key] : key) || key;
+            for (const p in params) {
+                text = text.replace(`{${p}}`, params[p]);
+            }
+            return text;
+        }
+
+        function changeLanguage(lang) { // Simplified
+            document.documentElement.lang = 'en';
+            document.documentElement.dir = 'ltr';
+            document.querySelectorAll('[data-i18n-key]').forEach(el => {
+                el.innerHTML = getTranslation(el.getAttribute('data-i18n-key'));
+            });
+        }
+
+        // --- New Header & Theme Logic ---
+        function initializeNewHeader() {
+            const profileTrigger = document.getElementById('nav-profile-trigger');
+            const profileDropdown = document.getElementById('profileDropdown');
+
+            if (profileTrigger && profileDropdown) {
+                profileTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+                });
+            }
+            const themeToggle = document.getElementById('themeToggleDropdown');
+            if(themeToggle) themeToggle.addEventListener('click', toggleTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        }
+
+        function setTheme(theme, isInitial = false) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.body.classList.remove('light-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+                document.body.classList.add('light-theme');
+            }
+            const themeToggleDropdown = document.getElementById('themeToggleDropdown');
+            if (themeToggleDropdown) themeToggleDropdown.querySelector('i').className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            if (!isInitial) localStorage.setItem('theme', theme);
+        }
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', (e) => {
+            const profileDropdown = document.getElementById('profileDropdown');
+            const profileTrigger = document.getElementById('nav-profile-trigger');
+            if (profileDropdown && profileDropdown.style.display === 'block' && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

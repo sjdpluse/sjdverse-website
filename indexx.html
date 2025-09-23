@@ -1,0 +1,2067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SJDVerse</title>
+    <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&family=MuseoModerno:wght@400;700&family=Michroma&family=Exo+2:wght@300&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Supabase JS Library -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root {
+            --p1: #d8f4a0;  /* soft green */
+            --p2: #fdc7d5;  /* soft pink */
+            --p3: #bcd8fd;  /* soft blue */
+            --p4: #ffeca8;  /* soft yellow */
+            --p5: #5d5c5c;  /* dark neutral */
+            --white: #ffffff;
+            --light-gray: #dbdcdd;
+            --medium-gray: #e9ecef;
+            --dark-gray: #343a40;
+            --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.1);
+            --shadow-heavy: 0 15px 50px rgba(0, 0, 0, 0.15);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--light-gray); /* Changed for dark bg */
+            background-color: #1d2227; /* Fallback bg color from effect */
+            overflow-x: hidden;
+        }
+
+        /* Scroll Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fade-in-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-in-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .fade-in-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-in-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .blur-fade-in {
+            opacity: 0;
+            filter: blur(5px);
+            transform: translateY(20px);
+            transition: opacity 1.2s ease-out, transform 1.2s ease-out, filter 1.2s ease-out;
+        }
+
+        .blur-fade-in.visible {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0);
+        }
+
+        /* Auth Overlay */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--white);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3e%3cdefs%3e%3cpattern id='grid' width='50' height='50' patternUnits='userSpaceOnUse'%3e%3cpath d='M 50 0 L 0 0 0 50' fill='none' stroke='rgba(0,0,0,0.05)' stroke-width='1'/%3e%3c/pattern%3e%3cfilter id='wave'%3e%3cfeTurbulence type='fractalNoise' baseFrequency='0.01 0.02' numOctaves='3' result='turbulence'/%3e%3cfeDisplacementMap in='SourceGraphic' in2='turbulence' scale='15' xChannelSelector='R' yChannelSelector='G'/%3e%3c/filter%3e%3c/defs%3e%3crect width='100%25' height='100%25' fill='url(%23grid)' filter='url(%23wave)'/%3e%3c/svg%3e");
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .auth-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 1200px;
+            width: 100%;
+            height: 90vh;
+            background: var(--white);
+            border-radius: 24px;
+            box-shadow: var(--shadow-heavy);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-visual {
+            background: url('https://i.postimg.cc/mr9G8dsq/cash-macanaya-XDFf-AHlxw9-I-unsplash.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            text-align: center;
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-visual::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23ffffff;stop-opacity:0.1"/><stop offset="100%" style="stop-color:%23ffffff;stop-opacity:0"/></linearGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23grad1)"/><circle cx="800" cy="300" r="150" fill="url(%23grad1)"/><circle cx="400" cy="700" r="80" fill="url(%23grad1)"/><circle cx="700" cy="800" r="120" fill="url(%23grad1)"/></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-10px, -10px) rotate(90deg); }
+            50% { transform: translate(10px, -20px) rotate(180deg); }
+            75% { transform: translate(-20px, 10px) rotate(270deg); }
+        }
+
+        .auth-visual h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--dark-gray);
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .auth-visual p {
+            font-size: 1.2rem;
+            color: var(--p5);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Animation for auth visual text */
+        .animated-text span {
+            display: inline-block; /* Required for transforms */
+            opacity: 0;
+            animation: raiseIn 0.7s ease-out forwards;
+        }
+
+        @keyframes raiseIn {
+            from {
+                opacity: 0;
+                transform: translateY(35px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-form-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 50px;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: fadeInStep 0.4s ease-out;
+        }
+
+        @keyframes fadeInStep {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--medium-gray);
+            margin: 0 6px;
+            transition: var(--transition);
+        }
+
+        .step-dot.active {
+            background: var(--p3);
+            transform: scale(1.2);
+        }
+
+        .step-dot.completed {
+            background: var(--p1);
+        }
+
+        .auth-buttons {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--p5);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            transition: var(--transition);
+            background: var(--white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--p3);
+            box-shadow: 0 0 0 4px rgba(188, 216, 253, 0.2);
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--p5);
+            color: var(--white);
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--p5);
+            border: 2px solid var(--medium-gray);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--p3);
+            transform: translateY(-2px);
+        }
+
+        .btn-hero-glow {
+            background: rgba(216, 244, 160, 0.1);
+            color: var(--white);
+            border: 1px solid rgba(216, 244, 160, 0.2);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .btn-hero-glow:hover {
+            transform: translateY(-3px);
+            background: rgba(216, 244, 160, 0.2);
+        }
+
+        /* Icon Scroller Section */
+        .icon-scroller-section {
+            padding: 0;
+            margin-bottom: 30px;
+            overflow: hidden;
+            position: relative;
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+
+        .icon-scroller {
+            width: 100%;
+            display: flex;
+        }
+
+        .icon-scroller-inner {
+            display: flex;
+            flex-shrink: 0;
+            animation: scroll-icons 80s linear infinite;
+        }
+
+        .icon-scroller-inner i {
+            font-size: 2rem;
+            color: var(--light-gray);
+            opacity: 0.4;
+            margin: 0 30px;
+            transition: var(--transition);
+            cursor: default;
+        }
+
+        .icon-scroller-inner i:hover {
+            opacity: 1;
+            color: var(--p1); /* Changed to green on hover */
+            transform: scale(1.2);
+        }
+
+        @keyframes scroll-icons {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        /* Settings Dropdown */
+        .settings-menu-container {
+            position: relative;
+        }
+        .settings-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px);
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-heavy);
+            width: 220px;
+            padding: 10px 0;
+            z-index: 1001;
+        }
+        html[dir="ltr"] .settings-dropdown {
+            right: 0;
+        }
+        html[dir="rtl"] .settings-dropdown {
+            left: 0;
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: none;
+            border: none;
+            width: 100%;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            color: var(--p5);
+        }
+        html[dir="ltr"] .dropdown-item { text-align: left; }
+        html[dir="rtl"] .dropdown-item { text-align: right; }
+        .dropdown-item:hover { background: var(--light-gray); }
+        .dropdown-item i { width: 20px; text-align: center; opacity: 0.7; }
+        .language-switcher { padding: 0 20px 10px; }
+        .language-switcher label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--p5);
+            opacity: 0.7;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .language-select { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--medium-gray); font-family: 'Poppins', sans-serif; }
+        .settings-dropdown hr { border: none; border-top: 1px solid var(--medium-gray); margin: 10px 0; }
+
+        /* Main Content */
+        .main-content {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content.active {
+            display: flex;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(29, 34, 39, 0.85); /* Dark transparent bg */
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--white); /* Changed for dark bg */
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--light-gray); /* Changed for dark bg */
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--p3);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 140px 5% 100px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;            
+        }
+
+        .hero h1 {
+            font-family: 'MuseoModerno', sans-serif; /* Reverting to the more impactful font */
+            font-size: clamp(2.5rem, 6vw, 4.5rem); /* Made the font smaller */
+            font-weight: 700; /* Bold */
+            margin: 0;
+            line-height: 1.2;
+            text-align: left;
+        }
+
+        .hero p {
+            font-family: 'Exo 2', sans-serif;
+            font-weight: 300;
+            font-size: 1.3rem;
+            margin-bottom: 50px;
+            max-width: 800px;
+            color: var(--light-gray); /* Changed for dark bg */
+        }
+        .hero-title-line {
+            display: inline-block;
+            color: var(--white);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .hero-image {
+            text-align: center;
+        }
+        .hero-image img {
+            max-width: 400px; /* Made the vector even smaller */
+            width: 100%;
+            height: auto;
+            animation: subtle-float 8s ease-in-out infinite; /* New, more subtle animation */
+        }
+        /* When the parent .hero section becomes visible, trigger the animation */
+        .hero.visible .hero-title-line {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Stagger the animation for each line */
+        .hero.visible .hero-title-line:nth-of-type(1) { transition-delay: 0.2s; }
+        .hero.visible .hero-title-line:nth-of-type(2) { transition-delay: 0.5s; }
+
+        @keyframes subtle-float {
+            0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+            50% { transform: translateY(-15px) rotate(1.5deg); }
+        }
+
+
+        /* Feature Cards */
+        .features {
+            padding: 100px 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--medium-gray);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 24px;
+            color: var(--white);
+        }
+
+        .feature-card:nth-child(1) .feature-icon {
+            background: linear-gradient(135deg, var(--p1), var(--p3));
+        }
+
+        .feature-card:nth-child(2) .feature-icon {
+            background: linear-gradient(135deg, var(--p2), var(--p4));
+        }
+
+        .feature-card:nth-child(3) .feature-icon {
+            background: linear-gradient(135deg, var(--p3), var(--p1));
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--p5);
+        }
+
+        /* Stats Section */
+        .stats {
+            background: linear-gradient(135deg, var(--light-gray), var(--white));
+            padding: 100px 5%;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--p3);
+            margin-bottom: 10px;
+        }
+
+        .stat-item p {
+            font-size: 1.1rem;
+            color: var(--dark-gray);
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 100px 5%;
+            text-align: center;
+            background: linear-gradient(135deg, var(--p3), var(--p1));
+            color: var(--white);
+        }
+
+        .cta h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .auth-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .auth-visual {
+                order: 2;
+                padding: 40px 30px;
+            }
+            
+            .auth-visual h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding-top: 120px;
+            }
+            .hero-content { order: 2; }
+            .hero-image { order: 1; margin-bottom: 40px; }
+            .hero h1 { text-align: center; }
+            .hero .hero-content div { /* The button container */
+                justify-content: center;
+            }
+            .nav {
+                padding: 20px;
+            }
+            #userNav {
+                gap: 10px; /* Reduce gap */
+            }
+            #userName {
+                display: none; /* Hide user name */
+            }
+            .header-icon {
+                font-size: 1.3rem; /* Slightly smaller icons */
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--medium-gray);
+            border-top: 4px solid var(--p3);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .radio-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .radio-item:hover {
+            border-color: var(--p3);
+        }
+
+        .radio-item input[type="radio"] {
+            margin: 0;
+        }
+
+        .radio-item input[type="radio"]:checked + label {
+            color: var(--p3);
+        }
+
+        .radio-item:has(input:checked) {
+            border-color: var(--p3);
+            background: rgba(188, 216, 253, 0.1);
+        }
+
+        .form-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        /* For photo preview */
+        .profile-photo-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-top: 15px;
+            border: 3px solid var(--p3);
+            display: none; /* Hidden by default */
+        }
+        .form-input[type="file"] {
+            padding: 12px;
+        }
+
+        /* AI Chat Floating Box Styles */
+        .ai-chat-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--p3), var(--p1));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--p5);
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-heavy);
+            transition: var(--transition);
+            z-index: 1001;
+        }
+        .ai-chat-fab:hover {
+            transform: translateY(-3px) scale(1.05);
+        }
+
+        .ai-chat-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: var(--ai-chat-width);
+            max-height: 60vh;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-heavy);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transform: translateY(20px) scale(0.95);
+            opacity: 0;
+            visibility: hidden;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            direction: rtl; /* Set direction for chat content */
+        }
+        .ai-chat-window.active {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+        .ai-chat-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--medium-gray);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ai-chat-header .close-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; opacity: 0.6; }
+        .ai-chat-header .close-btn:hover { opacity: 1; }
+        .ai-chat-messages { flex-grow: 1; overflow-y: auto; padding: 15px; }
+        .ai-chat-input-area { padding: 15px; border-top: 1px solid var(--medium-gray); display: flex; gap: 10px; }
+        .ai-chat-input { flex-grow: 1; padding: 12px; border: 1px solid var(--medium-gray); border-radius: 10px; font-family: 'Vazirmatn', sans-serif; }
+        .ai-chat-input:focus { outline: none; border-color: var(--p3); }
+        
+        /* Copied from profile.html for AI chat messages */
+        .ai-chat-messages .message { display: flex; gap: 10px; margin-bottom: 15px; max-width: 85%; }
+        .ai-chat-messages .message .icon { font-size: 1.5rem; }
+        .ai-chat-messages .message .text { padding: 12px 16px; border-radius: 12px; line-height: 1.5; }
+        .ai-chat-messages .user-message { margin-right: auto; }
+        .ai-chat-messages .user-message .text { background: var(--p3); color: var(--dark-gray); border-bottom-right-radius: 0; }
+        .ai-chat-messages .ai-message { margin-left: auto; flex-direction: row-reverse; }
+        .ai-chat-messages .ai-message .text { background: var(--medium-gray); border-bottom-left-radius: 0; }
+        .ai-chat-messages .thinking-indicator span { display: inline-block; animation: blink 1.4s infinite both; font-size: 2rem; line-height: 0; }
+        .ai-chat-messages .thinking-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .ai-chat-messages .thinking-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes blink { 0%, 100% { opacity: 0.2; } 20% { opacity: 1; } }
+        .header-icon {
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .header-icon:hover { color: var(--p3) !important; transform: scale(1.1); }
+
+        /* New Message Notification Pop-up */
+        #messageNotificationContainer {
+            position: fixed;
+            top: 80px; /* Below header */
+            right: 20px;
+            z-index: 2000;
+            width: 350px;
+        }
+        .message-notification-popup {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-heavy);
+            overflow: hidden;
+            border: 1px solid var(--medium-gray);
+            animation: slideInFromRight 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            direction: rtl;
+            position: relative;
+        }
+        .message-notification-popup.closing {
+            animation: slideOutToRight 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
+        }
+        @keyframes slideInFromRight {
+            from { transform: translateX(110%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOutToRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(110%); opacity: 0; }
+        }
+        .notification-content-wrapper {
+            display: block; text-decoration: none; color: inherit; padding: 15px;
+        }
+        .notification-header {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+        }
+        .notification-header img {
+            width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
+        }
+        .notification-header strong { font-weight: 600; color: var(--dark-gray); }
+        .notification-body {
+            font-size: 0.9rem; color: var(--p5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .notification-close-btn {
+            position: absolute; top: 8px; left: 8px; background: none; border: none; font-size: 1.2rem; color: var(--p5);
+            opacity: 0.5; cursor: pointer; transition: var(--transition);
+        }
+        .notification-close-btn:hover { opacity: 1; transform: scale(1.1); }
+        .header-icon {
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .header-icon:hover { color: var(--p3) !important; transform: scale(1.1); }
+
+        /* Unread Messages Badge */
+        .unread-badge {
+            position: absolute;
+            top: -8px;
+            right: -12px;
+            background-color: #ff4757;
+            color: white;
+            border-radius: 50%;
+            min-width: 22px;
+            height: 22px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--white);
+            padding: 0 4px;
+        }
+        .header-icon:hover { color: var(--p3) !important; transform: scale(1.1); }
+
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Authentication Overlay -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-container">
+            <div class="auth-visual">
+                <p id="auth-visual-subtitle">Dream Bold then build</p>
+            </div>
+            
+            <div class="auth-form-container">
+                <!-- Auth Buttons -->
+                <div class="auth-buttons" id="authButtons">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px;">
+                        <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 50px;">
+                        <span style="font-family: 'Michroma', sans-serif; font-size: 2.8rem; font-weight: 400; color: var(--dark-gray);">SJDVerse</span>
+                    </div>
+                    <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 700; margin-bottom: 30px; text-align: center; color: var(--dark-gray);">Welcome to the Future</h2>
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <button class="btn btn-primary" onclick="showSignUp()">
+                            <i class="fas fa-user-plus"></i>
+                            Create Account
+                        </button>
+                        <button class="btn btn-secondary" onclick="showSignIn()">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Sign In
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sign Up Form -->
+                <form class="auth-form" id="signUpForm">
+                    <div class="step-indicator">
+                        <div class="step-dot active" id="step1Dot"></div>
+                        <div class="step-dot" id="step2Dot"></div>
+                        <div class="step-dot" id="step3Dot"></div>
+                        <div class="step-dot" id="step4Dot"></div>
+                    </div>
+
+                    <!-- Step 1: Basic Info -->
+                    <div class="form-step active" id="step1">
+                        <h3 style="text-align: center; margin-bottom: 30px; font-family: 'Montserrat', sans-serif;">Basic Information</h3>
+                        <div class="form-group">
+                            <label for="fullName"><i class="fas fa-user"></i> Full Name</label>
+                            <input type="text" id="fullName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="username"><i class="fas fa-at"></i> Username</label>
+                            <input type="text" id="username" class="form-input" required pattern="^[a-z0-9_]{3,20}$" title="Username must be 3-20 characters, lowercase, and can only contain letters, numbers, and underscores.">
+                            <p style="font-size: 0.8rem; color: var(--p5); opacity: 0.7; margin-top: 5px;">Must be unique, lowercase, 3-20 characters (a-z, 0-9, _).</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
+                            <input type="email" id="email" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password"><i class="fas fa-lock"></i> Password</label>
+                            <input type="password" id="password" class="form-input" required>
+                        </div>
+                        <div class="form-group" style="text-align: center;">
+                            <label><i class="fas fa-camera"></i> Profile Photo</label>
+                            <label for="profilePhoto" class="photo-uploader">
+                                <input type="file" id="profilePhoto" accept="image/*" onchange="previewPhoto(event)" style="display: none;">
+                                <div class="upload-icon"><i class="fas fa-plus"></i></div>
+                                <div id="photoPreview" class="photo-preview"></div>
+                            </label>
+                        </div>
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-secondary" onclick="showAuthButtons()">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep(2)">
+                                Next <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Educational Background -->
+                    <div class="form-step" id="step2">
+                        <h3 style="text-align: center; margin-bottom: 30px; font-family: 'Montserrat', sans-serif;">Educational Background</h3>
+                        <div class="form-group">
+                            <label for="education"><i class="fas fa-graduation-cap"></i> Education Level</label>
+                            <select id="education" class="form-input">
+                                <option value="">Select...</option>
+                                <option value="highschool">High School</option>
+                                <option value="bachelor">Bachelor's Degree</option>
+                                <option value="master">Master's Degree</option>
+                                <option value="phd">PhD</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fieldOfStudy"><i class="fas fa-book"></i> Field of Study</label>
+                            <input type="text" id="fieldOfStudy" class="form-input" placeholder="e.g., Computer Science, Mathematics">
+                        </div>
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep(1)">
+                                <i class="fas fa-arrow-left"></i> Previous
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep(3)">
+                                Next <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Experience Level -->
+                    <div class="form-step" id="step3">
+                        <h3 style="text-align: center; margin-bottom: 30px; font-family: 'Montserrat', sans-serif;">Your Experience</h3>
+                        <div class="form-group">
+                            <label><i class="fas fa-code"></i> Programming Experience</label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" name="programmingExp" value="beginner" id="progBeginner">
+                                    <label for="progBeginner">Beginner</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="programmingExp" value="intermediate" id="progIntermediate">
+                                    <label for="progIntermediate">Intermediate</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="programmingExp" value="advanced" id="progAdvanced">
+                                    <label for="progAdvanced">Advanced</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-robot"></i> AI Knowledge Level</label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" name="aiKnowledge" value="none" id="aiNone">
+                                    <label for="aiNone">None</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="aiKnowledge" value="beginner" id="aiBeginner">
+                                    <label for="aiBeginner">Beginner</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="aiKnowledge" value="intermediate" id="aiIntermediate">
+                                    <label for="aiIntermediate">Intermediate</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="aiKnowledge" value="advanced" id="aiAdvanced">
+                                    <label for="aiAdvanced">Advanced</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
+                                <i class="fas fa-arrow-left"></i> Previous
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep(4)">
+                                Next <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Additional Info -->
+                    <div class="form-step" id="step4">
+                        <h3 style="text-align: center; margin-bottom: 30px; font-family: 'Montserrat', sans-serif;">Final Details</h3>
+                        <div class="form-group">
+                            <label for="country"><i class="fas fa-globe"></i> Country</label>
+                            <input type="text" id="country" class="form-input">
+                        </div>
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep(3)">
+                                <i class="fas fa-arrow-left"></i> Previous
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="handleSignUp(event)">
+                                <i class="fas fa-check"></i> Create Account
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Success -->
+                    <div class="form-step" id="step5">
+                        <div style="text-align: center; animation: popIn 0.5s ease-out;">
+                            <i class="fas fa-check-circle" style="font-size: 80px; color: #2ed573; margin-bottom: 20px;"></i>
+                            <h3 style="font-family: 'Montserrat', sans-serif; font-size: 2rem; margin-bottom: 10px;">Account Created!</h3>
+                            <p style="color: var(--dark-gray);">Please check your email to confirm your account. The page will reset shortly.</p>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Sign In Form -->
+                <form class="auth-form" id="signInForm">
+                    <h3 style="text-align: center; margin-bottom: 30px; font-family: 'Montserrat', sans-serif;">Welcome Back</h3>
+                    <div class="form-group">
+                        <label for="loginEmail"><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="loginEmail" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword"><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" id="loginPassword" class="form-input" required>
+                    </div>
+                    <button type="button" class="btn btn-primary" style="width: 100%; margin-bottom: 16px;" onclick="handleSignIn(event)">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                    <button type="button" class="btn btn-secondary" style="width: 100%; margin-bottom: 16px;" onclick="handleForgotPassword()">
+                        <i class="fas fa-key"></i> Forgot Password?
+                    </button>
+                    <button type="button" class="btn btn-secondary" style="width: 100%;" onclick="showAuthButtons()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div style="flex-grow: 1;">
+            <!-- Header -->
+            <header class="header">
+                <nav class="nav">
+                    <a href="indexx.html" class="logo">
+                        <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 35px;">
+                        <span style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--p5);">SJDVerse</span>
+                    </a>
+                    <div id="guestNav" style="display: block;">
+                        <ul class="nav-links">
+                            <li><a href="#home" data-i18n-key="nav_home">Home</a></li>
+                            <li><a href="#features" data-i18n-key="nav_features">Features</a></li>
+                            <li><a href="#about" data-i18n-key="nav_about">About</a></li>
+                            <li><a href="#contact" data-i18n-key="nav_contact">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div id="userNav" style="display: none; align-items: center; gap: 25px;">
+                        <a href="explore.html" data-i18n-title-key="explore" title="Explore" class="header-icon" style="font-size: 1.5rem; color: var(--light-gray); text-decoration: none;"><i class="fas fa-compass"></i></a>
+                        <a href="search.html" data-i18n-title-key="search_users" title="Search Users" class="header-icon" style="font-size: 1.5rem; color: var(--light-gray); text-decoration: none;"><i class="fas fa-search"></i></a>
+                        <a href="courses.html" data-i18n-title-key="courses" title="Courses" class="header-icon" style="font-size: 1.5rem; color: var(--light-gray); text-decoration: none;"><i class="fas fa-book-open"></i></a>
+                        <div style="position: relative;">
+                            <a href="messages.html" data-i18n-title-key="messages" title="Messages" class="header-icon" style="font-size: 1.5rem; color: var(--light-gray); text-decoration: none;"><i class="fas fa-comments"></i></a>
+                            <span id="unreadMessagesBadge" class="unread-badge"></span>
+                        </div>
+                        <a href="profile.html" data-i18n-title-key="view_profile" title="View Profile" style="text-decoration: none; display: flex; align-items: center; gap: 10px; color: var(--light-gray); font-weight: 600;">
+                            <span id="userName"></span>
+                            <img id="userAvatar" src="" alt="User Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--p3);">
+                        </a>
+                        <div class="settings-menu-container">
+                            <button id="settingsBtn" class="header-icon" data-i18n-title-key="settings" title="Settings" style="font-size: 1.5rem; color: var(--light-gray); background: none; border: none; cursor: pointer;">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <div id="settingsDropdown" class="settings-dropdown">
+                                <a href="privacy.html" class="dropdown-item">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span data-i18n-key="privacy">Privacy</span>
+                                </a>
+                                <button class="dropdown-item" onclick="logout()">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span data-i18n-key="logout">Logout</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+            <!-- Hero Section -->
+            <section class="hero" id="home">
+                <div class="hero-content fade-in-left">
+                    <h1>
+                        <span style="display: block;">Dream Bold</span>
+                        <span style="display: block; font-weight: 300;">Then Build.</span>
+                    </h1>
+                    <div style="display: flex; justify-content: flex-start; gap: 20px; flex-wrap: wrap; margin-top: 40px;">
+                        <button class="btn btn-primary btn-hero-glow" onclick="window.location.href='explore.html'" data-i18n-key="start_learning">
+                        <i class="fas fa-users"></i> Explore Community
+                    </button>
+                        <button class="btn btn-secondary btn-hero-glow" onclick="window.location.href='courses.html'" data-i18n-key="view_progress">
+                        <i class="fas fa-book-open"></i> Courses
+                    </button>
+                    </div>
+                </div>
+                <div class="hero-image fade-in-right">
+                    <img src="https://i.postimg.cc/c43Nq02Y/vecteezy-faq-concept-illustration-people-looking-through-magnifying-10869740.png" alt="AI Vector Illustration">
+                </div>
+            </section>
+
+        </div>
+
+                            
+                            
+
+        <!-- Footer -->
+        <footer class="fade-in" style="background: rgba(0, 0, 0, 0.3); color: var(--white); padding: 20px 5% 40px; backdrop-filter: blur(10px); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+            <!-- Icon Scroller Section -->
+            <section class="icon-scroller-section fade-in">
+                <div class="icon-scroller">
+                    <div class="icon-scroller-inner">
+                        <i class="fas fa-brain" title="AI"></i>
+                        <i class="fab fa-python" title="Python"></i>
+                        <i class="fas fa-network-wired" title="Networking"></i>
+                        <i class="fas fa-robot" title="Robotics"></i>
+                        <i class="fas fa-database" title="Databases"></i>
+                        <i class="fas fa-cloud" title="Cloud Computing"></i>
+                        <i class="fab fa-docker" title="Docker"></i>
+                        <i class="fas fa-laptop-code" title="Development"></i>
+                        <i class="fas fa-shield-alt" title="Security"></i>
+                        <i class="fas fa-microchip" title="Hardware"></i>
+                        <i class="fab fa-git-alt" title="Git"></i>
+                        <i class="fas fa-terminal" title="CLI"></i>
+                        <i class="fas fa-project-diagram" title="Architecture"></i>
+                        <i class="fab fa-js-square" title="JavaScript"></i>
+                        <i class="fas fa-cogs" title="Engineering"></i>
+                        <i class="fas fa-mobile-alt" title="Mobile Development"></i>
+                        <i class="fas fa-atom" title="Science"></i>
+                        <i class="fas fa-server" title="Servers"></i>
+                        <i class="fab fa-linux" title="Linux"></i>
+                        <i class="fas fa-code-branch" title="Versioning"></i>
+                        <!-- Duplicated for seamless loop -->
+                        <i class="fas fa-brain" title="AI"></i>
+                        <i class="fab fa-python" title="Python"></i>
+                        <i class="fas fa-network-wired" title="Networking"></i>
+                        <i class="fas fa-robot" title="Robotics"></i>
+                        <i class="fas fa-database" title="Databases"></i>
+                        <i class="fas fa-cloud" title="Cloud Computing"></i>
+                        <i class="fab fa-docker" title="Docker"></i>
+                        <i class="fas fa-laptop-code" title="Development"></i>
+                        <i class="fas fa-shield-alt" title="Security"></i>
+                        <i class="fas fa-microchip" title="Hardware"></i>
+                        <i class="fab fa-git-alt" title="Git"></i>
+                        <i class="fas fa-terminal" title="CLI"></i>
+                        <i class="fas fa-project-diagram" title="Architecture"></i>
+                        <i class="fab fa-js-square" title="JavaScript"></i>
+                        <i class="fas fa-cogs" title="Engineering"></i>
+                        <i class="fas fa-mobile-alt" title="Mobile Development"></i>
+                        <i class="fas fa-atom" title="Science"></i>
+                        <i class="fas fa-server" title="Servers"></i>
+                        <i class="fab fa-linux" title="Linux"></i>
+                        <i class="fas fa-code-branch" title="Versioning"></i>
+                    </div>
+                </div>
+            </section>
+            <div style="max-width: 1400px; margin: 0 auto; text-align: center;">
+                <!-- Social Icons -->
+                <div style="display: flex; justify-content: center; gap: 25px; margin-bottom: 20px;">
+                    <a href="#" style="color: var(--white); font-size: 1.5rem; transition: var(--transition);"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" style="color: var(--white); font-size: 1.5rem; transition: var(--transition);"><i class="fab fa-twitter"></i></a>
+                    <a href="#" style="color: var(--white); font-size: 1.5rem; transition: var(--transition);"><i class="fab fa-github"></i></a>
+                    <a href="#" style="color: var(--white); font-size: 1.5rem; transition: var(--transition);"><i class="fab fa-youtube"></i></a>
+                </div>
+                <!-- Copyright Text -->
+                <div style="padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">
+                    <p style="font-family: 'Montserrat', sans-serif;">&copy; 2025 SJDVerse. All rights reserved. | Built and Developed by Sajad Mohammadi</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Container for new message notifications -->
+    <div id="messageNotificationContainer"></div>
+
+    <script>
+        // Animates the text in the auth visual panel
+        function setupAuthVisualTextAnimation() {
+            const subtitle = document.getElementById('auth-visual-subtitle');
+            if (!subtitle) return;
+
+            const originalHTML = subtitle.innerHTML;
+            const parts = originalHTML.split('<br>');
+            
+            subtitle.innerHTML = ''; // Clear original content
+            subtitle.classList.add('animated-text'); // Add class for styling
+
+            parts.forEach((part, partIndex) => {
+                const words = part.trim().split(/\s+/);
+                words.forEach(word => {
+                    if (word.length > 0) {
+                        const span = document.createElement('span');
+                        span.textContent = word;
+                        // Apply a random delay to each word for the "random raise" effect
+                        span.style.animationDelay = `${Math.random() * 0.7}s`;
+                        subtitle.appendChild(span);
+                        subtitle.appendChild(document.createTextNode(' ')); // Re-add space between words
+                    }
+                });
+
+                // Re-add the <br> tag if it's not the last line
+                if (partIndex < parts.length - 1) {
+                    subtitle.appendChild(document.createElement('br'));
+                }
+            });
+        }
+
+        // Supabase Client
+        const { createClient } = supabase;
+        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co'; // <-- این را با آدرس پروژه خود در سوپابیس جایگزین کنید
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA'; // <-- این را با کلید عمومی پروژه خود در سوپابیس جایگزین کنید
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Global variables
+        let currentUser = null;
+        let currentStep = 1;
+        const totalSteps = 4;
+        
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {            
+            checkAuthStatus();
+            changeLanguage('en');
+
+            setupScrollAnimations();
+            setupAuthVisualTextAnimation();
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible' && currentUser) {
+                    updateUnreadCount();
+                }
+            });
+        });
+
+        // Listen for auth state changes
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
+                currentUser = session.user;
+                if (event === 'SIGNED_IN') {
+                    showMainContent();
+                }
+            } else if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                document.getElementById('authOverlay').style.display = 'flex';
+                document.getElementById('mainContent').classList.remove('active');
+                showAuthButtons();
+            }
+            updateUserNav();
+        });
+
+        // Re-check auth status when tab becomes visible again
+        // This ensures the header is updated if the profile was changed in another tab/page
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                checkAuthStatus();
+            }
+        });
+
+        // Authentication functions
+        async function checkAuthStatus() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                showMainContent();
+                await updateUnreadCount();
+            } else {
+                document.getElementById('loading').classList.add('hidden');
+            }
+            updateUserNav();
+        }
+
+        async function updateUserNav() {
+            const guestNav = document.getElementById('guestNav');
+            const userNav = document.getElementById('userNav');
+            const userNameEl = document.getElementById('userName');
+            const userAvatarEl = document.getElementById('userAvatar');
+
+            if (currentUser) {
+                guestNav.style.display = 'none';
+                userNav.style.display = 'flex';
+                userNameEl.textContent = currentUser.user_metadata.full_name || currentUser.email;
+                userAvatarEl.src = currentUser.user_metadata.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
+                
+                // Subscribe to global message notifications
+                subscribeToGlobalMessages();
+            } else {
+                guestNav.style.display = 'block';
+                userNav.style.display = 'none';
+            }
+        }
+
+        function showSignUp() {
+            document.getElementById('authButtons').style.display = 'none';
+            document.getElementById('signUpForm').classList.add('active');
+            currentStep = 1;
+            updateStepIndicator();
+            document.querySelector('.step-indicator').style.display = 'flex';
+        }
+
+        function showSignIn() {
+            document.getElementById('authButtons').style.display = 'none';
+            document.getElementById('signInForm').classList.add('active');
+        }
+
+        function showAuthButtons() {
+            document.getElementById('authButtons').style.display = 'block';
+            document.getElementById('signUpForm').classList.remove('active');
+            document.getElementById('signInForm').classList.remove('active');
+            currentStep = 1;
+        }
+
+        function nextStep(step) {
+            if (validateCurrentStep()) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep = step;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+
+                // Hide step indicator on the success step
+                if (currentStep === 5) {
+                    document.querySelector('.step-indicator').style.display = 'none';
+                } else {
+                    document.querySelector('.step-indicator').style.display = 'flex';
+                }
+                updateStepIndicator();
+            }
+        }
+
+        function prevStep(step) {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep = step;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            updateStepIndicator();
+        }
+
+        function validateCurrentStep() {
+            const step = currentStep;
+            if (step === 1) {
+                const name = document.getElementById('fullName').value;
+                const username = document.getElementById('username').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                if (!name || !username || !email || !password) {
+                    showNotification('Please fill in all required fields', 'error');
+                    return false;
+                }
+
+                const photoFile = document.getElementById('profilePhoto').files[0];
+                if (!photoFile) {
+                    showNotification('Please select a profile photo', 'error');
+                    return false;
+                }
+                
+                if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+                    showNotification('Username is not valid. Please follow the rules.', 'error');
+                    return false;
+                }
+                
+                if (password.length < 6) {
+                    showNotification('Password must be at least 6 characters', 'error');
+                    return false;
+                }
+            } else if (step === 2) {
+                const education = document.getElementById('education').value;
+                if (!education) {
+                    showNotification('Please select your education level.', 'error');
+                    return false;
+                }
+            } else if (step === 3) {
+                const progExp = document.querySelector('input[name="programmingExp"]:checked');
+                const aiKnowledge = document.querySelector('input[name="aiKnowledge"]:checked');
+                if (!progExp) {
+                    showNotification('Please select your programming experience.', 'error');
+                    return false;
+                }
+                if (!aiKnowledge) {
+                    showNotification('Please select your AI knowledge level.', 'error');
+                    return false;
+                }
+            } else if (step === 4) {
+                const country = document.getElementById('country').value;
+                if (!country) {
+                    showNotification('Please enter your country.', 'error');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function updateStepIndicator() {
+            for (let i = 1; i <= totalSteps; i++) {
+                const dot = document.getElementById(`step${i}Dot`);
+                dot.classList.remove('active', 'completed');
+                
+                if (i < currentStep) {
+                    dot.classList.add('completed');
+                } else if (i === currentStep) {
+                    dot.classList.add('active');
+                }
+            }
+        }
+
+        async function handleSignUp(event) {
+            event.preventDefault();
+            if (!validateCurrentStep()) return;
+
+            showNotification('Creating account...', 'info');
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const photoFile = document.getElementById('profilePhoto')?.files[0];
+
+            let avatar_url = null;
+            if (photoFile) {
+                const fileName = `${Date.now()}_${photoFile.name}`;
+                const { error: uploadError } = await _supabase.storage
+                    .from('profile-photos')
+                    .upload(fileName, photoFile);
+
+                if (uploadError) {
+                    if (uploadError.message === 'Bucket not found') {
+                        showNotification('Setup Error: Bucket "profile-photos" not found in Supabase Storage. Please create it.', 'error');
+                    } else {
+                        showNotification(`Photo upload failed: ${uploadError.message}`, 'error');
+                    }
+                    return;
+                }
+
+                const { data: urlData } = _supabase.storage
+                    .from('profile-photos')
+                    .getPublicUrl(fileName);
+                
+                avatar_url = urlData.publicUrl;
+            }
+
+            const { data, error } = await _supabase.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: {
+                        full_name: document.getElementById('fullName').value,
+                        username: document.getElementById('username').value.toLowerCase(),
+                        avatar_url: avatar_url,
+                        education: document.getElementById('education').value,
+                        field_of_study: document.getElementById('fieldOfStudy').value,
+                        programming_exp: document.querySelector('input[name="programmingExp"]:checked')?.value,
+                        ai_knowledge: document.querySelector('input[name="aiKnowledge"]:checked')?.value,
+                        country: document.getElementById('country').value,
+                    }
+                }
+            });
+
+            if (error) {
+                showNotification(error.message, 'error');
+            } else {
+                // Go to success step
+                nextStep(5);
+
+                // After a delay, perform a fade-out transition and reset the form
+                setTimeout(() => {
+                    const authFormContainer = document.querySelector('.auth-form-container');
+                    authFormContainer.style.transition = 'opacity 0.5s ease-out';
+                    authFormContainer.style.opacity = '0';
+
+                    setTimeout(() => {
+                        document.getElementById('signUpForm').reset();
+                        // Manually reset the photo preview UI
+                        const preview = document.getElementById('photoPreview');
+                        const uploadIcon = document.querySelector('.photo-uploader .upload-icon');
+                        preview.style.backgroundImage = 'none';
+                        preview.style.display = 'none';
+                        if (uploadIcon) uploadIcon.style.display = 'flex';
+                        // Reset to the first step without showing it
+                        document.getElementById('step5').classList.remove('active');
+                        currentStep = 1;
+                        document.getElementById('step1').classList.add('active');
+                        updateStepIndicator();
+                        showAuthButtons();
+                        authFormContainer.style.opacity = '1';
+                    }, 500); // Wait for fade-out to complete
+                }, 4000); // Show success message for 4 seconds
+            }
+        }
+
+        async function handleSignIn(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const { data, error } = await _supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+            
+            if (error) {
+                showNotification(error.message, 'error');
+            } else if (data.user && data.session) {
+                showNotification('Welcome back to SJDVerse!', 'success');
+                // onAuthStateChange will handle showing the main content
+            }
+        }
+
+        async function handleForgotPassword() {
+            const email = prompt('Enter your email address to reset your password:');
+            if (!email) return;
+            
+            const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.href, // Or your password reset page
+            });
+
+            if (error) {
+                showNotification(error.message, 'error');
+            } else {
+                showNotification('Password reset email sent. Please check your inbox.', 'success');
+            }
+        }
+
+        function showMainContent() {
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('mainContent').classList.add('active');
+            document.getElementById('loading').classList.add('hidden');
+            
+            // Trigger animations
+            setTimeout(() => {
+                setupScrollAnimations();
+                animateCounters();
+            }, 100);
+        }
+
+        async function logout() {
+            const { error } = await _supabase.auth.signOut();
+            if (error) {
+                showNotification('Error logging out: ' + error.message, 'error');
+            } else {
+                showNotification('Successfully logged out. Come back soon!', 'success');
+                // onAuthStateChange will handle UI changes
+            }
+        }
+
+        function previewPhoto(event) {
+            const reader = new FileReader();
+            const preview = document.getElementById('photoPreview');
+            const uploadIcon = document.querySelector('.photo-uploader .upload-icon');
+            
+            reader.onload = function() {
+                if (reader.readyState === 2) {
+                    preview.style.backgroundImage = `url('${reader.result}')`;
+                    preview.style.display = 'block';
+                    if (uploadIcon) uploadIcon.style.display = 'none';
+                }
+            }
+            
+            if (event.target.files[0]) {
+                reader.readAsDataURL(event.target.files[0]);
+            } else {
+                preview.style.backgroundImage = 'none';
+                preview.style.display = 'none';
+                if (uploadIcon) uploadIcon.style.display = 'flex';
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+            
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 16px 24px;
+                border-radius: 12px;
+                color: white;
+                font-weight: 500;
+                font-family: 'Poppins', sans-serif;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease-out;
+                max-width: 400px;
+                box-shadow: var(--shadow-heavy);
+            `;
+            
+            const bgColor = type === 'error' ? '#ff4757' : 
+                           type === 'success' ? '#2ed573' : 
+                           '#3742fa';
+            notification.style.background = bgColor;
+            
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 
+                                      type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        // Scroll animations
+        function setupScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            document.querySelectorAll('.fade-in, .fade-in-left, .fade-in-right, .blur-fade-in').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // Counter animations
+        function animateCounters() {
+            const counters = [
+                { id: 'studentsCounter', target: 15420 },
+                { id: 'coursesCounter', target: 847 },
+                { id: 'projectsCounter', target: 2340 },
+                { id: 'satisfactionCounter', target: 98, suffix: '%' }
+            ];
+
+            counters.forEach(counter => {
+                const element = document.getElementById(counter.id);
+                if (!element || element.textContent !== '0') return; // Animate only once
+                
+                let current = 0;
+                const increment = counter.target / 100;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= counter.target) {
+                        current = counter.target;
+                        clearInterval(timer);
+                    }
+                    element.textContent = Math.floor(current).toLocaleString() + (counter.suffix || '');
+                }, 20);
+            });
+        }
+
+        // Newsletter subscription
+        function subscribeNewsletter() {
+            const email = document.getElementById('newsletterEmail').value;
+            if (!email) {
+                showNotification('Please enter your email address.', 'error');
+                return;
+            }
+            
+            const newsletters = JSON.parse(localStorage.getItem('newsletters') || '[]');
+            if (newsletters.includes(email)) {
+                showNotification('You are already subscribed!', 'info');
+                return;
+            }
+            
+            newsletters.push(email);
+            localStorage.setItem('newsletters', JSON.stringify(newsletters));
+            document.getElementById('newsletterEmail').value = '';
+            showNotification('Thank you for subscribing to our newsletter!', 'success');
+        }
+
+        // Add CSS for animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Placeholder functions for missing features
+        // --- Unread Messages Counter ---
+        async function updateUnreadCount() {
+            if (!currentUser) return;
+
+            // Get all conversation IDs for the current user
+            const { data: convos, error: convosError } = await _supabase
+                .from('conversation_participants')
+                .select('conversation_id')
+                .eq('user_id', currentUser.id);
+
+            const badge = document.getElementById('unreadMessagesBadge');
+            if (convosError || !convos || convos.length === 0) {
+                badge.style.display = 'none';
+                return;
+            }
+            const conversationIds = convos.map(c => c.conversation_id);
+
+            // Get the count of unread messages
+            const { count, error } = await _supabase
+                .from('messages')
+                .select('*', { count: 'exact', head: true })
+                .in('conversation_id', conversationIds)
+                .neq('sender_id', currentUser.id)
+                .is('read_at', null);
+
+            if (error) {
+                console.error('Error fetching unread count:', error);
+                badge.style.display = 'none';
+                return;
+            }
+
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        // --- Global New Message Notification Logic ---
+        const profileCache = {};
+
+        async function subscribeToGlobalMessages() {
+            // 1. Get all conversation IDs for the current user
+            const { data: convos, error: convosError } = await _supabase
+                .from('conversation_participants')
+                .select('conversation_id')
+                .eq('user_id', currentUser.id);
+
+            if (convosError || !convos || convos.length === 0) {
+                console.log('No conversations to subscribe to for notifications.');
+                return;
+            }
+
+            const conversationIds = convos.map(c => c.conversation_id);
+            const conversationIdFilter = `conversation_id=in.(${conversationIds.join(',')})`;
+
+            // 2. Subscribe to new messages and updates in these conversations
+            const messageChannel = _supabase.channel('public:messages:global-notifications');
+            messageChannel
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'messages',
+                    filter: conversationIdFilter,
+                }, async (payload) => {
+                    const newMessage = payload.new;
+
+                    // Ignore messages sent by the current user
+                    if (newMessage.sender_id === currentUser.id) return;
+
+                    // Ignore if user is already in that chat
+                    const onChatPage = window.location.pathname.includes('chat.html');
+                    const currentChatId = new URLSearchParams(window.location.search).get('id');
+                    if (onChatPage && currentChatId === newMessage.conversation_id) return;
+
+                    // 3. Fetch sender's profile (from cache or DB)
+                    let senderProfile = profileCache[newMessage.sender_id];
+                    if (!senderProfile) {
+                        const { data: profile, error } = await _supabase
+                            .from('profiles')
+                            .select('full_name, avatar_url')
+                            .eq('id', newMessage.sender_id)
+                            .single();
+                        
+                        if (!error && profile) {
+                            profileCache[newMessage.sender_id] = profile;
+                            senderProfile = profile;
+                        } else {
+                            senderProfile = { full_name: 'User', avatar_url: 'https://i.postimg.cc/prmTzhSz/man.png' };
+                        }
+                    }
+
+                    // 4. Show notification
+                    showNewMessageNotification(newMessage, senderProfile);
+                    await updateUnreadCount(); // Update badge on new message
+                })
+                .on('postgres_changes', {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'messages',
+                    filter: conversationIdFilter,
+                }, async (payload) => {
+                    // If a message was just read by the current user, update the count.
+                    // This happens when chat.html is open in another tab.
+                    if (payload.new.read_at && !payload.old.read_at && payload.new.sender_id !== currentUser.id) {
+                        await updateUnreadCount();
+                    }
+                })
+                .subscribe();
+        }
+
+        function showNewMessageNotification(message, sender) {
+            const container = document.getElementById('messageNotificationContainer');
+            if (container.firstChild) container.firstChild.remove(); // Remove old one
+
+            const notification = document.createElement('div');
+            notification.className = 'message-notification-popup';
+            notification.innerHTML = `<a href="chat.html?id=${message.conversation_id}" class="notification-content-wrapper"><div class="notification-header"><img src="${sender.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png'}" alt="${sender.full_name}"><strong>${sender.full_name || 'User'}</strong></div><div class="notification-body">${message.content || 'Attachment'}</div></a><button class="notification-close-btn">&times;</button>`;
+            container.appendChild(notification);
+
+            const close = () => { notification.classList.add('closing'); setTimeout(() => notification.remove(), 500); };
+            notification.querySelector('.notification-close-btn').onclick = close;
+            setTimeout(close, 10000); // Auto-close after 10 seconds
+        }
+
+        // --- Internationalization (i18n) & Settings ---
+
+        const translations = {
+            en: {
+                "nav_home": "Home", "nav_features": "Features", "nav_about": "About", "nav_contact": "Contact",
+                "explore": "Explore", "search_users": "Search Users", "messages": "Messages", "notes": "Notes", "view_profile": "View Profile", "settings": "Settings", "language": "Language", "privacy": "Privacy", "logout": "Logout", "start_learning": "Explore Community", "view_progress": "Courses",
+                "path1_title": "Week 1: Foundations", "path1_desc": "Master the mathematical foundations of AI including linear algebra, statistics, and calculus. Set up your development environment and learn Python for AI.",
+                "path2_title": "Week 2: Machine Learning", "path2_desc": "Dive into supervised and unsupervised learning algorithms. Build your first ML models with regression, classification, and clustering techniques.",
+                "path3_title": "Week 3: Deep Learning", "path3_desc": "Explore neural networks, CNNs, and RNNs. Learn about modern architectures like Transformers and work with frameworks like TensorFlow and PyTorch.",
+                "path4_title": "Week 4: Advanced Applications", "path4_desc": "Build real-world AI applications. Work on computer vision, NLP projects, and deploy your models to production. Complete your capstone project.",
+                "path5_title": "AI Ethics & Safety", "path5_desc": "Learn about responsible AI development, bias detection, fairness in algorithms, and the ethical implications of artificial intelligence systems.", "path6_title": "Career Guidance", "path6_desc": "Portfolio development, interview preparation, and career paths in AI. Connect with our industry partners and explore job opportunities.", "notification_like": "{actorName} liked your post.",
+                "notification_comment": "{actorName} commented on your post.",
+                "notification_follow": "{actorName} started following you.",
+                "notification_default": "You have a new notification.", "footer_support_title": "Support", "footer_support_help": "Help Center", "footer_support_community": "Community", "footer_support_contact": "Contact Us", "footer_support_privacy": "Privacy Policy",
+                "footer_newsletter_title": "Stay Updated", "footer_newsletter_desc": "Get the latest AI insights and course updates", "footer_newsletter_placeholder": "Your email"
+            },
+        };
+
+        function getTranslation(key, params = {}) {
+            const lang = document.documentElement.lang || 'en';
+            const langTranslations = translations[lang] || translations.en;
+            let text = langTranslations[key] || (translations.en ? translations.en[key] : key) || key;
+            for (const p in params) {
+                text = text.replace(`{${p}}`, params[p]);
+            }
+            return text;
+        }
+
+        function changeLanguage(lang) {
+            localStorage.setItem('language', lang);
+
+            const langTranslations = translations.en;
+            const defaultTranslations = translations.en;
+
+            // Set document direction
+            document.documentElement.dir = 'ltr';
+
+            // Translate text content
+            document.querySelectorAll('[data-i18n-key]').forEach(el => {
+                const key = el.getAttribute('data-i18n-key');
+                el.innerHTML = langTranslations[key] || defaultTranslations[key] || el.innerHTML;
+            });
+
+            // Translate placeholders
+            document.querySelectorAll('[data-i18n-placeholder-key]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder-key');
+                el.placeholder = langTranslations[key] || defaultTranslations[key] || el.placeholder;
+            });
+
+            // Translate titles (tooltips)
+            document.querySelectorAll('[data-i18n-title-key]').forEach(el => {
+                const key = el.getAttribute('data-i18n-title-key');
+                el.title = langTranslations[key] || defaultTranslations[key] || el.title;
+            });
+        }
+        
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            const p = document.createElement('p');
+            p.textContent = str;
+            return p.innerHTML;
+        }
+
+        // Settings Dropdown Logic
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsDropdown = document.getElementById('settingsDropdown');
+
+        if (settingsBtn && settingsDropdown) {
+            settingsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                settingsDropdown.style.display = settingsDropdown.style.display === 'block' ? 'none' : 'block';
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!settingsDropdown.contains(e.target) && !settingsBtn.contains(e.target)) {
+                    settingsDropdown.style.display = 'none';
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
