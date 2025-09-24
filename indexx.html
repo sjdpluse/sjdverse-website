@@ -1411,7 +1411,7 @@
             if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
                 currentUser = session.user;
                 if (event === 'SIGNED_IN') {
-                    showMainContent();
+                    window.location.href = 'profile.html'; // Redirect to user's own profile
                 }
             } else if (event === 'SIGNED_OUT') {
                 currentUser = null;
@@ -1435,7 +1435,7 @@
             const { data: { session } } = await _supabase.auth.getSession();
             if (session) {
                 currentUser = session.user;
-                showMainContent();
+                window.location.href = 'profile.html'; // Redirect to profile if already logged in
                 await updateUnreadCount();
             } else {
                 document.getElementById('loading').classList.add('hidden');

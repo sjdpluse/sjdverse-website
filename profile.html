@@ -1489,9 +1489,14 @@
                     </div>
                 </div>
                 
-                <button class="btn btn-primary" style="width: 100%;" onclick="openTab(event, 'about')">
-                    <i class="fas fa-user-edit"></i> <span>Edit Profile</span>
-                </button>
+                <div class="profile-actions" style="display: flex; justify-content: center; gap: 10px; width: 100%;">
+                    <button class="btn btn-primary" style="flex: 1;" onclick="openTab(event, 'about')">
+                        <i class="fas fa-user-edit"></i> <span>Edit Profile</span>
+                    </button>
+                    <button class="btn btn-secondary" style="flex: 1;" id="shareProfileBtn" onclick="shareProfile()">
+                        <i class="fas fa-share-alt"></i> <span>Share Profile</span>
+                    </button>
+                </div>
             </div>
             
             <div class="profile-details">
@@ -2064,6 +2069,8 @@
             // Add listeners for photo uploads
             document.getElementById('avatarUploadInput').addEventListener('change', handleAvatarUpload);
             document.getElementById('coverUploadInput').addEventListener('change', handleCoverUpload);
+
+            document.getElementById('nav-profile-trigger').classList.add('active');
         }
 
         // Theme functionality
@@ -3432,6 +3439,31 @@
             const p = document.createElement('p');
             p.textContent = str;
             return p.innerHTML;
+        }
+
+        async function shareProfile() {
+            if (!loadedProfileData || !loadedProfileData.username) {
+                alert('Profile data not loaded yet.');
+                return;
+            }
+
+            const shareUrl = `${window.location.origin}${window.location.pathname.replace('profile.html', 'user.html')}?username=${loadedProfileData.username}`;
+            const shareData = {
+                title: `${loadedProfileData.full_name}'s Profile on SJDVerse`,
+                text: `Check out ${loadedProfileData.full_name}'s profile on SJDVerse!`,
+                url: shareUrl,
+            };
+
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    await navigator.clipboard.writeText(shareUrl);
+                    alert('Profile link copied to clipboard!');
+                }
+            } catch (err) {
+                console.error('Error sharing profile:', err);
+            }
         }
 
         function getTransformedImageUrl(url, options = {}) {
