@@ -766,7 +766,7 @@
                 const verifiedBadgeHTML = instructor.is_verified ? `<span class="fa-stack verified-badge" title="Verified"><i class="fas fa-certificate fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span>` : '';
                 return `
                     <a href="user.html?username=${instructor.username}" class="instructor-card">
-                        <img src="${instructor.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png'}" alt="${instructor.full_name}">
+                        <img src="${getTransformedImageUrl(instructor.avatar_url, {width: 160, height: 160})}" loading="lazy" alt="${instructor.full_name}">
                         <h4>${escapeHTML(instructor.full_name)}${verifiedBadgeHTML}</h4>
                         <p>${escapeHTML(instructor.expertise)}</p>
                     </a>
@@ -881,11 +881,11 @@
             }
 
             courseCard.innerHTML = `
-                <img src="${course.thumbnail_url || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1074&auto=format&fit=crop'}" alt="${course.title}" class="course-thumbnail">
+                <img src="${getTransformedImageUrl(course.thumbnail_url, {width: 600}) || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1074&auto=format&fit=crop'}" loading="lazy" alt="${course.title}" class="course-thumbnail">
                 <div class="course-content">
                     <h3 class="course-title">${escapeHTML(course.title)}</h3>
                     <div class="course-instructor">
-                        <img src="${instructorProfile.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png'}" alt="${instructorName}">
+                        <img src="${getTransformedImageUrl(instructorProfile.avatar_url, {width: 60, height: 60})}" alt="${instructorName}">
                         <span>${escapeHTML(instructorName)}${verifiedBadgeHTML}</span>
                     </div>
                     <p class="course-description">${escapeHTML(course.description.substring(0, 100))}...</p>
@@ -1362,6 +1362,18 @@
             const p = document.createElement('p');
             p.textContent = str;
             return p.innerHTML;
+        }
+
+        function getTransformedImageUrl(url, options = {}) {
+            if (!url || !url.includes('supabase.co')) return url;
+            const defaultOptions = {
+                format: 'webp',
+                quality: 80,
+                // resize: 'cover' // 'cover', 'contain', or 'fill'
+            };
+            const finalOptions = { ...defaultOptions, ...options };
+            const query = new URLSearchParams(finalOptions).toString();
+            return `${url}?${query}`;
         }
 
         function initializeNewHeader() {

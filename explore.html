@@ -746,7 +746,7 @@
                 storyItem.className = 'story-item';
                 storyItem.innerHTML = `
                     <a href="user.html?username=${profile.username}" class="story-avatar-wrapper ${profile.is_verified ? 'verified-story' : ''}">
-                        <img src="${profile.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png'}" alt="${profile.full_name}" class="story-avatar">
+                        <img src="${getTransformedImageUrl(profile.avatar_url, {width: 150, height: 150})}" alt="${profile.full_name}" class="story-avatar">
                     </a>
                     <div class="story-username-container">
                         <span class="story-username" title="${profile.full_name || profile.username}">${profile.full_name || profile.username}</span>
@@ -904,7 +904,7 @@
             const likeCount = post.post_likes ? post.post_likes.length : 0;
             const isLikedByCurrentUser = currentLoggedInUser && post.post_likes ? post.post_likes.some(like => like.user_id === currentLoggedInUser.id) : false;
 
-            const postImageHTML = post.image_url ? `<div class="post-image-container"><img src="${post.image_url}" alt="Post image" class="post-image" onclick="openImageViewer('${post.image_url}')"></div>` : '';
+            const postImageHTML = post.image_url ? `<div class="post-image-container"><img src="${getTransformedImageUrl(post.image_url, {width: 800})}" loading="lazy" alt="Post image" class="post-image" onclick="openImageViewer('${post.image_url}')"></div>` : '';
             
             let codeHtml = '';
             if (post.code_snippet && post.code_snippet.code) {
@@ -985,7 +985,7 @@
             postCard.innerHTML = `
                 <div class="post-header">
                     <a href="user.html?username=${author.username}" class="post-author">
-                        <img src="${author.avatar_url}" alt="Avatar" class="${author.is_verified ? 'verified-avatar-small' : ''}">
+                        <img src="${getTransformedImageUrl(author.avatar_url, {width: 100, height: 100})}" alt="Avatar" class="${author.is_verified ? 'verified-avatar-small' : ''}">
                         <div class="post-author-info">
                             <h4>${author.full_name} ${author.is_verified ? '<span class="fa-stack verified-badge" title="Verified"><i class="fas fa-certificate fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span>' : ''}</h4>
                             <p>${postDate}</p>
@@ -1246,6 +1246,18 @@
             const p = document.createElement('p');
             p.textContent = str;
             return p.innerHTML;
+        }
+
+        function getTransformedImageUrl(url, options = {}) {
+            if (!url || !url.includes('supabase.co')) return url;
+            const defaultOptions = {
+                format: 'webp',
+                quality: 80,
+                // resize: 'cover' // 'cover', 'contain', or 'fill'
+            };
+            const finalOptions = { ...defaultOptions, ...options };
+            const query = new URLSearchParams(finalOptions).toString();
+            return `${url}?${query}`;
         }
 
         function openImageViewer(imageUrl) {

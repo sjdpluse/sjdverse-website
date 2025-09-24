@@ -534,7 +534,7 @@
                 <main class="container">
                     <aside class="profile-sidebar">
                         <div class="profile-info">
-                            <img src="${profile.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png'}" alt="${getTranslation('profile_picture_alt', {name: profile.full_name})}" class="profile-avatar ${profile.is_verified ? 'verified-avatar' : ''}">
+                            <img src="${getTransformedImageUrl(profile.avatar_url, {width: 300, height: 300})}" alt="${getTranslation('profile_picture_alt', {name: profile.full_name})}" class="profile-avatar ${profile.is_verified ? 'verified-avatar' : ''}">
                             <h2 class="profile-name">${profile.full_name || getTranslation('user_name_placeholder')} ${profile.is_verified ? '<span class="fa-stack verified-badge" title="Verified"><i class="fas fa-certificate fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span>' : ''}</h2>
                             <p class="profile-username">@${profile.username}</p>
                             <p class="profile-bio">${profile.bio ? escapeHTML(profile.bio) : getTranslation('no_bio')}</p>
@@ -661,7 +661,7 @@
                 `<span class="tech-tag">${tech.trim()}</span>`
             ).join('') : '';
             
-            const imageHtml = project.image_url ? `<img src="${project.image_url}" alt="${project.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${project.image_url}')">` : '';
+            const imageHtml = project.image_url ? `<img src="${getTransformedImageUrl(project.image_url, {width: 400})}" loading="lazy" alt="${project.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${project.image_url}')">` :  '';
             
             const linksHtml = `
                 ${project.project_url ? `<a href="${project.project_url}" target="_blank" class="btn btn-secondary"><i class="fas fa-external-link-alt"></i> ${getTranslation('live_demo')}</a>` : ''}
@@ -705,7 +705,7 @@
             const element = document.createElement('div');
             element.className = 'post-card project-card'; // Reuse styles
 
-            const imageHtml = achievement.certificate_url ? `<img src="${achievement.certificate_url}" alt="${achievement.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${achievement.certificate_url}')">` : '';
+            const imageHtml = achievement.certificate_url ? `<img src="${getTransformedImageUrl(achievement.certificate_url, {width: 400})}" loading="lazy" alt="${achievement.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${achievement.certificate_url}')">` : '';
 
             element.innerHTML = `
                 ${imageHtml}
@@ -729,7 +729,7 @@
             
             const postImageHTML = post.image_url ? `
                 <div class="post-image-container">
-                    <img src="${post.image_url}" alt="Post image" class="post-image" style="cursor: pointer;" onclick="openImageViewer('${post.image_url}')">
+                    <img src="${getTransformedImageUrl(post.image_url, {width: 800})}" loading="lazy" alt="Post image" class="post-image" style="cursor: pointer;" onclick="openImageViewer('${post.image_url}')">
                 </div>` : '';
 
             let codeHtml = '';
@@ -763,7 +763,7 @@
             postCard.innerHTML = `
                 <div class="post-header">
                     <div class="post-author">
-                        <img src="${authorAvatar}" alt="Avatar">
+                        <img src="${getTransformedImageUrl(authorAvatar, {width: 100, height: 100})}" alt="Avatar">
                         <div class="post-author-info">
                             <h4>${authorName}</h4>
                             <p>${postDate}</p>
@@ -997,6 +997,18 @@
             const p = document.createElement('p');
             p.textContent = str;
             return p.innerHTML;
+        }
+
+        function getTransformedImageUrl(url, options = {}) {
+            if (!url || !url.includes('supabase.co')) return url;
+            const defaultOptions = {
+                format: 'webp',
+                quality: 80,
+                // resize: 'cover' // 'cover', 'contain', or 'fill'
+            };
+            const finalOptions = { ...defaultOptions, ...options };
+            const query = new URLSearchParams(finalOptions).toString();
+            return `${url}?${query}`;
         }
 
         function openImageViewer(imageUrl) {

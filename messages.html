@@ -291,7 +291,7 @@
                 return `
                     <a href="chat.html?id=${convo.conversation_id}" class="conversation-card">
                         <div class="profile-container">
-                            <img src="${convo.avatar_url || 'https://i.postimg.cc/m2b2pS5T/default-avatar.png'}" alt="${convo.full_name}" class="${verifiedClass}">
+                            <img src="${getTransformedImageUrl(convo.avatar_url, {width: 120, height: 120})}" alt="${convo.full_name}" class="${verifiedClass}">
                             ${unreadBadge}
                         </div>
                         <div class="conversation-details">
@@ -341,6 +341,18 @@
             document.querySelectorAll('[data-i18n-key]').forEach(el => {
                 el.innerHTML = getTranslation(el.getAttribute('data-i18n-key'));
             });
+        }
+
+        function getTransformedImageUrl(url, options = {}) {
+            if (!url || !url.includes('supabase.co')) return url;
+            const defaultOptions = {
+                format: 'webp',
+                quality: 80,
+                // resize: 'cover' // 'cover', 'contain', or 'fill'
+            };
+            const finalOptions = { ...defaultOptions, ...options };
+            const query = new URLSearchParams(finalOptions).toString();
+            return `${url}?${query}`;
         }
 
         // --- New Header & Theme Logic ---

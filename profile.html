@@ -2140,7 +2140,7 @@
                 
                 // Update avatar
                 const avatarUrl = data.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
-                document.getElementById('sidebarAvatar').src = avatarUrl;
+                document.getElementById('sidebarAvatar').src = getTransformedImageUrl(avatarUrl, { width: 300, height: 300 });
                 if (data.is_verified) {
                     document.getElementById('sidebarAvatar').classList.add('verified-avatar');
                 } else {
@@ -2515,7 +2515,7 @@
             
             const imageHtml = post.image_url ? `
                 <div class="post-image-container">
-                    <img src="${post.image_url}" alt="Post image" class="post-image" onclick="openImageViewer('${post.image_url}')">
+                    <img src="${getTransformedImageUrl(post.image_url, { width: 800 })}" loading="lazy" alt="Post image" class="post-image" onclick="openImageViewer('${post.image_url}')">
                 </div>` : '';
 
             let attachmentHtml = '';
@@ -2556,7 +2556,7 @@
             postElement.innerHTML = `
                 <div class="post-header">
                     <div class="post-author">
-                        <a href="profile.html">
+                        <a href="profile.html" style="display: contents;">
                             <img src="${loadedProfileData?.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png'}" alt="Avatar">
                         </a>
                         <div class="post-author-info">
@@ -2935,7 +2935,7 @@
             ).join('') : '';
             
             const imageHtml = project.image_url ? 
-                `<img src="${project.image_url}" alt="${project.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${project.image_url}')">` : 
+                `<img src="${getTransformedImageUrl(project.image_url, { width: 400 })}" loading="lazy" alt="${project.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${project.image_url}')">` : 
                 '<div class="project-image" style="background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;"><i class="fas fa-project-diagram" style="font-size: 3rem; color: var(--text-tertiary);"></i></div>';
             
             const linksHtml = `
@@ -3095,7 +3095,7 @@
             element.id = `achievement-${achievement.id}`;
 
             const imageHtml = achievement.certificate_url ?
-                `<img src="${achievement.certificate_url}" alt="${achievement.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${achievement.certificate_url}')">` :
+                `<img src="${getTransformedImageUrl(achievement.certificate_url, { width: 400 })}" loading="lazy" alt="${achievement.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${achievement.certificate_url}')">` :
                 '<div class="project-image" style="background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;"><i class="fas fa-trophy" style="font-size: 3rem; color: var(--text-tertiary);"></i></div>';
 
             element.innerHTML = `
@@ -3432,6 +3432,18 @@
             const p = document.createElement('p');
             p.textContent = str;
             return p.innerHTML;
+        }
+
+        function getTransformedImageUrl(url, options = {}) {
+            if (!url || !url.includes('supabase.co')) return url;
+            const defaultOptions = {
+                format: 'webp',
+                quality: 80,
+                // resize: 'cover' // 'cover', 'contain', or 'fill'
+            };
+            const finalOptions = { ...defaultOptions, ...options };
+            const query = new URLSearchParams(finalOptions).toString();
+            return `${url}?${query}`;
         }
 
         // Logout function

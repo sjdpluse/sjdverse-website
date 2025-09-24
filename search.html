@@ -269,7 +269,7 @@
                 const verifiedClass = profile.is_verified ? 'verified-avatar' : '';
                 return `
                     <a href="user.html?username=${profile.username}" class="user-card">
-                        <img src="${profile.avatar_url || 'https://i.postimg.cc/m2b2pS5T/default-avatar.png'}" alt="${profile.full_name || 'User Avatar'}" class="${verifiedClass}">
+                        <img src="${getTransformedImageUrl(profile.avatar_url, {width: 140, height: 140})}" alt="${profile.full_name || 'User Avatar'}" class="${verifiedClass}">
                         <div>
                             <h4>${profile.full_name || getTranslation('user_name_placeholder')}${verifiedBadge}</h4>
                             <p>@${profile.username}</p>
@@ -321,6 +321,18 @@
             document.querySelectorAll('[data-i18n-placeholder-key]').forEach(el => {
                 el.placeholder = getTranslation(el.getAttribute('data-i18n-placeholder-key'));
             });
+        }
+
+        function getTransformedImageUrl(url, options = {}) {
+            if (!url || !url.includes('supabase.co')) return url;
+            const defaultOptions = {
+                format: 'webp',
+                quality: 80,
+                // resize: 'cover' // 'cover', 'contain', or 'fill'
+            };
+            const finalOptions = { ...defaultOptions, ...options };
+            const query = new URLSearchParams(finalOptions).toString();
+            return `${url}?${query}`;
         }
 
         // --- New Header & Theme Logic ---
