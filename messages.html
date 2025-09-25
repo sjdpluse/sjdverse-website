@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Messages - SJDVerse</title>
     <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
@@ -74,8 +74,8 @@
         }
         .app-header .logo:hover { transform: scale(1.05); }
         .app-nav { display: flex; align-items: center; gap: 20px; }
-        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s, transform 0.2s; position: relative; padding: 8px; }
-        .app-nav .nav-icon:hover { color: var(--text-primary); transform: scale(1.1); }
+        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: var(--transition); position: relative; padding: 8px; }
+        .app-nav .nav-icon:hover { color: var(--text-primary); transform: translateY(-2px); }
         .app-nav .nav-icon.active { color: var(--text-primary); }
         .app-nav .profile-link img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; transition: border-color 0.2s; }
         .app-nav .profile-link.active img,
@@ -97,6 +97,9 @@
             .app-nav .nav-icon {
                 font-size: 1.3rem;
                 padding: 6px;
+            }
+            .logo-text {
+                display: none;
             }
         }
 
@@ -178,16 +181,39 @@
                 width: 50px; height: 50px;
             }
         }
+
+        /* Conversation Actions Menu */
+        .conversation-actions {
+            position: relative;
+            margin-left: auto; /* Pushes the menu to the far right */
+            flex-shrink: 0;
+        }
+        .conversation-menu-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 5px);
+            right: 0;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow-heavy);
+            width: 180px;
+            z-index: 10;
+            border: 1px solid var(--border-color);
+            padding: 5px 0;
+        }
+        .conversation-menu-dropdown .dropdown-item {
+            color: var(--danger);
+        }
     </style>
 </head>
 <body>
     <header class="app-header">
         <a href="indexx.html" class="logo">
             <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 35px;">
-            <span style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
+            <span class="logo-text" style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
         </a>
         <nav class="app-nav">
-            <a href="indexx.html" class="nav-icon" id="nav-home" title="Home"><i class="fas fa-home"></i></a>
+            <a href="profile.html" class="nav-icon" id="nav-home" title="Profile"><i class="fas fa-user"></i></a>
             <a href="explore.html" class="nav-icon" id="nav-explore" title="Explore"><i class="fas fa-compass"></i></a>
             <a href="search.html" class="nav-icon" id="nav-search" title="Search"><i class="fas fa-search"></i></a>
             <a href="courses.html" class="nav-icon" id="nav-courses" title="Courses"><i class="fas fa-book-open"></i></a>
@@ -196,6 +222,7 @@
                 <a href="javascript:void(0);" class="nav-icon profile-link" id="nav-profile-trigger" title="Profile"><img id="headerUserAvatar" src="https://i.postimg.cc/prmTzhSz/man.png" alt="User Avatar"></a>
                 <div id="profileDropdown" class="profile-dropdown">
                     <a href="profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
+                    <a href="about.html" class="dropdown-item"><i class="fas fa-info-circle"></i> <span>About</span></a>
                     <button id="themeToggleDropdown" class="dropdown-item"><i class="fas fa-moon"></i> <span>Theme</span></button>
                     <hr>
                     <button class="dropdown-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
@@ -210,6 +237,22 @@
             <p class="placeholder" data-i18n-key="loading_conversations">Loading conversations...</p>
         </div>
     </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmationModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: var(--card-bg); padding: 25px; border-radius: var(--border-radius); max-width: 400px; text-align: center; box-shadow: var(--shadow-heavy);">
+            <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: var(--danger); margin-bottom: 15px;"></i>
+            <h3 style="margin-bottom: 10px;">Delete Conversation</h3>
+            <p id="deleteConfirmText" style="color: var(--text-secondary); margin-bottom: 25px;">Are you sure? This will permanently delete all messages in this conversation.</p>
+            <div style="display: flex; justify-content: center; gap: 15px;">
+                <button class="btn btn-secondary" onclick="closeModal('deleteConfirmationModal')">Cancel</button>
+                <button id="confirmDeleteBtn" class="btn btn-danger" style="background: var(--danger); color: white;">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
+    <div id="loadingOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(5px); background: rgba(0,0,0,0.5);">
+        <div style="width: 50px; height: 50px; border: 4px solid var(--bg-tertiary); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+    </div>
 
     <script>
         const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
@@ -253,7 +296,13 @@
             }
 
             if (data.length === 0) {
-                conversationsContainer.innerHTML = `<p class="placeholder">${getTranslation('no_conversations_yet')}</p>`;
+                conversationsContainer.innerHTML = `
+                    <div class="placeholder" style="padding: 40px 20px; border: 2px dashed var(--border-color); background: var(--card-bg); border-radius: var(--border-radius);">
+                        <img src="https://i.postimg.cc/nzgMj31g/19836507-6156026.png" alt="Start a conversation" style="max-width: 250px; margin: 0 auto 20px; display: block;">
+                        <p style="font-size: 1.1rem; color: var(--text-secondary);">Start a new conversation and connect with others.</p>
+                        <a href="search.html" class="btn btn-primary" style="margin-top: 20px;"><i class="fas fa-search"></i> Find Users</a>
+                    </div>
+                `;
                 return;
             }
 
@@ -289,18 +338,88 @@
                 const verifiedClass = convo.is_verified ? 'verified-avatar' : '';
 
                 return `
-                    <a href="chat.html?id=${convo.conversation_id}" class="conversation-card">
-                        <div class="profile-container">
-                            <img src="${getTransformedImageUrl(convo.avatar_url, {width: 120, height: 120})}" alt="${convo.full_name}" class="${verifiedClass}">
-                            ${unreadBadge}
-                        </div>
-                        <div class="conversation-details">
-                            <h4>${convo.full_name || getTranslation('user_name_placeholder')}${verifiedBadge}</h4>
-                            <p style="font-size: 0.9rem; opacity: 0.7; margin: 0;">${getTranslation('last_message')} ${new Date(convo.last_message_at).toLocaleString(lang === 'fa' ? 'fa-IR' : 'en-US')}</p>
-                        </div>
-                    </a>
+                        <a href="chat.html?id=${convo.conversation_id}" class="conversation-card">
+                            <div class="profile-container">
+                                <img src="${getTransformedImageUrl(convo.avatar_url, {width: 120, height: 120})}" alt="${convo.full_name}" class="${verifiedClass}">
+                                ${unreadBadge}
+                            </div>
+                            <div class="conversation-details" style="flex-grow: 1;">
+                                <h4>${convo.full_name || getTranslation('user_name_placeholder')}${verifiedBadge}</h4>
+                                <p style="font-size: 0.9rem; opacity: 0.7; margin: 0;">${getTranslation('last_message')} ${new Date(convo.last_message_at).toLocaleString(lang === 'fa' ? 'fa-IR' : 'en-US')}</p>
+                            </div>
+                            <div class="conversation-actions">
+                                <button class="btn-icon" onclick="toggleConversationMenu(event, '${convo.conversation_id}')">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div id="menu-${convo.conversation_id}" class="conversation-menu-dropdown">
+                                    <div class="dropdown-item" onclick="showDeleteConfirmation(event, '${convo.conversation_id}', '${escapeHTML(convo.full_name)}')">
+                                        <i class="fas fa-trash"></i> Delete History
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
                 `;
             }).join('');
+        }
+
+        function toggleConversationMenu(event, conversationId) {
+            event.preventDefault();
+            event.stopPropagation();
+            const menu = document.getElementById(`menu-${conversationId}`);
+            
+            // Close all other menus
+            document.querySelectorAll('.conversation-menu-dropdown').forEach(m => {
+                if (m.id !== `menu-${conversationId}`) {
+                    m.style.display = 'none';
+                }
+            });
+
+            if (menu) {
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            }
+        }
+
+        function showDeleteConfirmation(event, conversationId, otherUserName) {
+            event.stopPropagation();
+            event.preventDefault();
+
+            const modal = document.getElementById('deleteConfirmationModal');
+            const confirmText = document.getElementById('deleteConfirmText');
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+
+            confirmText.innerHTML = `Are you sure? This will permanently delete all messages with <strong>${otherUserName}</strong>. This action cannot be undone.`;
+            confirmBtn.onclick = () => deleteConversationHistory(conversationId);
+            
+            modal.style.display = 'flex';
+        }
+
+        async function deleteConversationHistory(conversationId) {
+            closeModal('deleteConfirmationModal');
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            const idsToDelete = Array.isArray(conversationId) ? conversationId : [conversationId];
+
+            try {
+                // Call the database function to perform the deletion securely
+                const { error } = await _supabase.rpc('delete_conversations', {
+                    p_conversation_ids: idsToDelete
+                });
+
+                if (error) throw error;
+
+                showNotification(`${idsToDelete.length} conversation(s) deleted successfully.`, 'success');
+                await loadConversations(); // Refresh the list
+
+            } catch (error) {
+                console.error('Error deleting conversation:', error);
+                showNotification('Failed to delete conversation history.', 'error');
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.style.display = 'none';
         }
 
         function updateUserNav(user) {
@@ -313,6 +432,25 @@
             if (!confirm(getTranslation('confirm_logout'))) return;
             await _supabase.auth.signOut();
             window.location.href = 'indexx.html';
+        }
+
+        function showNotification(message, type = 'info') {
+            const container = document.body;
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.style.cssText = `position: fixed; top: 80px; right: 20px; padding: 16px 24px; border-radius: 12px; color: white; font-weight: 500; z-index: 10000; animation: fadeIn 0.3s, slideOutRight 0.4s 4.6s forwards;`;
+            notification.style.background = type === 'error' ? 'var(--danger)' : 'var(--success)';
+            
+            notification.innerHTML = `<span>${message}</span>`;
+            
+            container.appendChild(notification);
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
         }
 
         // --- Internationalization (i18n) & Settings ---
@@ -396,6 +534,13 @@
             if (profileDropdown && profileDropdown.style.display === 'block' && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
                 profileDropdown.style.display = 'none';
             }
+
+            // Close conversation menus on outside click
+            document.querySelectorAll('.conversation-menu-dropdown').forEach(d => {
+                if (!d.parentElement.contains(e.target)) {
+                    d.style.display = 'none';
+                }
+            });
         });
     </script>
 </body>

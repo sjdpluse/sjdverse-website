@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Chat - SJDVerse</title>
     <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
@@ -78,8 +78,8 @@
         }
         .app-header .logo:hover { transform: scale(1.05); }
         .app-nav { display: flex; align-items: center; gap: 20px; }
-        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s, transform 0.2s; position: relative; padding: 8px; }
-        .app-nav .nav-icon:hover { color: var(--text-primary); transform: scale(1.1); }
+        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: var(--transition); position: relative; padding: 8px; }
+        .app-nav .nav-icon:hover { color: var(--text-primary); transform: translateY(-2px); }
         .app-nav .nav-icon.active { color: var(--text-primary); }
         .app-nav .profile-link img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; transition: border-color 0.2s; }
         .app-nav .profile-link.active img, .app-nav .profile-link:hover img { border-color: var(--text-primary); }
@@ -95,6 +95,9 @@
             .app-nav .nav-icon {
                 font-size: 1.3rem;
                 padding: 6px;
+            }
+            .logo-text {
+                display: none;
             }
         }
 
@@ -401,10 +404,10 @@
     <header class="app-header">
         <a href="indexx.html" class="logo">
             <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 35px;">
-            <span style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
+            <span class="logo-text" style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
         </a>
         <nav class="app-nav">
-            <a href="indexx.html" class="nav-icon" id="nav-home" title="Home"><i class="fas fa-home"></i></a>
+            <a href="profile.html" class="nav-icon" id="nav-home" title="Profile"><i class="fas fa-user"></i></a>
             <a href="explore.html" class="nav-icon" id="nav-explore" title="Explore"><i class="fas fa-compass"></i></a>
             <a href="search.html" class="nav-icon" id="nav-search" title="Search"><i class="fas fa-search"></i></a>
             <a href="courses.html" class="nav-icon" id="nav-courses" title="Courses"><i class="fas fa-book-open"></i></a>
@@ -413,6 +416,7 @@
                 <a href="javascript:void(0);" class="nav-icon profile-link" id="nav-profile-trigger" title="Profile"><img id="headerUserAvatar" src="https://i.postimg.cc/prmTzhSz/man.png" alt="User Avatar"></a>
                 <div id="profileDropdown" class="profile-dropdown">
                     <a href="profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
+                    <a href="about.html" class="dropdown-item"><i class="fas fa-info-circle"></i> <span>About</span></a>
                     <button id="themeToggleDropdown" class="dropdown-item"><i class="fas fa-moon"></i> <span>Theme</span></button>
                     <hr>
                     <button class="dropdown-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
@@ -963,7 +967,9 @@
                     contentClasses.push('file-only');
                 }
             } else {
-                contentHTML = escapeHTML(message.content);
+                const isRtl = /[\u0600-\u06FF]/.test(message.content);
+                const directionality = isRtl ? 'dir="rtl" style="text-align: right;"' : '';
+                contentHTML = `<div ${directionality}>${escapeHTML(message.content)}</div>`;
             }
 
             const replyIconHTML = !message.is_deleted ? `<div class="message-actions">

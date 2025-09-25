@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>User Profile - SJDVerse</title>
     <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
     <!-- Using Poppins, Montserrat and Michroma for a more professional look -->
@@ -71,8 +71,8 @@
         }
         .app-header .logo:hover { transform: scale(1.05); }
         .app-nav { display: flex; align-items: center; gap: 20px; }
-        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s, transform 0.2s; position: relative; padding: 8px; }
-        .app-nav .nav-icon:hover { color: var(--text-primary); transform: scale(1.1); }
+        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: var(--transition); position: relative; padding: 8px; }
+        .app-nav .nav-icon:hover { color: var(--text-primary); transform: translateY(-2px); }
         .app-nav .nav-icon.active { color: var(--text-primary); }
         .app-nav .profile-link img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; transition: border-color 0.2s; }
         .app-nav .profile-link.active img,
@@ -83,6 +83,7 @@
         .profile-dropdown .dropdown-item:hover { background: var(--bg-secondary); }
         .profile-dropdown hr { border: none; border-top: 1px solid var(--border-color); margin: 8px 0; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
 
         @media (max-width: 768px) {
             .app-header {
@@ -94,6 +95,9 @@
             .app-nav .nav-icon {
                 font-size: 1.3rem;
                 padding: 6px;
+            }
+            .logo-text {
+                display: none;
             }
         }
 
@@ -113,11 +117,23 @@
             font-weight: 500;
             color: var(--text-secondary);
             position: relative;
-            border-bottom: 2px solid transparent;
+            transition: color 0.3s ease;
+        }
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
         }
         .tab-button.active {
             color: var(--primary);
-            border-bottom-color: var(--primary);
+        }
+        .tab-button.active::after {
+            width: 100%;
         }
         .tab-panel {
             display: none;
@@ -228,6 +244,58 @@
             color: var(--dark-gray);
             border-color: transparent;
         }
+        /* Post Menu Dropdown */
+        .post-menu-container {
+            position: relative;
+        }
+        .post-menu-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 5px);
+            right: 0;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow-medium);
+            width: 180px;
+            z-index: 10;
+            border: 1px solid var(--border-color);
+            padding: 5px 0;
+            animation: fadeIn 0.2s;
+        }
+        .post-menu-dropdown .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: var(--text-primary);
+            text-decoration: none; /* for the download link */
+        }
+        .post-menu-dropdown .dropdown-item:hover { background: var(--bg-secondary); }
+
+        /* Glassmorphism Container */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 20px; /* --border-radius-lg */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 24px;
+            box-shadow: var(--shadow-medium);
+        }
+        .dark-theme .glass-container {
+            background: rgba(44, 44, 46, 0.6); /* Semi-transparent dark background */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Remove background from cards inside the glass container */
+        .glass-container .post-card {
+            background: transparent;
+            box-shadow: none;
+            border: none;
+        }
 
         /* Profile Header & Layout (from profile.html) */
         .profile-header { height: 350px; position: relative; overflow: hidden; }
@@ -239,6 +307,7 @@
         }
         @media (max-width: 900px) {
             .container { grid-template-columns: 1fr; }
+            .profile-sidebar { position: static !important; margin-bottom: 20px; }
         }
 
         /* Sidebar (from profile.html) */
@@ -250,7 +319,7 @@
         .profile-info { text-align: center; padding-bottom: 16px; }
         .profile-avatar {
             width: 150px; height: 150px; border-radius: 50%; object-fit: cover;
-            border: 4px solid var(--primary); box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            border: 4px solid var(--primary); box-shadow: 0 8px 30px rgba(0,0,0,0.12); cursor: pointer;
             margin: -100px auto 16px; background: var(--card-bg);
         }
         .profile-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text-primary); }
@@ -355,6 +424,38 @@
         .verified-badge .fa-certificate {
             color: #1DA1F2;
         }
+
+        /* Custom Video Controls from profile.html */
+        .video-overlay-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .video-controls-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background-color: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            pointer-events: none;
+        }
+        .video-controls-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        .video-control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 60px; height: 60px; font-size: 1.5rem;
+        }
         .verified-avatar {
             border: 4px solid #1DA1F2 !important;
             box-shadow: 0 0 15px rgba(29, 161, 242, 0.4);
@@ -404,27 +505,41 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(5px);
-            display: flex;
+            display: none; /* Changed from flex to none */
             align-items: center;
             justify-content: center;
             z-index: 2000;
+        }
+        .modal.active {
+            display: flex;
             animation: fadeIn 0.3s ease;
+        }
+        .modal #modalImage {
+            width: 300px;
+            height: 300px;
+            max-width: 80vw;
+            max-height: 80vw;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--card-bg);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: scaleIn 0.3s ease;
         }
     </style>
 </head>
 <body class="light-theme">
     <!-- Image Viewer Modal -->
-    <div id="imageViewerModal" class="modal hidden" onclick="closeModal('imageViewerModal')">
-        <img id="modalImage" src="" style="max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: var(--border-radius);">
+    <div id="imageViewerModal" class="modal" onclick="closeModal('imageViewerModal')">
+        <img id="modalImage" src="">
     </div>
 
     <header class="app-header">
         <a href="indexx.html" class="logo">
             <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 35px;">
-            <span style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
+            <span class="logo-text" style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
         </a>
         <nav class="app-nav">
-            <a href="indexx.html" class="nav-icon" id="nav-home" title="Home"><i class="fas fa-home"></i></a>
+            <a href="profile.html" class="nav-icon" id="nav-home" title="Profile"><i class="fas fa-user"></i></a>
             <a href="explore.html" class="nav-icon" id="nav-explore" title="Explore"><i class="fas fa-compass"></i></a>
             <a href="search.html" class="nav-icon" id="nav-search" title="Search"><i class="fas fa-search"></i></a>
             <a href="courses.html" class="nav-icon" id="nav-courses" title="Courses"><i class="fas fa-book-open"></i></a>
@@ -435,6 +550,7 @@
                 </a>
                 <div id="profileDropdown" class="profile-dropdown">
                     <a href="profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
+                    <a href="about.html" class="dropdown-item"><i class="fas fa-info-circle"></i> <span>About</span></a>
                     <button id="themeToggleDropdown" class="dropdown-item"><i class="fas fa-moon"></i> <span>Theme</span></button>
                     <hr>
                     <button class="dropdown-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
@@ -443,25 +559,19 @@
         </nav>
     </header>
 
-    <div id="mainContainer" class="hidden">
-        <div class="loading-placeholder">
-            <p data-i18n-key="loading_user_info">Loading user information...</p>
-        </div>
-    </main>
-
     <script>
         // Supabase initialization
         const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const mainContainer = document.getElementById('mainContainer');
         const userNav = document.getElementById('userNav'); // This is the logged-in user's nav
 
         let profileUserId = null;
         let loadedProfileData = null;
         let currentLoggedInUser = null;
         let isFollowing = false;
+        let videoObserver = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
             const savedLang = localStorage.getItem('language') || 'en';
@@ -474,12 +584,24 @@
                 initializeNewHeader();
             }
 
+            // Initialize video observer
+            videoObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const video = entry.target;
+                    if (entry.isIntersecting) {
+                        video.play().catch(e => console.warn("Video play was prevented.", e));
+                    } else {
+                        video.pause();
+                    }
+                });
+            }, { threshold: 0.5 });
+
             const params = new URLSearchParams(window.location.search);
             const username = params.get('username');
             const postIdToHighlight = params.get('postId');
 
             if (!username) {
-                mainContainer.innerHTML = `<div class="error-placeholder"><p>${getTranslation('username_not_specified')}</p></div>`;
+                document.body.innerHTML = `<div class="error-placeholder"><p>${getTranslation('username_not_specified')}</p></div>`;
                 return;
             }
 
@@ -491,7 +613,7 @@
 
             if (error || !profile) {
                 console.error('Error fetching profile:', error);
-                mainContainer.innerHTML = `<div class="error-placeholder"><p>${getTranslation('user_not_found', {username: username})}</p></div>`;
+                document.body.innerHTML = `<div class="error-placeholder"><p>${getTranslation('user_not_found', {username: username})}</p></div>`;
                 return;
             }
 
@@ -502,8 +624,6 @@
             // Set body theme based on user's saved preference (if any)
             const savedTheme = localStorage.getItem('theme') || 'light';
             setTheme(savedTheme, true);
-
-            mainContainer.classList.remove('hidden');
 
             if (currentLoggedInUser && currentLoggedInUser.id !== profile.id) {
                 await checkFollowStatus(profile.id);
@@ -527,14 +647,14 @@
         function displayProfile(profile) {
             document.title = `${profile.full_name || profile.username} - SJDVerse`;
 
-            mainContainer.innerHTML = `
+            document.body.insertAdjacentHTML('beforeend', `
                 <div class="profile-header">
                     <div class="cover-photo" style="background-image: url('${profile.cover_url || 'https://images.unsplash.com/photo-1504805572947-34fad45a79b1?q=80&w=1200&auto=format&fit=crop'}');"></div>
                 </div>
                 <main class="container">
-                    <aside class="profile-sidebar">
+                    <aside class="profile-sidebar glass-container">
                         <div class="profile-info">
-                            <img src="${getTransformedImageUrl(profile.avatar_url, {width: 300, height: 300})}" alt="${getTranslation('profile_picture_alt', {name: profile.full_name})}" class="profile-avatar ${profile.is_verified ? 'verified-avatar' : ''}">
+                            <img src="${getTransformedImageUrl(profile.avatar_url, {width: 300, height: 300})}" alt="${getTranslation('profile_picture_alt', {name: profile.full_name})}" class="profile-avatar ${profile.is_verified ? 'verified-avatar' : ''}" onclick="openImageViewer('${profile.avatar_url}')">
                             <h2 class="profile-name">${profile.full_name || getTranslation('user_name_placeholder')} ${profile.is_verified ? '<span class="fa-stack verified-badge" title="Verified"><i class="fas fa-certificate fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span>' : ''}</h2>
                             <p class="profile-username">@${profile.username}</p>
                             <p class="profile-bio">${profile.bio ? escapeHTML(profile.bio) : getTranslation('no_bio')}</p>
@@ -577,7 +697,7 @@
                             </div>
                         </div>
                     </aside>
-                    <div class="main-content-area">
+                    <div class="main-content-area glass-container">
                         <div class="tabs">
                             <button class="tab-button active" onclick="openTab(event, 'posts')">Posts</button>
                             <button class="tab-button" onclick="openTab(event, 'projects')">Projects</button>
@@ -594,9 +714,23 @@
                         </div>
                     </div>
                 </main>
-            `;
+            `);
         }
 
+        function togglePostMenu(event) {
+            event.stopPropagation();
+            const button = event.currentTarget;
+            const dropdown = button.nextElementSibling;
+            
+            // Close all other open dropdowns first
+            document.querySelectorAll('.post-menu-dropdown').forEach(d => {
+                if (d !== dropdown) {
+                    d.style.display = 'none';
+                }
+            });
+
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
 
         async function loadPosts(userId) {
             const postFeed = document.getElementById('postFeed');
@@ -618,6 +752,36 @@
             } else {
                 postFeed.innerHTML = '';
                 posts.forEach(post => renderPost(post));
+            }
+        }
+
+        function setupVideoListeners(postElement) {
+            const video = postElement.querySelector('video'); //NOSONAR
+            const container = postElement.querySelector('.video-overlay-container');
+            const controlsOverlay = postElement.querySelector('.video-controls-overlay');
+            const playPauseBtn = postElement.querySelector('[data-action="play-pause"]');
+            const muteUnmuteBtn = postElement.querySelector('[data-action="mute-unmute"]');
+
+            if (video) {
+                let controlsTimeout;
+                container.addEventListener('click', (e) => { //NOSONAR
+                    if (e.target === video || e.target === container) {
+                        clearTimeout(controlsTimeout);
+                        controlsOverlay.classList.add('visible');
+                        controlsTimeout = setTimeout(() => {
+                            controlsOverlay.classList.remove('visible');
+                        }, 2000);
+                    }
+                });
+
+                playPauseBtn.addEventListener('click', () => { if (video.paused) video.play(); else video.pause(); });
+
+                muteUnmuteBtn.addEventListener('click', () => { video.muted = !video.muted; });
+
+                video.addEventListener('play', () => playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>');
+                video.addEventListener('pause', () => playPauseBtn.innerHTML = '<i class="fas fa-play"></i>');
+                video.addEventListener('volumechange', () => { muteUnmuteBtn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>'; });
+                if (videoObserver) { videoObserver.observe(video); }
             }
         }
 
@@ -727,25 +891,43 @@
             const likeCount = post.post_likes ? post.post_likes.length : 0;
             const isLikedByCurrentUser = currentLoggedInUser && post.post_likes ? post.post_likes.some(like => like.user_id === currentLoggedInUser.id) : false;
             
-            const postImageHTML = post.image_url ? `
-                <div class="post-image-container">
-                    <img src="${getTransformedImageUrl(post.image_url, {width: 800})}" loading="lazy" alt="Post image" class="post-image" style="cursor: pointer;" onclick="openImageViewer('${post.image_url}')">
-                </div>` : '';
+            const postImageHTML = post.image_url ? `<div class="post-image-container"><img src="${getTransformedImageUrl(post.image_url, {width: 800})}" loading="lazy" alt="Post image" class="post-image" style="cursor: pointer;" onclick="openImageViewer('${post.image_url}')"></div>` : '';
 
+            // Check if the post is a vedez
+            const isVedez = post.attachment_metadata && post.attachment_metadata.type === 'vedez';
+            let vedezHtml = '';
+            if (isVedez) {
+                vedezHtml = `
+                    <div class="post-image-container" style="background-color: #000;">
+                        <div class="video-overlay-container">
+                            <video src="${post.attachment_url}" loop autoplay muted playsinline disablepictureinpicture class="post-image" style="object-fit: cover;"></video>
+                            <div class="video-controls-overlay">
+                                <button class="btn-icon video-control-btn" data-action="play-pause"><i class="fas fa-play"></i></button>
+                                <button class="btn-icon video-control-btn" data-action="mute-unmute"><i class="fas fa-volume-mute"></i></button>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
+            const postContent = escapeHTML(post.content);
+            const isRtl = /[\u0600-\u06FF]/.test(post.content);
+            const contentDirection = isRtl ? 'dir="rtl" style="text-align: right;"' : '';
+            const contentHtml = `<p ${contentDirection}>${postContent}</p>`;
+            
             let codeHtml = '';
             if (post.code_snippet && post.code_snippet.code) {
                 const language = post.code_snippet.language || 'plaintext';
                 const isLongCode = post.code_snippet.code.split('\n').length > 12 || post.code_snippet.code.length > 800;
                 const containerClass = isLongCode ? 'code-snippet-container long-code' : 'code-snippet-container';
-                codeHtml = `
+                codeHtml = ` 
                     <div class="${containerClass}">
-                        <pre><code class="language-${language}">${escapeHTML(post.code_snippet.code)}</code></pre>
+                        <pre id="code-block-${post.id}"><code class="language-${language}">${escapeHTML(post.code_snippet.code)}</code></pre>
                     </div>
                 `;
             }
 
             let attachmentHtml = '';
-            if (post.attachment_url && post.attachment_metadata) {
+            if (post.attachment_url && post.attachment_metadata && !isVedez) { // Do not show for Vedez
                 const meta = post.attachment_metadata;
                 const fileSize = meta.size ? `(${(meta.size / 1024 / 1024).toFixed(2)} MB)` : '';
                 attachmentHtml = `
@@ -760,6 +942,27 @@
                     </div>`;
             }
 
+            // Build the post menu
+            let menuItems = '';
+            if (post.code_snippet && post.code_snippet.code) {
+                menuItems += `<div class="dropdown-item" onclick="copyCode(event, '${post.id}')"><i class="fas fa-copy"></i> Copy Code</div>`;
+            }
+            if (post.attachment_url) {
+                menuItems += `<a href="${post.attachment_url}" download="${post.attachment_metadata?.name || 'download'}" class="dropdown-item"><i class="fas fa-download"></i> Download File</a>`;
+            }
+            if (isVedez) {
+                menuItems += `<div class="dropdown-item" onclick="downloadFile('${post.attachment_url}', '${post.attachment_metadata.name}')"><i class="fas fa-download"></i> Download Vedez</div>`;
+            }
+
+            const postMenuHTML = menuItems ? `
+                <div class="post-menu-container">
+                    <button class="btn-icon" onclick="togglePostMenu(event)">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="post-menu-dropdown">${menuItems}</div>
+                </div>
+            ` : '';
+
             postCard.innerHTML = `
                 <div class="post-header">
                     <div class="post-author">
@@ -769,10 +972,10 @@
                             <p>${postDate}</p>
                         </div>
                     </div>
+                    ${postMenuHTML}
                 </div>
                 <div class="post-content">
-                    <p>${escapeHTML(post.content)}</p>
-                    ${postImageHTML}
+                    ${contentHtml}${isVedez ? vedezHtml : postImageHTML}
                     ${codeHtml}
                     ${attachmentHtml}
                 </div>
@@ -786,6 +989,7 @@
                 </div>
             `;
             postFeed.appendChild(postCard);
+            setupVideoListeners(postCard);
 
             // Highlight code if it exists
             const codeBlock = postCard.querySelector('pre code');
@@ -794,6 +998,27 @@
             }
         }
 
+        function copyCode(event, postId) {
+            event.stopPropagation();
+            const dropdownItem = event.currentTarget; // This is the <div> with "Copy Code"
+            const codeBlock = document.querySelector(`#code-block-${postId} code`);
+            if (codeBlock) {
+                navigator.clipboard.writeText(codeBlock.textContent).then(() => {
+                    const originalText = dropdownItem.innerHTML;
+                    dropdownItem.innerHTML = `<i class="fas fa-check"></i> Copied!`;
+                    setTimeout(() => {
+                        dropdownItem.innerHTML = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy code: ', err);
+                    alert('Failed to copy code.');
+                });
+            } else {
+                console.error(`Code block with ID code-block-${postId} not found.`);
+                alert('Could not find code to copy.');
+                
+            }
+        }
         async function toggleLike(postId) {
             if (!currentLoggedInUser) {
                 alert(getTranslation('login_to_like'));
@@ -999,6 +1224,14 @@
             return p.innerHTML;
         }
 
+        function downloadFile(url, filename) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename || 'download');
+            link.setAttribute('target', '_blank');
+            link.click();
+        }
+
         function getTransformedImageUrl(url, options = {}) {
             if (!url || !url.includes('supabase.co')) return url;
             const defaultOptions = {
@@ -1014,11 +1247,11 @@
         function openImageViewer(imageUrl) {
             const modal = document.getElementById('imageViewerModal');
             document.getElementById('modalImage').src = imageUrl;
-            modal.classList.remove('hidden');
+            modal.classList.add('active');
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('active');
         }
 
         function initializeNewHeader() {
@@ -1039,6 +1272,12 @@
                 document.addEventListener('click', (e) => {
                     if (profileDropdown.style.display === 'block' && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
                         profileDropdown.style.display = 'none';
+                    // Close post menus on outside click
+                    document.querySelectorAll('.post-menu-dropdown').forEach(d => {
+                        if (!d.parentElement.contains(e.target)) {
+                            d.style.display = 'none';
+                        }
+                    });
                     }
                 });
             }

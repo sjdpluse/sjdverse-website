@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Search Users - SJDVerse</title>
     <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
@@ -74,8 +74,8 @@
         }
         .app-header .logo:hover { transform: scale(1.05); }
         .app-nav { display: flex; align-items: center; gap: 20px; }
-        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s, transform 0.2s; position: relative; padding: 8px; }
-        .app-nav .nav-icon:hover { color: var(--text-primary); transform: scale(1.1); }
+        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: var(--transition); position: relative; padding: 8px; }
+        .app-nav .nav-icon:hover { color: var(--text-primary); transform: translateY(-2px); }
         .app-nav .nav-icon.active { color: var(--text-primary); }
         .app-nav .profile-link img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; transition: border-color 0.2s; }
         .app-nav .profile-link.active img,
@@ -97,6 +97,9 @@
             .app-nav .nav-icon {
                 font-size: 1.3rem;
                 padding: 6px;
+            }
+            .logo-text {
+                display: none;
             }
         }
 
@@ -161,17 +164,90 @@
                 padding: 15px 50px 15px 15px;
                 font-size: 1rem;
             }
+            .suggested-users-section:hover .stories-container {
+            animation-play-state: paused;
         }
+            .story-item {
+                width: 120px;
+                padding: 15px 10px;
+            }
+            .story-avatar-wrapper {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        /* Styles from explore.html for suggestions */
+        .suggested-users-section {
+            margin-bottom: 40px;
+            overflow: hidden;
+            position: relative;
+            -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+            mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+        }
+        .stories-container {
+            display: flex;
+            gap: 16px;
+            padding: 10px 0;
+            animation: scroll-suggestions 40s linear infinite;
+        }
+        @keyframes scroll-suggestions {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        .suggested-users-section:hover .stories-container {
+            animation-play-state: paused;
+        }
+        .story-item {
+            flex-shrink: 0;
+            width: 150px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(252, 252, 252, 0.4), rgba(226, 226, 226, 0.2));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            padding: 20px 15px;
+            transition: var(--transition);
+        }
+        .story-item:hover { transform: translateY(-5px); }
+        .dark-theme .story-item {
+            background: linear-gradient(135deg, rgba(60, 60, 62, 0.4), rgba(44, 44, 46, 0.2));
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        }
+        .story-avatar-wrapper {
+            position: relative;
+            padding: 3px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--p4), var(--p2), var(--p3));
+            width: 74px;
+            height: 74px;
+        }
+        .story-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--card-bg); }
+        .story-username { font-size: 0.8rem; font-weight: 500; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .story-actions { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 8px; }
+        .story-actions .btn { width: 100%; padding: 6px 10px; font-size: 0.8rem; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--border-color); }
+        .btn-success { background: var(--success); color: white; }
+        .dark-theme .btn-success { color: var(--dark-gray); }
+        
     </style>
 </head>
 <body>
     <header class="app-header">
         <a href="indexx.html" class="logo">
             <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 35px;">
-            <span style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
+            <span class="logo-text" style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
         </a>
         <nav class="app-nav">
-            <a href="indexx.html" class="nav-icon" id="nav-home" title="Home"><i class="fas fa-home"></i></a>
+            <a href="profile.html" class="nav-icon" id="nav-home" title="Profile"><i class="fas fa-user"></i></a>
             <a href="explore.html" class="nav-icon" id="nav-explore" title="Explore"><i class="fas fa-compass"></i></a>
             <a href="search.html" class="nav-icon" id="nav-search" title="Search"><i class="fas fa-search"></i></a>
             <a href="courses.html" class="nav-icon" id="nav-courses" title="Courses"><i class="fas fa-book-open"></i></a>
@@ -180,6 +256,7 @@
                 <a href="javascript:void(0);" class="nav-icon profile-link" id="nav-profile-trigger" title="Profile"><img id="headerUserAvatar" src="https://i.postimg.cc/prmTzhSz/man.png" alt="User Avatar"></a>
                 <div id="profileDropdown" class="profile-dropdown">
                     <a href="profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
+                    <a href="about.html" class="dropdown-item"><i class="fas fa-info-circle"></i> <span>About</span></a>
                     <button id="themeToggleDropdown" class="dropdown-item"><i class="fas fa-moon"></i> <span>Theme</span></button>
                     <hr>
                     <button class="dropdown-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
@@ -193,6 +270,10 @@
             <i class="fas fa-search icon"></i>
             <input type="text" id="searchInput" class="search-input" data-i18n-placeholder-key="search_username_placeholder" placeholder="Search username...">
         </div>
+        <section id="suggestionsContainer" class="suggested-users-section">
+            <h3 style="font-size: 1.1rem; margin-bottom: 10px; text-align: center;">Suggestions for You</h3>
+            <div id="storiesFeed" class="stories-container"></div>
+        </section>
         <div id="resultsContainer">
             <p class="results-placeholder" data-i18n-key="search_hint">Enter a username to find users.</p>
         </div>
@@ -206,6 +287,7 @@
         const searchInput = document.getElementById('searchInput');
         const resultsContainer = document.getElementById('resultsContainer');
         let searchTimeout;
+        let followingIds = [];
         let currentUser = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -226,6 +308,14 @@
             // Initialize event listeners
             document.getElementById('nav-search').classList.add('active');
             initializeNewHeader();
+
+            // Fetch followed users to exclude them from suggestions
+            const { data: followingData } = await _supabase
+                .from('connections')
+                .select('following_id')
+                .eq('follower_id', currentUser.id);
+            followingIds = (followingData || []).map(f => f.following_id);
+            await loadSuggestedUsers();
         });
 
         searchInput.addEventListener('input', (e) => {
@@ -236,11 +326,14 @@
         });
 
         async function performSearch(searchTerm) {
+            const suggestionsContainer = document.getElementById('suggestionsContainer');
             if (searchTerm.length < 2) {
                 resultsContainer.innerHTML = `<p class="results-placeholder">${getTranslation('search_min_chars')}</p>`;
+                suggestionsContainer.style.display = 'block'; // Show suggestions
                 return;
             }
 
+            suggestionsContainer.style.display = 'none'; // Hide suggestions
             resultsContainer.innerHTML = `<p class="results-placeholder">${getTranslation('searching')}</p>`;
 
             const { data: profiles, error } = await _supabase
@@ -277,6 +370,71 @@
                     </a>
                 `;
             }).join('');
+        }
+
+        async function loadSuggestedUsers() {
+            const storiesFeed = document.getElementById('storiesFeed');
+            if (!storiesFeed) return;
+            storiesFeed.innerHTML = `<p class="placeholder" style="padding: 20px 0;">Loading suggestions...</p>`;
+
+            const excludedIds = [...followingIds, currentUser.id];
+
+            const { data: profiles, error } = await _supabase
+                .from('profiles')
+                .select('id, username, full_name, avatar_url, is_verified')
+                .not('id', 'in', `(${excludedIds.join(',')})`)
+                .limit(50);
+
+            if (error || !profiles || profiles.length === 0) {
+                document.getElementById('suggestionsContainer').style.display = 'none';
+                return;
+            }
+
+            // Shuffle and take 5
+            for (let i = profiles.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [profiles[i], profiles[j]] = [profiles[j], profiles[i]];
+            }
+            const suggestedProfiles = profiles.slice(0, 5);
+
+            let suggestionsHTML = '';
+            suggestedProfiles.forEach(profile => {
+                suggestionsHTML += `
+                    <div class="story-item">
+                    <a href="user.html?username=${profile.username}" class="story-avatar-wrapper">
+                        <img src="${getTransformedImageUrl(profile.avatar_url, {width: 150, height: 150})}" alt="${profile.full_name}" class="story-avatar">
+                    </a>
+                    <span class="story-username" title="${profile.full_name || profile.username}">${profile.full_name || profile.username}</span>
+                    <div class="story-actions">
+                        <button class="btn btn-primary btn-sm" onclick="followUserFromStory('${profile.id}', this)">
+                            <i class="fas fa-user-plus"></i> Follow
+                        </button>
+                    </div>
+                    </div>
+                `;
+            });
+            // Duplicate the content for seamless scrolling
+            storiesFeed.innerHTML = suggestionsHTML + suggestionsHTML;
+        }
+
+        async function followUserFromStory(userId, buttonElement) {
+            buttonElement.disabled = true;
+            buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            const { error } = await _supabase
+                .from('connections')
+                .insert({ follower_id: currentUser.id, following_id: userId });
+
+            if (error) {
+                alert('Error following user.');
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = '<i class="fas fa-user-plus"></i> Follow';
+            } else {
+                buttonElement.innerHTML = '<i class="fas fa-check"></i> Following';
+                buttonElement.classList.replace('btn-primary', 'btn-success');
+                // Add to local list to avoid re-suggesting
+                followingIds.push(userId);
+            }
         }
 
         function updateUserNav(user) {
@@ -374,384 +532,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--

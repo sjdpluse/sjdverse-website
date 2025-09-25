@@ -2,15 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>My Profile - SJDVerse</title>
     <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Foldit:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=WindSong:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+80s+Fade&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Megrim&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+    <link href="https://api.fontshare.com/v2/css?f[]=host-grotesk@600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hljs-dark-theme" disabled>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" id="hljs-light-theme">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --p1: #d8f4a0; --p2: #fdc7d5; --p3: #bcd8fd; --p4: #ffeca8; --p5: #5d5c5c;
@@ -132,8 +141,8 @@
         }
         .app-header .logo:hover { transform: scale(1.05); }
         .app-nav { display: flex; align-items: center; gap: 20px; }
-        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s, transform 0.2s; position: relative; padding: 8px; }
-        .app-nav .nav-icon:hover { color: var(--text-primary); transform: scale(1.1); }
+        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: var(--transition); position: relative; padding: 8px; }
+        .app-nav .nav-icon:hover { color: var(--text-primary); transform: translateY(-2px); }
         .app-nav .nav-icon.active { color: var(--text-primary); }
         .app-nav .profile-link img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; transition: border-color 0.2s; }
         .app-nav .profile-link.active img,
@@ -155,6 +164,9 @@
             .app-nav .nav-icon {
                 font-size: 1.3rem;
                 padding: 6px;
+            }
+            .logo-text {
+                display: none;
             }
         }
 
@@ -304,9 +316,13 @@
             .container {
                 grid-template-columns: 1fr;
             }
-            
+
             .profile-sidebar {
                 position: static !important;
+            }
+            .container {
+                margin-top: -80px;
+                gap: 15px;
             }
         }
 
@@ -497,6 +513,70 @@
             transform: translateY(-2px);
         }
 
+        /* Custom Video Controls */
+        .video-overlay-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .video-controls-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background-color: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            pointer-events: none; /* Allow clicks to pass through to the video */
+        }
+        .video-controls-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto; /* Allow clicks on buttons */
+        }
+        .video-control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 60px; height: 60px; font-size: 1.5rem;
+        }
+
+        /* Post Menu Dropdown */
+        .post-menu-container {
+            position: relative;
+        }
+        .post-menu-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 5px);
+            right: 0;
+            background: var(--card-bg);
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-medium);
+            width: 180px;
+            z-index: 10;
+            border: 1px solid var(--border-color);
+            padding: 5px 0;
+            animation: fadeIn 0.2s;
+        }
+        .post-menu-dropdown .dropdown-item.delete { color: var(--danger); }
+        .post-menu-dropdown .dropdown-item.delete:hover { background: rgba(244, 67, 54, 0.1); }
+        .skill-tag-edit {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-tertiary);
+        }
+        .skill-tag-edit .remove-skill-btn {
+            background: none; border: none; cursor: pointer; color: var(--text-secondary);
+            font-size: 0.9rem; padding: 0; line-height: 1;
+        }
+        .skill-tag-edit .remove-skill-btn:hover { color: var(--danger); }
+
         /* Main Content */
         .content-header {
             display: flex;
@@ -534,9 +614,19 @@
             color: var(--text-secondary);
             white-space: nowrap;
             position: relative;
-            transition: var(--transition);
-            border-bottom: 2px solid transparent;
+            transition: color 0.3s, background-color 0.3s;
             border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+        }
+
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
         }
 
         .tab-button:hover {
@@ -546,8 +636,11 @@
 
         .tab-button.active {
             color: var(--primary);
-            border-bottom-color: var(--primary);
             background: var(--bg-secondary);
+        }
+
+        .tab-button.active::after {
+            width: 100%;
         }
 
         .tab-panel {
@@ -564,6 +657,27 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Glassmorphism Container */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 24px;
+            box-shadow: var(--shadow-medium);
+        }
+        .dark-theme .glass-container {
+            background: rgba(44, 44, 46, 0.6); /* Semi-transparent dark background */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Remove background from cards inside the glass container */
+        .glass-container .card {
+            background: transparent;
+            box-shadow: none;
+            border: none;
+        }
         /* Create Post */
         .create-post-card {
             padding: 16px;
@@ -571,11 +685,6 @@
             border-radius: var(--border-radius);
             margin-bottom: 20px;
             background: var(--card-bg);
-            transition: var(--transition);
-        }
-
-        .create-post-card:hover {
-            box-shadow: var(--shadow-medium);
         }
 
         .create-post-header {
@@ -677,11 +786,6 @@
 
         .post-card {
             padding: 20px;
-            transition: var(--transition);
-        }
-
-        .post-card:hover {
-            transform: translateY(-3px);
         }
 
         .post-header {
@@ -1419,6 +1523,129 @@
             color: #1DA1F2;
         }
     </style>
+    <style>
+        /* Share Card Modal Styles */
+        #shareProfileModal .modal-content {
+            background: transparent;
+            padding: 0;
+            max-width: 400px;
+            box-shadow: none;
+        }
+
+        #shareCard {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 30px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            overflow: hidden; /* To contain the pseudo-element */
+        }
+        #shareCard::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url('https://i.postimg.cc/MHvGnPdQ/99534f69f891e3a2febe8bc30c6d0da8.jpg');
+            background-size: cover;
+            opacity: 0.04;
+        }
+
+        .dark-theme #shareCard {
+            background: var(--dark-gray);
+        }
+
+        #shareCard .site-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #shareCard .site-logo-container img {
+            height: 35px;
+        }
+
+        #shareCard .site-logo-container span {
+            font-family: 'Michroma', sans-serif;
+            font-size: 1.5rem;
+            color: var(--dark-gray);
+        }
+        .dark-theme #shareCard .site-logo-container span {
+            color: var(--white);
+        }
+
+        #shareCard .separator {
+            width: 80%;
+            height: 1px;
+            background: var(--medium-gray);
+            margin: 0 auto;
+        }
+
+        #shareCard #shareName {
+            font-size: 1.5rem;
+            font-weight: 300;
+            font-family: 'Comfortaa', cursive;
+            background: linear-gradient(45deg, #555, #000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+
+        .dark-theme #shareCard #shareName {
+            color: var(--text-primary);
+        }
+
+        #shareCard .tagline {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 200; /* Extra Light */
+            letter-spacing: 4px;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-top: -15px;
+        }
+
+        #shareCard .share-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--card-bg);
+        }
+
+        #qrCodeContainer {
+            position: relative;
+            padding: 15px;
+            background: linear-gradient(145deg, #e6e6e6, #ffffff);
+            border-radius: 18px;
+            display: inline-block; /* To wrap around the QR code */
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        #qrCodeContainer > canvas, #qrCodeContainer > img:not(.qr-avatar) {
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+        }
+        #qrCodeContainer .qr-avatar {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid white;
+            background: white;
+        }
+        .dark-theme #qrCodeContainer {
+            background: linear-gradient(145deg, #2c2c2e, #3a3a3c);
+            border-color: rgba(255,255,255,0.1);
+        }
+    </style>
 </head>
 <body>
     <div class="loading-overlay" id="loading">
@@ -1428,10 +1655,10 @@
     <header class="app-header">
         <a href="indexx.html" class="logo">
             <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 35px;">
-            <span style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
+            <span class="logo-text" style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
         </a>
         <nav class="app-nav">
-            <a href="indexx.html" class="nav-icon" id="nav-home" title="Home"><i class="fas fa-home"></i></a>
+            <a href="profile.html" class="nav-icon" id="nav-home" title="Profile"><i class="fas fa-user"></i></a>
             <a href="explore.html" class="nav-icon" id="nav-explore" title="Explore"><i class="fas fa-compass"></i></a>
             <a href="search.html" class="nav-icon" id="nav-search" title="Search"><i class="fas fa-search"></i></a>
             <a href="courses.html" class="nav-icon" id="nav-courses" title="Courses"><i class="fas fa-book-open"></i></a>
@@ -1442,6 +1669,7 @@
                 </a>
                 <div id="profileDropdown" class="profile-dropdown">
                     <a href="profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
+                    <a href="about.html" class="dropdown-item"><i class="fas fa-info-circle"></i> <span>About</span></a>
                     <button id="themeToggleDropdown" class="dropdown-item"><i class="fas fa-moon"></i> <span>Theme</span></button>
                     <hr>
                     <button class="dropdown-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
@@ -1457,7 +1685,7 @@
 
     <main class="container">
         <!-- Profile Sidebar -->
-        <aside class="profile-sidebar card fade-in-up">
+        <aside class="profile-sidebar glass-container fade-in-up">
             <div class="profile-info">
                 <div class="profile-avatar-container">
                     <img src="https://i.postimg.cc/prmTzhSz/man.png" alt="Profile Avatar" id="sidebarAvatar" class="profile-avatar">
@@ -1493,7 +1721,7 @@
                     <button class="btn btn-primary" style="flex: 1;" onclick="openTab(event, 'about')">
                         <i class="fas fa-user-edit"></i> <span>Edit Profile</span>
                     </button>
-                    <button class="btn btn-secondary" style="flex: 1;" id="shareProfileBtn" onclick="shareProfile()">
+                    <button class="btn btn-secondary" style="flex: 1;" id="shareProfileBtn" onclick="openShareModal()">
                         <i class="fas fa-share-alt"></i> <span>Share Profile</span>
                     </button>
                 </div>
@@ -1527,7 +1755,7 @@
         </aside>
 
         <!-- Main Content Area -->
-        <div class="main-content-area">
+        <div class="main-content-area glass-container">
             <div class="content-header">
                 <h1>Profile Dashboard</h1>
                 <div class="theme-toggle" id="themeToggleBtn">
@@ -1617,6 +1845,9 @@
                                 <button class="action-button" data-i18n-title-key="add_code" title="Add Code Snippet" onclick="showCodeSnippetModal()">
                                     <i class="fas fa-code"></i>
                                 </button>
+                                <button class="action-button" data-i18n-title-key="add_vedez" title="Add Vedez" onclick="showAddVedezModal()">
+                                    <i class="fas fa-video"></i>
+                                </button>
                             </div>
                             <button class="btn btn-primary" onclick="createPost()">
                                 <i class="fas fa-paper-plane"></i> Publish
@@ -1664,27 +1895,57 @@
                             <h2 class="card-title">About Me</h2>
                         </div>
                         
+                        <h4 class="card-title" style="font-size: 1.1rem; margin-top: 1rem;">Public Information</h4>
+                        <div class="form-group">
+                            <label for="aboutFullName">Full Name</label>
+                            <input type="text" id="aboutFullName" class="form-input" placeholder="Your full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="aboutUsername">Username</label>
+                            <input type="text" id="aboutUsername" class="form-input" placeholder="Your unique username">
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">Must be unique, lowercase, 4-20 characters (a-z, 0-9, _).</p>
+                        </div>
                         <div class="form-group">
                             <label for="aboutBio">Bio</label>
-                            <textarea id="aboutBio" class="form-input form-textarea" data-i18n-placeholder-key="bio_placeholder" placeholder="Tell others about yourself, your interests, and your goals..."></textarea>
+                            <textarea id="aboutBio" class="form-input form-textarea" placeholder="Tell others about yourself, your interests, and your goals..."></textarea>
                         </div>
-                        
+                        <div class="form-group">
+                            <label for="skillInput">Skills</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="skillInput" class="form-input" placeholder="e.g., Team Management">
+                                <button type="button" class="btn btn-secondary" id="addSkillBtn">Add</button>
+                            </div>
+                            <div id="skillsEditContainer" class="skill-tags" style="margin-top: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); min-height: 40px;">
+                            </div>
+                        </div>
+
+                        <h4 class="card-title" style="font-size: 1.1rem; margin-top: 2rem;">Educational Background</h4>
                         <div class="form-group">
                             <label for="aboutEducation">Education</label>
-                            <input type="text" id="aboutEducation" class="form-input" data-i18n-placeholder-key="education_placeholder" placeholder="Your education level"></input>
+                            <input type="text" id="aboutEducation" class="form-input" placeholder="Your education level">
                         </div>
-                        
                         <div class="form-group">
                             <label for="aboutField">Field of Study/Expertise</label>
-                            <input type="text" id="aboutField" class="form-input" data-i18n-placeholder-key="field_placeholder" placeholder="Your field of study or expertise"></input>
+                            <input type="text" id="aboutField" class="form-input" placeholder="Your field of study or expertise">
                         </div>
-                        
+
+                        <hr class="divider">
+
+                        <h4 class="card-title" style="font-size: 1.1rem;">Account Settings</h4>
                         <div class="form-group">
-                            <label for="aboutSkills">Skills (comma separated)</label>
-                            <input type="text" id="aboutSkills" class="form-input" data-i18n-placeholder-key="skills_placeholder" placeholder="e.g. JavaScript, Python, UI Design"></input>
+                            <label for="aboutEmail">Email Address</label>
+                            <input type="email" id="aboutEmail" class="form-input" placeholder="Your email address">
                         </div>
-                        
-                        <button class="btn btn-primary" onclick="saveAboutInfo()" data-i18n-key="save_info">
+                        <div class="form-group">
+                            <label for="aboutNewPassword">New Password (leave blank to keep current)</label>
+                            <input type="password" id="aboutNewPassword" class="form-input" placeholder="Enter new password">
+                        </div>
+                        <div class="form-group">
+                            <label for="aboutConfirmPassword">Confirm New Password</label>
+                            <input type="password" id="aboutConfirmPassword" class="form-input" placeholder="Confirm new password">
+                        </div>
+
+                        <button class="btn btn-primary" onclick="saveAboutInfo()">
                             <i class="fas fa-save"></i> Save Information
                         </button>
                     </div>
@@ -1819,6 +2080,28 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('editPostModal')">Cancel</button>
                 <button class="btn btn-primary" onclick="updatePost()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Profile Modal -->
+    <div id="shareProfileModal" class="modal hidden">
+        <div class="modal-content">
+            <div id="shareCard">
+                <div class="site-logo-container">
+                    <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo">
+                    <span>SJDVerse</span>
+                </div>
+                <p class="tagline">DREAM BOLD THEN BUILD /.</p>
+                <div class="separator"></div>
+                <div id="qrCodeContainer"></div>
+                <h3 id="shareName" style="margin-top: 10px;"></h3>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">Scan to view profile</p>
+            </div>
+            <div class="modal-footer" style="background: var(--card-bg); border-radius: var(--border-radius-lg); margin-top: 15px; padding: 15px;">
+                <button class="btn btn-secondary" onclick="closeModal('shareProfileModal')">Close</button>
+                <button class="btn btn-secondary" onclick="downloadShareCard()"><i class="fas fa-download"></i> Download</button>
+                <button class="btn btn-primary" onclick="shareProfile()"><i class="fas fa-share-alt"></i> Share</button>
             </div>
         </div>
     </div>
@@ -1968,6 +2251,38 @@
         </div>
     </div>
 
+    <!-- Add Vedez Modal -->
+    <div id="addVedezModal" class="modal hidden">
+        <div class="modal-content card">
+            <div class="card-header">
+                <h3 class="card-title">Create a New Vedez</h3>
+                <button class="btn-icon" onclick="closeModal('addVedezModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label for="vedezFileInput">Video File (under 60 seconds)</label>
+                    <input type="file" id="vedezFileInput" class="form-input" accept="video/*" onchange="previewVedez(event)">
+                    <div id="vedezPreviewContainer" class="post-image-container hidden" style="margin-top: 15px;">
+                        <video id="vedezPreview" controls style="width: 100%; height: 100%; border-radius: var(--border-radius-sm);"></video>
+                    </div>
+                    <p id="vedezError" style="color: var(--danger); font-size: 0.8rem; margin-top: 5px; display: none;"></p>
+                </div>
+                <div class="form-group">
+                    <label for="vedezCaption">Caption</label>
+                    <textarea id="vedezCaption" class="form-input form-textarea" placeholder="Write a caption for your vedez..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addVedezModal')">Cancel</button>
+                <button id="publishVedezBtn" class="btn btn-primary" onclick="createPost('vedez')" disabled>
+                    <i class="fas fa-paper-plane"></i> Publish Vedez
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Supabase initialization
         const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
@@ -1979,7 +2294,9 @@
         let currentUser = null;
         let loadedProfileData = null;
         let attachedCodeSnippet = null;
+        let attachedVedezFile = null;
         let scrollObserver = null;
+        let videoObserver = null;
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', async () => {
@@ -2026,6 +2343,20 @@
             // Initialize event listeners
             initEventListeners();
 
+            // Initialize video observer
+            videoObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const video = entry.target;
+                    if (entry.isIntersecting) {
+                        video.play().catch(e => console.warn("Video play was prevented.", e));
+                    } else {
+                        video.pause();
+                    }
+                });
+            }, { threshold: 0.5 }); // Play when 50% of the video is visible
+
+
+
             // Handle notification clicks
             const urlParams = new URLSearchParams(window.location.search);
             const postIdToHighlight = urlParams.get('postId');
@@ -2041,17 +2372,19 @@
             // New Header Dropdown
             const profileTrigger = document.getElementById('nav-profile-trigger');
             const profileDropdown = document.getElementById('profileDropdown');
-
+            
             if (profileTrigger && profileDropdown) {
                 profileTrigger.addEventListener('click', (e) => {
                     e.stopPropagation();
                     profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
                 });
+                
 
                 document.addEventListener('click', (e) => {
                     if (profileDropdown.style.display === 'block' && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
                         profileDropdown.style.display = 'none';
                     }
+                    
                 });
             }
 
@@ -2069,6 +2402,42 @@
             // Add listeners for photo uploads
             document.getElementById('avatarUploadInput').addEventListener('change', handleAvatarUpload);
             document.getElementById('coverUploadInput').addEventListener('change', handleCoverUpload);
+
+            // Add RTL detection for post textarea
+            const postContentTextarea = document.getElementById('postContent');
+            if (postContentTextarea) {
+                postContentTextarea.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        createPost();
+                    }
+                });
+            }
+
+            if (postContentTextarea) {
+                postContentTextarea.addEventListener('input', (e) => {
+                    const text = e.target.value;
+                    const isRtl = /[\u0600-\u06FF]/.test(text);
+                    e.target.style.direction = isRtl ? 'rtl' : 'ltr';
+                    e.target.style.textAlign = isRtl ? 'right' : 'left';
+                });
+            }
+
+            // Add skill with Enter key or button click
+            const skillInput = document.getElementById('skillInput');
+            const addSkillBtn = document.getElementById('addSkillBtn');
+            if (skillInput && addSkillBtn) {
+                addSkillBtn.addEventListener('click', addSkillFromInput);
+                skillInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addSkillFromInput();
+                    }
+                });
+            }
+
+
+
 
             document.getElementById('nav-profile-trigger').classList.add('active');
         }
@@ -2118,11 +2487,15 @@
             if (data) {
                 loadedProfileData = data;
                 
+                document.getElementById('aboutFullName').value = data.full_name ?? '';
+                document.getElementById('aboutUsername').value = data.username ?? '';
                 // Populate form fields
                 document.getElementById('aboutBio').value = data.bio ?? '';
                 document.getElementById('aboutEducation').value = data.education ?? '';
                 document.getElementById('aboutField').value = data.field_of_study ?? '';
-                document.getElementById('aboutSkills').value = data.skills ?? '';
+                // Update skills in both sidebar and edit view
+                updateSkillTags(data.skills, 'skillTags');
+                updateSkillTags(data.skills, 'skillsEditContainer', true);
                 
                 // Update cover photo
                 const coverPhoto = document.getElementById('coverPhoto');
@@ -2168,6 +2541,7 @@
                 document.getElementById('sidebarUserUsername').textContent = data.username ? `@${data.username}` : '@username';
                 document.getElementById('sidebarUserEmail').textContent = currentUser.email;
                 document.getElementById('sidebarUserEducation').textContent = data.education || getTranslation('education_not_set');
+                document.getElementById('aboutEmail').value = currentUser.email;
                 document.getElementById('sidebarUserField').textContent = data.field_of_study || getTranslation('field_not_set');
                 document.getElementById('sidebarUserBio').textContent = data.bio || getTranslation('bio_placeholder_short');
                 
@@ -2179,8 +2553,8 @@
                 });
                 
                 // Update skills
-                document.getElementById('aboutSkills').value = Array.isArray(data.skills) ? data.skills.join(', ') : (data.skills ?? '');
-                updateSkillTags(data.skills); // Pass the array directly
+                updateSkillTags(data.skills, 'skillTags'); // Update sidebar
+                updateSkillTags(data.skills, 'skillsEditContainer', true); // Update edit view
                 
                 // Update stats (these would come from different tables in a real app)
                 document.getElementById('statPosts').textContent = '0'; // Will be updated by loadPosts
@@ -2191,8 +2565,8 @@
         }
 
         // Update skill tags display
-        function updateSkillTags(skillsArray) {
-            const skillsContainer = document.getElementById('skillTags');
+        function updateSkillTags(skillsArray, containerId, isEditable = false) {
+            const skillsContainer = document.getElementById(containerId);
             
             // Check if it's a valid array and has items
             if (!Array.isArray(skillsArray) || skillsArray.length === 0) {
@@ -2211,8 +2585,14 @@
             skillsContainer.innerHTML = '';
             skills.forEach(skill => {
                 const tag = document.createElement('span');
-                tag.className = 'skill-tag';
-                tag.textContent = skill;
+                tag.className = isEditable ? 'skill-tag skill-tag-edit' : 'skill-tag';
+                tag.dataset.skill = skill;
+
+                if (isEditable) {
+                    tag.innerHTML = `<span>${escapeHTML(skill)}</span><button class="remove-skill-btn" onclick="removeSkill(this)">&times;</button>`;
+                } else {
+                    tag.textContent = skill;
+                }
                 skillsContainer.appendChild(tag);
             });
         }
@@ -2319,44 +2699,140 @@
         async function saveAboutInfo() {
             loadingOverlay.style.display = 'flex';
             
+            // --- Profile Data (public table) ---
+            const fullName = document.getElementById('aboutFullName').value;
+            const username = document.getElementById('aboutUsername').value.toLowerCase();
             const bio = document.getElementById('aboutBio').value;
             const education = document.getElementById('aboutEducation').value;
             const field = document.getElementById('aboutField').value;
-            const skillsString = document.getElementById('aboutSkills').value;
-            const skillsArray = skillsString.split(',').map(s => s.trim()).filter(s => s); // Convert to array
-            
-            const { error } = await _supabase
-                .from('profiles')
-                .update({
+            // Get skills from the new tag container
+            const skillsContainer = document.getElementById('skillsEditContainer');
+            const skillsArray = Array.from(skillsContainer.querySelectorAll('.skill-tag')).map(tag => tag.dataset.skill);
+
+
+            // --- Auth Data (private) ---
+            const newEmail = document.getElementById('aboutEmail').value;
+            const newPassword = document.getElementById('aboutNewPassword').value;
+            const confirmPassword = document.getElementById('aboutConfirmPassword').value;
+
+            try {
+                // 1. Handle Auth Updates (Email & Password)
+                const authUpdates = {};
+                if (newEmail && newEmail !== currentUser.email) {
+                    authUpdates.email = newEmail;
+                }
+                if (newPassword) {
+                    if (newPassword.length < 6) throw new Error("Password must be at least 6 characters long.");
+                    if (newPassword !== confirmPassword) throw new Error("New passwords do not match.");
+                    authUpdates.password = newPassword;
+                }
+
+                if (Object.keys(authUpdates).length > 0) {
+                    const { error: authError } = await _supabase.auth.updateUser(authUpdates);
+                    if (authError) throw authError;
+                    if (authUpdates.email) showNotification('Confirmation email sent to your new address.', 'info');
+                    if (authUpdates.password) showNotification('Password updated successfully.', 'success');
+                }
+
+                // 2. Handle Profile Updates (Public Data)
+                const profileUpdates = {
+                    full_name: fullName,
                     bio,
                     education,
                     field_of_study: field,
                     skills: skillsArray,
                     updated_at: new Date()
-                })
-                .eq('id', currentUser.id);
-            
-            if (error) {
+                };
+
+                // Special handling for username to check for uniqueness
+                if (username !== loadedProfileData.username) {
+                    // Check for 48-hour cooldown
+                    if (loadedProfileData.username_last_changed_at) {
+                        const lastChangeDate = new Date(loadedProfileData.username_last_changed_at);
+                        const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+                        if (lastChangeDate > fortyEightHoursAgo) {
+                            const hoursRemaining = Math.ceil((lastChangeDate.getTime() + 48 * 60 * 60 * 1000 - Date.now()) / (1000 * 60 * 60));
+                            throw new Error(`You can change your username again in ${hoursRemaining} hours.`);
+                        }
+                    }
+                    if (!/^[a-z0-9_]{4,20}$/.test(username)) {
+                        throw new Error('Username must be 4-20 characters, lowercase, and can only contain letters, numbers, and underscores.');
+                    }
+                    const { data: existingUser, error: checkError } = await _supabase
+                        .from('profiles')
+                        .select('id')
+                        .eq('username', username)
+                        .single();
+                    
+                    if (checkError && checkError.code !== 'PGRST116') throw checkError; // Real DB error
+                    if (existingUser) throw new Error('This username is already taken.');
+
+                    profileUpdates.username = username;
+                    profileUpdates.username_last_changed_at = new Date().toISOString(); // Update the timestamp
+                }
+
+                const { error: profileError } = await _supabase
+                    .from('profiles')
+                    .update(profileUpdates)
+                    .eq('id', currentUser.id);
+
+                if (profileError) throw profileError;
+
+                showNotification('Profile updated successfully!', 'success');
+
+                // Clear password fields after successful update
+                document.getElementById('aboutNewPassword').value = '';
+                document.getElementById('aboutConfirmPassword').value = '';
+
+            } catch (error) {
                 console.error('Error updating profile:', error);
-                alert(getTranslation('profile_update_error'));
-            } else {
-                // Update the sidebar with new data
+                showNotification(`Error: ${error.message}`, 'error');
+            } finally {
+                // Reload profile to reflect all changes
                 await loadProfile();
-                alert(getTranslation('profile_update_success'));
+                loadingOverlay.style.display = 'none';
             }
-            
-            loadingOverlay.style.display = 'none';
+        }
+
+        function addSkillFromInput() {
+            const skillInput = document.getElementById('skillInput');
+            const skillsContainer = document.getElementById('skillsEditContainer');
+            const skill = skillInput.value.trim();
+
+            if (skill) {
+                // Check for duplicates
+                const existingSkills = Array.from(skillsContainer.querySelectorAll('.skill-tag')).map(tag => tag.dataset.skill.toLowerCase());
+                if (existingSkills.includes(skill.toLowerCase())) {
+                    alert('This skill has already been added.');
+                    return;
+                }
+
+                const tag = document.createElement('span');
+                tag.className = 'skill-tag skill-tag-edit';
+                tag.dataset.skill = skill;
+                tag.innerHTML = `<span>${escapeHTML(skill)}</span><button class="remove-skill-btn" onclick="removeSkill(this)">&times;</button>`;
+                skillsContainer.appendChild(tag);
+                skillInput.value = '';
+            }
+        }
+
+        function removeSkill(button) {
+            button.parentElement.remove();
+        }
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
         }
 
         // Post functionality
-        async function createPost() {
-            const content = document.getElementById('postContent').value.trim();
+        async function createPost(type = 'standard') { // type can be 'standard' or 'vedez'
+            const content = (type === 'vedez') ? document.getElementById('vedezCaption').value.trim() : document.getElementById('postContent').value.trim();
             const imageFile = document.getElementById('postImageInput').files[0];
             const genericFile = document.getElementById('postFileInput').files[0];
+            const vedezFile = attachedVedezFile;
 
             
 
-            if (!content && !imageFile && !genericFile && !attachedCodeSnippet) {
+            if (!content && !imageFile && !genericFile && !attachedCodeSnippet && !vedezFile) {
                 alert(getTranslation('post_empty_alert'));
                 return;
             }
@@ -2366,6 +2842,7 @@
             let imageUrl = null;
             let attachmentUrl = null;
             let attachmentMetadata = null;
+            let finalCodeSnippet = attachedCodeSnippet;
 
             // Upload image if exists
             if (imageFile) {
@@ -2416,6 +2893,40 @@
                 attachmentMetadata = { name: genericFile.name, type: genericFile.type, size: genericFile.size };
             }
 
+            // Upload vedez if exists
+            if (vedezFile && type === 'vedez') {
+                const publishBtn = document.getElementById('publishVedezBtn');
+                const originalBtnHTML = publishBtn.innerHTML;
+                publishBtn.disabled = true;
+                publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+
+                const fileName = `${currentUser.id}/vedez/${Date.now()}_${vedezFile.name}`;
+                const { error: uploadError } = await _supabase.storage
+                    .from('vedez')
+                    .upload(fileName, vedezFile);
+
+                if (uploadError) {
+                    loadingOverlay.style.display = 'none';
+                    publishBtn.disabled = false;
+                    publishBtn.innerHTML = originalBtnHTML;
+                    if (uploadError.message === 'Bucket not found') {
+                        alert('Error: Bucket "vedez" not found. Please create a public bucket with this name in Supabase Storage.');
+                    } else {
+                        alert('Error uploading vedez: ' + uploadError.message);
+                    }
+                    console.error('Vedez upload error:', uploadError);
+                    return;
+                }
+
+                const { data: urlData } = _supabase.storage
+                    .from('vedez')
+                    .getPublicUrl(fileName);
+                // We'll store the vedez URL in the attachment field and use metadata to identify it.
+                attachmentUrl = urlData.publicUrl;
+                attachmentMetadata = { name: vedezFile.name, type: 'vedez', size: vedezFile.size };
+                publishBtn.disabled = false;
+                publishBtn.innerHTML = originalBtnHTML;
+            }
             // Insert post into database
             const { data, error } = await _supabase
                 .from('user_posts')
@@ -2425,7 +2936,7 @@
                     image_url: imageUrl,
                     attachment_url: attachmentUrl,
                     attachment_metadata: attachmentMetadata,
-                    code_snippet: attachedCodeSnippet
+                    code_snippet: finalCodeSnippet
                 })
                 .select(`
                     id,
@@ -2454,6 +2965,7 @@
                 removePostImage();
                 removePostCode();
                 removePostFile();
+                closeModal('addVedezModal');
                 
                 // Update post count
                 document.getElementById('statPosts').textContent = parseInt(document.getElementById('statPosts').textContent) + 1;
@@ -2486,11 +2998,17 @@
             }
 
             if (!posts || posts.length === 0) {
-                postFeed.innerHTML = '<div class="card text-center"><p>You haven\'t posted anything yet. Share your first post!</p></div>';
+                postFeed.innerHTML = `
+                    <div class="card text-center" style="padding: 40px 20px; border: 2px dashed var(--border-color); background: transparent; box-shadow: none;">
+                        <img src="https://i.postimg.cc/ydzFgYY0/12144973-Wavy-Bus-43-Single-06.png" alt="Create your first post" style="max-width: 250px; margin: 0 auto 20px;">
+                        <p style="font-size: 1.1rem; color: var(--text-secondary);">Try to create your first content</p>
+                    </div>
+                `;
             } else {
                 postFeed.innerHTML = ''; // Clear loading/empty message
                 posts.forEach(post => {
                     const postElement = createPostElement(post); // New helper function
+                    setupVideoListeners(postElement);
                     postFeed.appendChild(postElement); // Use append to keep order
                     scrollObserver.observe(postElement);
                 });
@@ -2522,11 +3040,27 @@
             
             const imageHtml = post.image_url ? `
                 <div class="post-image-container">
-                    <img src="${getTransformedImageUrl(post.image_url, { width: 800 })}" loading="lazy" alt="Post image" class="post-image" onclick="openImageViewer('${post.image_url}')">
+                    <img src="${getTransformedImageUrl(post.image_url, { width: 800 })}" loading="lazy" alt="Post image" class="post-image" onclick="openImageViewer('${post.image_url}')" decoding="async">
                 </div>` : '';
 
+            // Check if the post is a vedez
+            const isVedez = post.attachment_metadata && post.attachment_metadata.type === 'vedez';
+            let vedezHtml = '';
+            if (isVedez) {
+                vedezHtml = `
+                    <div class="post-image-container" style="background-color: #000;">
+                        <div class="video-overlay-container">
+                            <video src="${post.attachment_url}" loop autoplay muted playsinline disablepictureinpicture class="post-image" style="object-fit: cover;"></video>
+                            <div class="video-controls-overlay">
+                                <button class="btn-icon video-control-btn" data-action="play-pause"><i class="fas fa-play"></i></button>
+                                <button class="btn-icon video-control-btn" data-action="mute-unmute"><i class="fas fa-volume-mute"></i></button>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
             let attachmentHtml = '';
-            if (post.attachment_url && post.attachment_metadata) {
+            if (post.attachment_url && post.attachment_metadata && !isVedez) { // Do not show for Vedez
                 const meta = post.attachment_metadata;
                 const fileSize = meta.size ? `(${(meta.size / 1024 / 1024).toFixed(2)} MB)` : '';
                 attachmentHtml = `
@@ -2550,14 +3084,23 @@
             }
 
             const postContent = escapeHTML(post.content);
-            let contentHtml = `<p>${postContent}</p>`;
+            const isRtl = /[\u0600-\u06FF]/.test(post.content);
+            const contentDirection = isRtl ? 'dir="rtl" style="text-align: right;"' : '';
+            let contentHtml = `<p ${contentDirection}>${postContent}</p>`;
             const isLongText = postContent.length > 350; // Character limit for truncation
 
             if (isLongText) {
-                contentHtml = `
-                    <p class="truncated" id="post-text-${post.id}">${postContent}</p>
-                    <button class="see-more-btn" id="see-more-${post.id}" onclick="expandPostText('${post.id}')">See More</button>
-                `;
+                contentHtml = `<p class="truncated" id="post-text-${postId}" ${contentDirection}>${postContent}</p>
+                               <button class="see-more-btn" id="see-more-${postId}" onclick="expandPostText('${postId}')">See More</button>`;
+            }
+
+            // Build post menu
+            let menuItems = `
+                <div class="dropdown-item" onclick='showEditPostModal(${JSON.stringify(post)})'><i class="fas fa-edit"></i> Edit</div>
+                <div class="dropdown-item delete" onclick="deletePost('${post.id}')"><i class="fas fa-trash"></i> Delete</div>
+            `;
+            if (isVedez) {
+                menuItems += `<div class="dropdown-item" onclick="downloadFile('${post.attachment_url}', '${post.attachment_metadata.name}')"><i class="fas fa-download"></i> Download Vedez</div>`;
             }
             
             postElement.innerHTML = `
@@ -2571,16 +3114,14 @@
                             <p>${postDate}</p>
                         </div>
                     </div>
-                    <div class="post-menu">
-                        <button class="btn-icon" onclick='showEditPostModal(${JSON.stringify(post)})' title="Edit Post"><i class="fas fa-edit"></i></button>
-                        <button class="btn-icon" onclick="deletePost('${post.id}')" data-i18n-title-key="delete_post" title="Delete Post" style="color: var(--danger);">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                    <div class="post-menu-container">
+                        <button class="btn-icon" onclick="togglePostMenu(event)"><i class="fas fa-ellipsis-v"></i></button>
+                        <div class="post-menu-dropdown">${menuItems}</div>
                     </div>
                 </div>
                 <div class="post-content">
                     ${contentHtml}
-                    ${imageHtml}
+                    ${isVedez ? vedezHtml : imageHtml}
                     ${codeHtml}
                     ${attachmentHtml}
                 </div>
@@ -2602,6 +3143,42 @@
             return postElement;
         }
 
+        function setupVideoListeners(postElement) {
+            const video = postElement.querySelector('video');
+            const container = postElement.querySelector('.video-overlay-container');
+            const controlsOverlay = postElement.querySelector('.video-controls-overlay');
+            const playPauseBtn = postElement.querySelector('[data-action="play-pause"]');
+            const muteUnmuteBtn = postElement.querySelector('[data-action="mute-unmute"]');
+
+            if (video) {
+                let controlsTimeout;
+                // Show controls on click, then hide after a delay
+                container.addEventListener('click', (e) => {
+                    // Only toggle if the click is not on a button
+                    if (e.target === video || e.target === container) {
+                        clearTimeout(controlsTimeout); // Clear any existing timeout
+                        controlsOverlay.classList.add('visible');
+                        controlsTimeout = setTimeout(() => {
+                            controlsOverlay.classList.remove('visible');
+                        }, 2000); // Hide after 2 seconds
+                    }
+                });
+
+                // Play/Pause button logic
+                playPauseBtn.addEventListener('click', () => { if (video.paused) video.play(); else video.pause(); });
+
+                // Mute/Unmute button logic
+                muteUnmuteBtn.addEventListener('click', () => { video.muted = !video.muted; });
+
+                // Update icons based on video state
+                video.addEventListener('play', () => playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>');
+                video.addEventListener('pause', () => playPauseBtn.innerHTML = '<i class="fas fa-play"></i>');
+                video.addEventListener('volumechange', () => { muteUnmuteBtn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>'; });
+
+                if (videoObserver) { videoObserver.observe(video); }
+            }
+        }
+
         // Add post to feed
         function addPostToFeed(post) {
             const postFeed = document.getElementById('postFeed');
@@ -2613,6 +3190,7 @@
             
             const postElement = createPostElement(post);
             postFeed.prepend(postElement);
+            setupVideoListeners(postElement);
 
             const codeBlock = postElement.querySelector('pre code');
             if (codeBlock) {
@@ -2627,6 +3205,18 @@
             
             textElement.classList.remove('truncated');
             seeMoreBtn.remove();
+        }
+
+        function togglePostMenu(event) {
+            event.stopPropagation();
+            const button = event.currentTarget;
+            const dropdown = button.nextElementSibling;
+            
+            // Close all other open dropdowns first
+            document.querySelectorAll('.post-menu-dropdown').forEach(d => {
+                if (d !== dropdown) d.style.display = 'none';
+            });
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
         }
 
         function showEditPostModal(post) {
@@ -2799,6 +3389,46 @@
             document.getElementById('postCodePreviewContainer').classList.add('hidden');
         }
 
+        function showAddVedezModal() {
+            closeModal('addVedezModal'); // Reset first
+            document.getElementById('vedezFileInput').value = '';
+            document.getElementById('vedezCaption').value = '';
+            document.getElementById('vedezPreviewContainer').classList.add('hidden');
+            document.getElementById('vedezError').style.display = 'none';
+            document.getElementById('publishVedezBtn').disabled = true;
+            attachedVedezFile = null;
+            openModal('addVedezModal');
+        }
+
+        function previewVedez(event) {
+            const input = event.target;
+            const file = input.files[0];
+            const previewContainer = document.getElementById('vedezPreviewContainer');
+            const preview = document.getElementById('vedezPreview');
+            const errorEl = document.getElementById('vedezError');
+            const publishBtn = document.getElementById('publishVedezBtn');
+
+            errorEl.style.display = 'none';
+            publishBtn.disabled = true;
+            attachedVedezFile = null;
+
+            if (file) {
+                const videoUrl = URL.createObjectURL(file);
+                preview.src = videoUrl;
+                previewContainer.classList.remove('hidden');
+
+                preview.onloadedmetadata = () => { //NOSONAR
+                    if (preview.duration > 60) {
+                        errorEl.textContent = `Video is too long (${Math.round(preview.duration)}s). Please select a video under 60 seconds.`;
+                        errorEl.style.display = 'block';
+                        input.value = ''; // Clear the invalid file
+                    } else {
+                        publishBtn.disabled = false;
+                        attachedVedezFile = file;
+                    }
+                };
+            }
+        }
         // Filter posts
         function filterPosts() {
             const searchText = document.getElementById('postSearch').value.toLowerCase();
@@ -2942,7 +3572,7 @@
             ).join('') : '';
             
             const imageHtml = project.image_url ? 
-                `<img src="${getTransformedImageUrl(project.image_url, { width: 400 })}" loading="lazy" alt="${project.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${project.image_url}')">` : 
+                `<img src="${getTransformedImageUrl(project.image_url, { width: 400 })}" loading="lazy" decoding="async" alt="${project.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${project.image_url}')">` : 
                 '<div class="project-image" style="background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;"><i class="fas fa-project-diagram" style="font-size: 3rem; color: var(--text-tertiary);"></i></div>';
             
             const linksHtml = `
@@ -3102,7 +3732,7 @@
             element.id = `achievement-${achievement.id}`;
 
             const imageHtml = achievement.certificate_url ?
-                `<img src="${getTransformedImageUrl(achievement.certificate_url, { width: 400 })}" loading="lazy" alt="${achievement.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${achievement.certificate_url}')">` :
+                `<img src="${getTransformedImageUrl(achievement.certificate_url, { width: 400 })}" loading="lazy" decoding="async" alt="${achievement.title}" class="project-image" style="cursor: pointer;" onclick="openImageViewer('${achievement.certificate_url}')">` :
                 '<div class="project-image" style="background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;"><i class="fas fa-trophy" style="font-size: 3rem; color: var(--text-tertiary);"></i></div>';
 
             element.innerHTML = `
@@ -3441,28 +4071,91 @@
             return p.innerHTML;
         }
 
-        async function shareProfile() {
+        function downloadFile(url, filename) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename || 'download');
+            link.setAttribute('target', '_blank'); // Fallback for some browsers
+            link.click();
+        }
+
+        function openShareModal() {
             if (!loadedProfileData || !loadedProfileData.username) {
                 alert('Profile data not loaded yet.');
                 return;
             }
 
+            // Populate modal content
+            document.getElementById('shareName').textContent = loadedProfileData.full_name || 'User';
+
+            // Generate QR Code
+            const qrContainer = document.getElementById('qrCodeContainer');
+            qrContainer.innerHTML = ''; // Clear previous QR code
+            const shareUrl = `${window.location.origin}${window.location.pathname.replace('profile.html', 'user.html')}?username=${loadedProfileData.username}`;
+            new QRCode(qrContainer, {
+                text: shareUrl,
+                width: 130,
+                height: 130,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            // Add avatar to the center of QR code
+            const avatarImg = document.createElement('img');
+            avatarImg.src = loadedProfileData.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
+            avatarImg.className = 'qr-avatar';
+            qrContainer.appendChild(avatarImg);
+
+
+            openModal('shareProfileModal');
+        }
+
+        async function downloadShareCard() {
+            const cardElement = document.getElementById('shareCard');
+            const shareNameElement = document.getElementById('shareName');
+            const isDark = document.body.classList.contains('dark-theme');
+
+            // Temporarily change style for rendering to avoid html2canvas bug with background-clip: text
+            const originalStyles = {
+                background: shareNameElement.style.background,
+                webkitBackgroundClip: shareNameElement.style.webkitBackgroundClip,
+                webkitTextFillColor: shareNameElement.style.webkitTextFillColor,
+                color: shareNameElement.style.color
+            };
+
+            shareNameElement.style.background = 'none';
+            shareNameElement.style.webkitBackgroundClip = 'border-box';
+            shareNameElement.style.webkitTextFillColor = 'initial';
+            shareNameElement.style.color = isDark ? 'var(--text-primary)' : 'var(--dark-gray)';
+
+            const canvas = await html2canvas(cardElement, { useCORS: true });
+
+            // Revert styles back to original
+            shareNameElement.style.background = originalStyles.background;
+            shareNameElement.style.webkitBackgroundClip = originalStyles.webkitBackgroundClip;
+            shareNameElement.style.webkitTextFillColor = originalStyles.webkitTextFillColor;
+            shareNameElement.style.color = originalStyles.color;
+
+            const link = document.createElement('a');
+            link.download = `${loadedProfileData.username}_profile_card.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        async function shareProfile() {
             const shareUrl = `${window.location.origin}${window.location.pathname.replace('profile.html', 'user.html')}?username=${loadedProfileData.username}`;
             const shareData = {
                 title: `${loadedProfileData.full_name}'s Profile on SJDVerse`,
                 text: `Check out ${loadedProfileData.full_name}'s profile on SJDVerse!`,
                 url: shareUrl,
             };
-
             try {
-                if (navigator.share) {
-                    await navigator.share(shareData);
-                } else {
-                    await navigator.clipboard.writeText(shareUrl);
-                    alert('Profile link copied to clipboard!');
-                }
+                await navigator.share(shareData);
             } catch (err) {
-                console.error('Error sharing profile:', err);
+                // Fallback to copying link if share fails or is cancelled
+                await navigator.clipboard.writeText(shareUrl);
+                alert('Profile link copied to clipboard!');
             }
         }
 
@@ -3504,7 +4197,7 @@
                 "my_projects": "My Projects", "add_project_btn": "Add Project", "no_projects_yet": "You haven't added any projects yet.", "add_first_project": "Add Your First Project",
                 "about_me": "About Me", "edit_bio": "Bio", "bio_placeholder": "Tell others about yourself, your interests, and your goals...", "edit_education": "Education",
                 "education_placeholder": "Your education level", "edit_field_of_study": "Field of Study/Expertise", "field_placeholder": "Your field of study or expertise",
-                "edit_skills": "Skills (comma separated)", "skills_placeholder": "e.g. JavaScript, Python, UI Design", "edit_achievements": "Achievements",
+                "edit_skills": "Skills (comma separated)", "skills_placeholder": "e.g. Team Management, Python, UI Design", "edit_achievements": "Achievements",
                 "achievements_placeholder": "List your achievements, certifications, awards...", "save_info": "Save Information", "my_connections": "My Connections",
                 "no_connections": "You don't have any connections yet.", "find_connections": "Find Connections", "profile_activity": "Profile Activity",
                 "activity_placeholder": "Your activity analytics will appear here.", "add_new_project": "Add New Project", "project_title": "Project Title",

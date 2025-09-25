@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SJDVerse</title>
     <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
     
@@ -97,6 +97,78 @@
             transform: translateY(0);
         }
 
+        /* Animation for form fields */
+        @keyframes smooth-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .form-group.animate-in { animation: smooth-in-up 0.5s ease-out forwards; opacity: 0; /* Start hidden */ }
+
+        /* Instagram-style Photo Uploader */
+        .photo-uploader-insta {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            border: 3px solid var(--medium-gray);
+            background-color: var(--light-gray);
+        }
+        .profile-photo-preview-insta {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .photo-uploader-insta .upload-overlay {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; opacity: 0;
+            transition: var(--transition);
+        }
+        .photo-uploader-insta:hover .upload-overlay { opacity: 1; }
+
+        /* New Profile Photo Uploader Styles */
+        .photo-uploader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .photo-uploader-label {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px dashed var(--medium-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            background-color: var(--light-gray);
+        }
+        .photo-uploader-label:hover {
+            border-color: var(--p3);
+            background-color: #f0f4f8;
+        }
+        .photo-uploader-label .upload-icon {
+            font-size: 2rem;
+            color: var(--p5);
+            opacity: 0.7;
+        }
+
         /* Auth Overlay */
         .auth-overlay {
             position: fixed;
@@ -104,7 +176,8 @@
             left: 0;
             width: 100%;
             height: 100vh;
-            background: linear-gradient(135deg, var(--p3) 0%, var(--p1) 100%);
+            background-color: var(--white);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3e%3cdefs%3e%3cpattern id='grid' width='50' height='50' patternUnits='userSpaceOnUse'%3e%3cpath d='M 50 0 L 0 0 0 50' fill='none' stroke='rgba(0,0,0,0.05)' stroke-width='1'/%3e%3c/pattern%3e%3cfilter id='wave'%3e%3cfeTurbulence type='fractalNoise' baseFrequency='0.01 0.02' numOctaves='3' result='turbulence'/%3e%3cfeDisplacementMap in='SourceGraphic' in2='turbulence' scale='15' xChannelSelector='R' yChannelSelector='G'/%3e%3c/filter%3e%3c/defs%3e%3crect width='100%25' height='100%25' fill='url(%23grid)' filter='url(%23wave)'/%3e%3c/svg%3e");
             display: flex;
             align-items: center;
             justify-content: center;
@@ -115,7 +188,7 @@
         .auth-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            max-width: 1200px;
+            max-width: 1100px;
             width: 100%;
             height: 90vh;
             background: var(--white);
@@ -166,7 +239,7 @@
             font-family: 'Montserrat', sans-serif;
             font-size: 3.5rem;
             font-weight: 800;
-            color: var(--white);
+            color: var(--dark-gray);
             margin-bottom: 20px;
             position: relative;
             z-index: 2;
@@ -174,7 +247,7 @@
 
         .auth-visual p {
             font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--p5);
             position: relative;
             z-index: 2;
         }
@@ -201,7 +274,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 60px 50px;
+            padding: 50px;
         }
 
         .auth-form {
@@ -210,12 +283,12 @@
 
         .auth-form.active {
             display: block;
-            animation: slideIn 0.5s ease-out;
+            animation: fadeIn 0.5s ease-out;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .form-step {
@@ -256,13 +329,36 @@
             background: var(--p1);
         }
 
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon .fas {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--p5);
+            opacity: 0.4;
+            transition: var(--transition);
+        }
+
+        .input-with-icon .form-input {
+            padding-left: 50px;
+        }
+
+        .input-with-icon .form-input:focus ~ .fas {
+            color: var(--p3);
+            opacity: 1;
+        }
+
         .auth-buttons {
             text-align: center;
             margin-bottom: 30px;
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
@@ -275,10 +371,10 @@
 
         .form-input {
             width: 100%;
-            padding: 16px 20px;
+            padding: 14px 18px;
             border: 2px solid var(--medium-gray);
             border-radius: var(--border-radius);
-            font-size: 16px;
+            font-size: 15px;
             font-family: 'Poppins', sans-serif;
             transition: var(--transition);
             background: var(--white);
@@ -286,15 +382,15 @@
 
         .form-input:focus {
             outline: none;
-            border-color: var(--p3);
+            border-color: #a2c5f5; /* A slightly darker blue for focus */
             box-shadow: 0 0 0 4px rgba(188, 216, 253, 0.2);
         }
 
         .btn {
-            padding: 14px 28px;
+            padding: 12px 24px;
             border: none;
-            border-radius: var(--border-radius);
-            font-size: 16px;
+            border-radius: 12px; /* Slightly smaller radius to match */
+            font-size: 15px;
             font-weight: 600;
             font-family: 'Poppins', sans-serif;
             cursor: pointer;
@@ -331,7 +427,7 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
+            box-shadow: 0 6px 25px rgba(93, 92, 92, 0.2);
         }
 
         .btn-secondary {
@@ -342,7 +438,7 @@
 
         .btn-secondary:hover {
             border-color: var(--p3);
-            transform: translateY(-2px);
+            background-color: #f8f9fa;
         }
 
         .btn-hero-glow {
@@ -915,9 +1011,9 @@
         .ai-chat-messages .thinking-indicator span:nth-child(3) { animation-delay: 0.4s; }
         @keyframes blink { 0%, 100% { opacity: 0.2; } 20% { opacity: 1; } }
         .header-icon {
-            transition: color 0.3s ease, transform 0.3s ease;
+            transition: var(--transition);
         }
-        .header-icon:hover { color: var(--p3) !important; transform: scale(1.1); }
+        .header-icon:hover { color: var(--p3) !important; transform: translateY(-2px); }
 
         /* New Message Notification Pop-up */
         #messageNotificationContainer {
@@ -966,10 +1062,6 @@
             opacity: 0.5; cursor: pointer; transition: var(--transition);
         }
         .notification-close-btn:hover { opacity: 1; transform: scale(1.1); }
-        .header-icon {
-            transition: color 0.3s ease, transform 0.3s ease;
-        }
-        .header-icon:hover { color: var(--p3) !important; transform: scale(1.1); }
 
         /* Unread Messages Badge */
         .unread-badge {
@@ -989,7 +1081,6 @@
             border: 2px solid var(--white);
             padding: 0 4px;
         }
-        .header-icon:hover { color: var(--p3) !important; transform: scale(1.1); }
 
     </style>
 </head>
@@ -1003,17 +1094,17 @@
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-container">
             <div class="auth-visual">
-                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px;">
-                    <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 50px; filter: brightness(0) invert(1);">
-                    <span style="font-family: 'Michroma', sans-serif; font-size: 2.8rem; font-weight: 400; color: var(--white); position: relative; z-index: 2;">SJDVerse</span>
-                </div>
-                <p id="auth-visual-subtitle">A new way to learn and create.<br>Join thousands of learners worldwide</p>
+                <p id="auth-visual-subtitle" style="font-family: 'MuseoModerno', sans-serif; font-size: 1.5rem; color: var(--white); text-align: left; font-weight: bold; line-height: 1.4; position: absolute; bottom: 40px; left: 40px; z-index: 2;">Dream Bold<br>Then Build /.</p>
             </div>
             
             <div class="auth-form-container">
                 <!-- Auth Buttons -->
                 <div class="auth-buttons" id="authButtons">
-                    <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 700; margin-bottom: 30px; text-align: center;">Welcome to the Future</h2>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px;">
+                        <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 50px;">
+                        <span style="font-family: 'Michroma', sans-serif; font-size: 2.8rem; font-weight: 400; color: var(--dark-gray);">SJDVerse</span>
+                    </div>
+                    <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 700; margin-bottom: 30px; text-align: center; color: var(--dark-gray);">Welcome to the Future</h2>
                     <div style="display: flex; flex-direction: column; gap: 16px;">
                         <button class="btn btn-primary" onclick="showSignUp()">
                             <i class="fas fa-user-plus"></i>
@@ -1022,6 +1113,17 @@
                         <button class="btn btn-secondary" onclick="showSignIn()">
                             <i class="fas fa-sign-in-alt"></i>
                             Sign In
+                        </button>
+
+                        <div style="display: flex; align-items: center; text-align: center; margin: 10px 0;">
+                            <hr style="flex-grow: 1; border: none; border-top: 1px solid var(--medium-gray);">
+                            <span style="padding: 0 10px; color: var(--p5);">OR</span>
+                            <hr style="flex-grow: 1; border: none; border-top: 1px solid var(--medium-gray);">
+                        </div>
+
+                        <button class="btn btn-secondary" style="width: 100%;" onclick="signInWithGoogle()">
+                            <i class="fab fa-google"></i>
+                            Sign in with Google
                         </button>
                     </div>
                 </div>
@@ -1033,32 +1135,26 @@
                         <div class="step-dot" id="step2Dot"></div>
                         <div class="step-dot" id="step3Dot"></div>
                         <div class="step-dot" id="step4Dot"></div>
+                        <div class="step-dot" id="step5Dot"></div>
                     </div>
 
                     <!-- Step 1: Basic Info -->
                     <div class="form-step active" id="step1">
-                        <h3 style="text-align: center; margin-bottom: 30px; font-family: 'Montserrat', sans-serif;">Basic Information</h3>
+                        <h3 style="text-align: center; margin-bottom: 25px; font-family: 'Montserrat', sans-serif;">Create Your Identity</h3>
                         <div class="form-group">
-                            <label for="fullName"><i class="fas fa-user"></i> Full Name</label>
-                            <input type="text" id="fullName" class="form-input" required>
+                            <label for="fullName">Full Name</label>
+                            <div class="input-with-icon">
+                                <input type="text" id="fullName" class="form-input" required placeholder="e.g., Mohammad">
+                                <i class="fas fa-user"></i>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="username"><i class="fas fa-at"></i> Username</label>
-                            <input type="text" id="username" class="form-input" required pattern="^[a-z0-9_]{3,20}$" title="Username must be 3-20 characters, lowercase, and can only contain letters, numbers, and underscores.">
+                            <label for="username">Username</label>
+                            <div class="input-with-icon">
+                                <input type="text" id="username" class="form-input" required pattern="^[a-z0-9_]{3,20}$" title="Username must be 3-20 characters, lowercase, and can only contain letters, numbers, and underscores." placeholder="e.g., Zahra_123">
+                                <i class="fas fa-at"></i>
+                            </div>
                             <p style="font-size: 0.8rem; color: var(--p5); opacity: 0.7; margin-top: 5px;">Must be unique, lowercase, 3-20 characters (a-z, 0-9, _).</p>
-                        </div>
-                        <div class="form-group">
-                            <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
-                            <input type="email" id="email" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password"><i class="fas fa-lock"></i> Password</label>
-                            <input type="password" id="password" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="profilePhoto"><i class="fas fa-camera"></i> Profile Photo (Optional)</label>
-                            <input type="file" id="profilePhoto" class="form-input" accept="image/*" onchange="previewPhoto(event)">
-                            <img id="photoPreview" class="profile-photo-preview" alt="Photo Preview">
                         </div>
                         <div class="form-navigation">
                             <button type="button" class="btn btn-secondary" onclick="showAuthButtons()">
@@ -1068,25 +1164,37 @@
                                 Next <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
+                        <div style="text-align: center; margin-top: 20px;">
+                            
+                            <p style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--p5);">
+                                Already have an account? <a href="#" onclick="event.preventDefault(); showSignIn();" style="color: var(--p3); font-weight: 600; text-decoration: none;">Sign In</a>
+                            </p>
+                        </div>
                     </div>
 
-                    <!-- Step 2: Educational Background -->
+                    <!-- Step 2: Account Credentials -->
                     <div class="form-step" id="step2">
-                        <h3 style="text-align: center; margin-bottom: 30px; font-family: 'Montserrat', sans-serif;">Educational Background</h3>
+                        <h3 style="text-align: center; margin-bottom: 25px; font-family: 'Montserrat', sans-serif;">Account Security</h3>
                         <div class="form-group">
-                            <label for="education"><i class="fas fa-graduation-cap"></i> Education Level</label>
-                            <select id="education" class="form-input">
-                                <option value="">Select...</option>
-                                <option value="highschool">High School</option>
-                                <option value="bachelor">Bachelor's Degree</option>
-                                <option value="master">Master's Degree</option>
-                                <option value="phd">PhD</option>
-                                <option value="other">Other</option>
-                            </select>
+                            <label for="email">Email Address</label>
+                            <div class="input-with-icon">
+                                <input type="email" id="email" class="form-input" required placeholder="you@example.com">
+                                <i class="fas fa-envelope"></i>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="fieldOfStudy"><i class="fas fa-book"></i> Field of Study</label>
-                            <input type="text" id="fieldOfStudy" class="form-input" placeholder="e.g., Computer Science, Mathematics">
+                            <label for="password">Password</label>
+                            <div class="input-with-icon">
+                                <input type="password" id="password" class="form-input" required placeholder="Must be at least 6 characters">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <div class="input-with-icon">
+                                <input type="password" id="confirmPassword" class="form-input" required placeholder="Repeat your password">
+                                <i class="fas fa-lock"></i>
+                            </div>
                         </div>
                         <div class="form-navigation">
                             <button type="button" class="btn btn-secondary" onclick="prevStep(1)">
@@ -1098,46 +1206,18 @@
                         </div>
                     </div>
 
-                    <!-- Step 3: Experience Level -->
+                    <!-- Step 3: Profile Photo -->
                     <div class="form-step" id="step3">
-                        <h3 style="text-align: center; margin-bottom: 30px; font-family: 'Montserrat', sans-serif;">Your Experience</h3>
-                        <div class="form-group">
-                            <label><i class="fas fa-code"></i> Programming Experience</label>
-                            <div class="radio-group">
-                                <div class="radio-item">
-                                    <input type="radio" name="programmingExp" value="beginner" id="progBeginner">
-                                    <label for="progBeginner">Beginner</label>
+                        <h3 style="text-align: center; margin-bottom: 25px; font-family: 'Montserrat', sans-serif;">Profile Picture</h3>
+                        <div class="form-group" style="text-align: center;">
+                            <label for="profilePhoto" class="photo-uploader-insta">
+                                <img id="photoPreview" class="profile-photo-preview-insta" src="https://i.postimg.cc/prmTzhSz/man.png" alt="Photo Preview">
+                                <div class="upload-overlay">
+                                    <i class="fas fa-camera"></i>
                                 </div>
-                                <div class="radio-item">
-                                    <input type="radio" name="programmingExp" value="intermediate" id="progIntermediate">
-                                    <label for="progIntermediate">Intermediate</label>
-                                </div>
-                                <div class="radio-item">
-                                    <input type="radio" name="programmingExp" value="advanced" id="progAdvanced">
-                                    <label for="progAdvanced">Advanced</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-robot"></i> AI Knowledge Level</label>
-                            <div class="radio-group">
-                                <div class="radio-item">
-                                    <input type="radio" name="aiKnowledge" value="none" id="aiNone">
-                                    <label for="aiNone">None</label>
-                                </div>
-                                <div class="radio-item">
-                                    <input type="radio" name="aiKnowledge" value="beginner" id="aiBeginner">
-                                    <label for="aiBeginner">Beginner</label>
-                                </div>
-                                <div class="radio-item">
-                                    <input type="radio" name="aiKnowledge" value="intermediate" id="aiIntermediate">
-                                    <label for="aiIntermediate">Intermediate</label>
-                                </div>
-                                <div class="radio-item">
-                                    <input type="radio" name="aiKnowledge" value="advanced" id="aiAdvanced">
-                                    <label for="aiAdvanced">Advanced</label>
-                                </div>
-                            </div>
+                            </label>
+                            <label for="profilePhoto" class="btn btn-secondary" style="margin-top: 10px;">Select a profile photo</label>
+                            <input type="file" id="profilePhoto" accept="image/*" onchange="previewPhoto(event)" style="display: none;">
                         </div>
                         <div class="form-navigation">
                             <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
@@ -1149,57 +1229,101 @@
                         </div>
                     </div>
 
-                    <!-- Step 4: Additional Info -->
+                    <!-- Step 4: Educational Background -->
                     <div class="form-step" id="step4">
-                        <h3 style="text-align: center; margin-bottom: 30px; font-family: 'Montserrat', sans-serif;">Final Details</h3>
+                        <h3 style="text-align: center; margin-bottom: 25px; font-family: 'Montserrat', sans-serif;">Educational Background</h3>
                         <div class="form-group">
-                            <label for="country"><i class="fas fa-globe"></i> Country</label>
-                            <input type="text" id="country" class="form-input">
+                            <label for="education">Education Level</label>
+                            <div class="input-with-icon">
+                                <select id="education" class="form-input">
+                                    <option value="">Select...</option>
+                                    <option value="highschool">High School</option>
+                                    <option value="bachelor">Bachelor's Degree</option>
+                                    <option value="master">Master's Degree</option>
+                                    <option value="phd">PhD</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="motivation"><i class="fas fa-lightbulb"></i> Why are you learning AI?</label>
-                            <textarea id="motivation" class="form-input" rows="3" placeholder="Tell us about your goals..."></textarea>
+                            <label for="fieldOfStudy">Field of Study</label>
+                            <div class="input-with-icon">
+                                <input type="text" id="fieldOfStudy" class="form-input" placeholder="e.g., Computer Science, Mathematics">
+                                <i class="fas fa-book"></i>
+                            </div>
                         </div>
                         <div class="form-navigation">
                             <button type="button" class="btn btn-secondary" onclick="prevStep(3)">
                                 <i class="fas fa-arrow-left"></i> Previous
                             </button>
-                            <button type="button" class="btn btn-primary" onclick="handleSignUp(event)">
-                                <i class="fas fa-check"></i> Create Account
+                            <button type="button" class="btn btn-primary" onclick="nextStep(5)">
+                                Next <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Step 5: Success -->
+                    <!-- Step 5: Final Details -->
                     <div class="form-step" id="step5">
-                        <div style="text-align: center; animation: popIn 0.5s ease-out;">
-                            <i class="fas fa-check-circle" style="font-size: 80px; color: #2ed573; margin-bottom: 20px;"></i>
-                            <h3 style="font-family: 'Montserrat', sans-serif; font-size: 2rem; margin-bottom: 10px;">Account Created!</h3>
-                            <p style="color: var(--dark-gray);">Please check your email to confirm your account. The page will reset shortly.</p>
+                        <h3 style="text-align: center; margin-bottom: 25px; font-family: 'Montserrat', sans-serif;">Final Details</h3>
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <div class="input-with-icon">
+                                <input type="text" id="country" class="form-input" placeholder="e.g., United States">
+                                <i class="fas fa-globe"></i>
+                            </div>
                         </div>
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep(4)">
+                                <i class="fas fa-arrow-left"></i> Previous
+                            </button>
+                            <button type="button" id="createAccountBtn" class="btn btn-primary" onclick="handleSignUp(event)">
+                                <i class="fas fa-check"></i> Create Account
+                            </button>
+                        </div>
+                        <!-- Success Message Container -->
+                        <div id="signUpSuccessMessage" style="display: none; text-align: center; animation: fadeIn 0.5s;">
+                            <i class="fas fa-check-circle" style="font-size: 4rem; color: #2ed573; margin-bottom: 20px;"></i>
+                            <h3 style="font-family: 'Montserrat', sans-serif; color: var(--dark-gray);">Account Created!</h3>
+                            <p style="color: var(--p5); margin-top: 10px;">Welcome to SJDVerse. Redirecting you to your profile...</p>
+                        </div>
+
+
                     </div>
                 </form>
 
                 <!-- Sign In Form -->
                 <form class="auth-form" id="signInForm">
-                    <h3 style="text-align: center; margin-bottom: 30px; font-family: 'Montserrat', sans-serif;">Welcome Back</h3>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px;">
+                        <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 40px;">
+                        <span style="font-family: 'Michroma', sans-serif; font-size: 2rem; font-weight: 400; color: var(--dark-gray);">SJDVerse</span>
+                    </div>
+                    <h3 style="text-align: center; margin-bottom: 25px; font-family: 'Montserrat', sans-serif;">Welcome Back</h3>
                     <div class="form-group">
-                        <label for="loginEmail"><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" id="loginEmail" class="form-input" required>
+                        <label for="loginEmail">Email</label>
+                        <div class="input-with-icon">
+                            <input type="email" id="loginEmail" class="form-input" required placeholder="you@example.com">
+                            <i class="fas fa-envelope"></i>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="loginPassword"><i class="fas fa-lock"></i> Password</label>
-                        <input type="password" id="loginPassword" class="form-input" required>
+                        <label for="loginPassword">Password</label>
+                        <div class="input-with-icon">
+                            <input type="password" id="loginPassword" class="form-input" required placeholder="Your password">
+                            <i class="fas fa-lock"></i>
+                        </div>
                     </div>
                     <button type="button" class="btn btn-primary" style="width: 100%; margin-bottom: 16px;" onclick="handleSignIn(event)">
                         <i class="fas fa-sign-in-alt"></i> Sign In
                     </button>
-                    <button type="button" class="btn btn-secondary" style="width: 100%; margin-bottom: 16px;" onclick="handleForgotPassword()">
+                    <button type="button" id="forgotPasswordBtn" class="btn btn-secondary" style="width: 100%; margin-bottom: 16px; display: none;" onclick="handleForgotPassword()">
                         <i class="fas fa-key"></i> Forgot Password?
                     </button>
                     <button type="button" class="btn btn-secondary" style="width: 100%;" onclick="showAuthButtons()">
                         <i class="fas fa-arrow-left"></i> Back
                     </button>
+                    <p style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--p5);">
+                        Don't have an account? <a href="#" onclick="event.preventDefault(); showSignUp();" style="color: var(--p3); font-weight: 600; text-decoration: none;">Create Account</a>
+                    </p>
                 </form>
             </div>
         </div>
@@ -1218,13 +1342,12 @@
                     <div id="guestNav" style="display: block;">
                         <ul class="nav-links">
                             <li><a href="#home" data-i18n-key="nav_home">Home</a></li>
-                            <li><a href="#features" data-i18n-key="nav_features">Features</a></li>
-                            <li><a href="#about" data-i18n-key="nav_about">About</a></li>
+                            <li><a href="about.html" data-i18n-key="nav_about">About</a></li>
                             <li><a href="#contact" data-i18n-key="nav_contact">Contact</a></li>
                         </ul>
                     </div>
                     <div id="userNav" style="display: none; align-items: center; gap: 25px;">
-                        <a href="explore.html" data-i18n-title-key="explore" title="Explore" class="header-icon" style="font-size: 1.5rem; color: var(--light-gray); text-decoration: none;"><i class="fas fa-compass"></i></a>
+                        <a href="profile.html" data-i18n-title-key="profile" title="Profile" class="header-icon" style="font-size: 1.5rem; color: var(--light-gray); text-decoration: none;"><i class="fas fa-user"></i></a>
                         <a href="search.html" data-i18n-title-key="search_users" title="Search Users" class="header-icon" style="font-size: 1.5rem; color: var(--light-gray); text-decoration: none;"><i class="fas fa-search"></i></a>
                         <a href="courses.html" data-i18n-title-key="courses" title="Courses" class="header-icon" style="font-size: 1.5rem; color: var(--light-gray); text-decoration: none;"><i class="fas fa-book-open"></i></a>
                         <div style="position: relative;">
@@ -1388,7 +1511,7 @@
         // Global variables
         let currentUser = null;
         let currentStep = 1;
-        const totalSteps = 4;
+        const totalSteps = 5;
         
 
         // Initialize the application
@@ -1405,7 +1528,18 @@
                 }
             });
         });
-
+        function animateStepFields(stepElement) {
+            if (!stepElement) return;
+            const formGroups = stepElement.querySelectorAll('.form-group');
+            formGroups.forEach((group, index) => {
+                // Reset animation state
+                group.classList.remove('animate-in');
+                group.style.animationDelay = `${index * 0.1}s`;
+                // Force reflow to restart animation if the user goes back and forth
+                void group.offsetWidth;
+                group.classList.add('animate-in');
+            });
+        }
         // Listen for auth state changes
         _supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
@@ -1465,14 +1599,17 @@
 
         function showSignUp() {
             document.getElementById('authButtons').style.display = 'none';
+            document.getElementById('signInForm').classList.remove('active');
             document.getElementById('signUpForm').classList.add('active');
             currentStep = 1;
             updateStepIndicator();
             document.querySelector('.step-indicator').style.display = 'flex';
+            animateStepFields(document.getElementById('step1'));
         }
 
         function showSignIn() {
             document.getElementById('authButtons').style.display = 'none';
+            document.getElementById('signUpForm').classList.remove('active');
             document.getElementById('signInForm').classList.add('active');
         }
 
@@ -1483,71 +1620,93 @@
             currentStep = 1;
         }
 
-        function nextStep(step) {
-            if (validateCurrentStep()) {
+        async function nextStep(step) {
+            if (await validateCurrentStep()) {
                 document.getElementById(`step${currentStep}`).classList.remove('active');
                 currentStep = step;
-                document.getElementById(`step${currentStep}`).classList.add('active');
-
-                // Hide step indicator on the success step
-                if (currentStep === 5) {
-                    document.querySelector('.step-indicator').style.display = 'none';
-                } else {
-                    document.querySelector('.step-indicator').style.display = 'flex';
-                }
+                const nextStepElement = document.getElementById(`step${currentStep}`);
+                nextStepElement.classList.add('active');
+                animateStepFields(nextStepElement);
+               
+                document.querySelector('.step-indicator').style.display = 'flex';
                 updateStepIndicator();
             }
         }
-
         function prevStep(step) {
             document.getElementById(`step${currentStep}`).classList.remove('active');
             currentStep = step;
-            document.getElementById(`step${currentStep}`).classList.add('active');
+            const prevStepElement = document.getElementById(`step${currentStep}`);
+            prevStepElement.classList.add('active');
+            animateStepFields(prevStepElement);
             updateStepIndicator();
         }
 
-        function validateCurrentStep() {
+        async function validateCurrentStep() {
             const step = currentStep;
             if (step === 1) {
                 const name = document.getElementById('fullName').value;
                 const username = document.getElementById('username').value;
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                
-                if (!name || !username || !email || !password) {
-                    showNotification('Please fill in all required fields', 'error');
+                if (!name || !username) {
+                    showNotification('Please fill in your full name and username.', 'error');
+                    return false;
+                }
+                if (!/^[a-z0-9_]{4,20}$/.test(username)) {
+                    showNotification('Username must be 4-20 characters, lowercase, and can only contain letters, numbers, and underscores.', 'error');
                     return false;
                 }
 
-                if (!/^[a-z0-9_]{3,20}$/.test(username)) {
-                    showNotification('Username is not valid. Please follow the rules.', 'error');
+                // Check for username availability
+                const { data, error } = await _supabase
+                    .from('profiles')
+                    .select('username')
+                    .eq('username', username)
+                    .single();
+
+                if (data) { // if data is not null, username exists
+                    showNotification('This username is already taken. Please choose another one.', 'error');
                     return false;
                 }
-                
+                // PGRST116 means "The result contains 0 rows", which is what we want. Any other error is a problem.
+                if (error && error.code !== 'PGRST116') {
+                    showNotification('Error checking username. Please try again.', 'error');
+                    console.error('Username check error:', error);
+                    return false;
+                }
+            } else if (step === 2) {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                if (!email || !password || !confirmPassword) {
+                    showNotification('Please provide your email and password.', 'error');
+                    return false;
+                }
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showNotification('Please enter a valid email address.', 'error');
+                    return false;
+                }
                 if (password.length < 6) {
                     showNotification('Password must be at least 6 characters', 'error');
                     return false;
                 }
-            } else if (step === 2) {
+                if (password !== confirmPassword) {
+                    showNotification('Passwords do not match. Please try again.', 'error');
+                    return false;
+                }
+            } else if (step === 3) {
+                const photoFile = document.getElementById('profilePhoto').files[0];
+                if (!photoFile) {
+                    showNotification('Please select a profile photo to continue.', 'error');
+                    return false;
+                }
+            } else if (step === 4) {
                 const education = document.getElementById('education').value;
                 if (!education) {
                     showNotification('Please select your education level.', 'error');
                     return false;
                 }
-            } else if (step === 3) {
-                const progExp = document.querySelector('input[name="programmingExp"]:checked');
-                const aiKnowledge = document.querySelector('input[name="aiKnowledge"]:checked');
-                if (!progExp) {
-                    showNotification('Please select your programming experience.', 'error');
-                    return false;
-                }
-                if (!aiKnowledge) {
-                    showNotification('Please select your AI knowledge level.', 'error');
-                    return false;
-                }
-            } else if (step === 4) {
+            } else if (step === 5) {
                 const country = document.getElementById('country').value;
-                const motivation = document.getElementById('motivation').value;
                 if (!country) {
                     showNotification('Please enter your country.', 'error');
                     return false;
@@ -1576,6 +1735,10 @@
             if (!validateCurrentStep()) return;
 
             showNotification('Creating account...', 'info');
+            const createBtn = document.getElementById('createAccountBtn');
+            createBtn.disabled = true;
+            createBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -1608,45 +1771,44 @@
                 email: email,
                 password: password,
                 options: {
+                    email_confirm: false, // <-- این خط اضافه شده است
                     data: {
                         full_name: document.getElementById('fullName').value,
                         username: document.getElementById('username').value.toLowerCase(),
                         avatar_url: avatar_url,
                         education: document.getElementById('education').value,
                         field_of_study: document.getElementById('fieldOfStudy').value,
-                        programming_exp: document.querySelector('input[name="programmingExp"]:checked')?.value,
-                        ai_knowledge: document.querySelector('input[name="aiKnowledge"]:checked')?.value,
                         country: document.getElementById('country').value,
-                        motivation: document.getElementById('motivation').value,
                     }
                 }
             });
 
             if (error) {
-                showNotification(error.message, 'error');
+                showNotification('Error creating account: ' + error.message, 'error');
+                createBtn.disabled = false;
+                createBtn.innerHTML = '<i class="fas fa-check"></i> Create Account';
             } else {
-                // Go to success step
-                nextStep(5);
+                // Hide the form and show the success message
+                document.getElementById('step5').style.display = 'none';
+                document.getElementById('step-indicator').style.display = 'none';
+                document.getElementById('signUpSuccessMessage').style.display = 'block';
 
-                // After a delay, perform a fade-out transition and reset the form
+                // Redirect to profile page after a short delay
                 setTimeout(() => {
-                    const authFormContainer = document.querySelector('.auth-form-container');
-                    authFormContainer.style.transition = 'opacity 0.5s ease-out';
-                    authFormContainer.style.opacity = '0';
+                    // The onAuthStateChange listener will redirect to profile.html,
+                    // but we can force it here as a fallback.
+                    window.location.href = 'profile.html';
+                }, 2500); // 2.5 second delay
+            }
+        }
 
-                    setTimeout(() => {
-                        document.getElementById('signUpForm').reset();
-                        document.getElementById('photoPreview').style.display = 'none';
-                        
-                        // Reset to the first step without showing it
-                        document.getElementById('step5').classList.remove('active');
-                        currentStep = 1;
-                        document.getElementById('step1').classList.add('active');
-                        updateStepIndicator();
-                        showAuthButtons();
-                        authFormContainer.style.opacity = '1';
-                    }, 500); // Wait for fade-out to complete
-                }, 4000); // Show success message for 4 seconds
+        async function signInWithGoogle() {
+            const { data, error } = await _supabase.auth.signInWithOAuth({
+                provider: 'google',
+            });
+
+            if (error) {
+                showNotification('Error signing in with Google: ' + error.message, 'error');
             }
         }
 
@@ -1655,6 +1817,7 @@
             
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
+            const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
             
             const { data, error } = await _supabase.auth.signInWithPassword({
                 email: email,
@@ -1663,6 +1826,9 @@
             
             if (error) {
                 showNotification(error.message, 'error');
+                if (error.message === 'Invalid login credentials') {
+                    forgotPasswordBtn.style.display = 'inline-flex';
+                }
             } else if (data.user && data.session) {
                 showNotification('Welcome back to SJDVerse!', 'success');
                 // onAuthStateChange will handle showing the main content
@@ -1712,13 +1878,12 @@
             reader.onload = function() {
                 if (reader.readyState === 2) {
                     preview.src = reader.result;
-                    preview.style.display = 'block';
                 }
             }
-            if (event.target.files[0]) {
+            if (event.target.files && event.target.files[0]) {
                 reader.readAsDataURL(event.target.files[0]);
             } else {
-                preview.style.display = 'none';
+                preview.src = 'https://i.postimg.cc/prmTzhSz/man.png'; // Reset to default if no file is selected
             }
         }
 
@@ -1843,6 +2008,26 @@
             }
         `;
         document.head.appendChild(style);
+
+        // Responsive styles for mobile
+        const responsiveStyle = document.createElement('style');
+        responsiveStyle.textContent = `
+            @media (max-width: 900px) {
+                .auth-container {
+                    grid-template-columns: 1fr; /* Stack form on top */
+                    height: auto;
+                    max-height: 95vh;
+                    overflow-y: auto;
+                }
+                .auth-visual {
+                    display: none; /* Hide the visual part on mobile */
+                }
+                .auth-form-container {
+                    padding: 40px 25px; /* Adjust padding for smaller screens */
+                }
+            }
+        `;
+        document.head.appendChild(responsiveStyle);
 
         // Placeholder functions for missing features
         // --- Unread Messages Counter ---

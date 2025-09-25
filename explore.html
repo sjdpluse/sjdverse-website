@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Explore - SJDVerse</title>
     <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Goldman:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hljs-dark-theme" disabled>
@@ -78,8 +79,8 @@
         }
         .app-header .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
         .app-nav { display: flex; align-items: center; gap: 20px; }
-        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; position: relative; padding: 8px; }
-        .app-nav .nav-icon:hover { color: var(--text-primary); }
+        .app-nav .nav-icon { font-size: 1.4rem; color: var(--text-secondary); text-decoration: none; transition: var(--transition); position: relative; padding: 8px; }
+        .app-nav .nav-icon:hover { color: var(--text-primary); transform: translateY(-2px); }
         .app-nav .profile-link img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; }
         .app-nav .profile-link:hover img { border-color: var(--text-primary); }
         .profile-nav-item { position: relative; }
@@ -100,6 +101,9 @@
                 font-size: 1.3rem;
                 padding: 6px;
             }
+            .logo-text {
+                display: none;
+            }
         }
 
         /* Main Layout */
@@ -116,8 +120,17 @@
         @media (max-width: 900px) {
             .container { grid-template-columns: 1fr; }
             .sidebar-wrapper {
-                position: static;
+                display: none;
             }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin-top: 20px;
+                padding: 0 10px;
+            }
+            .card { padding: 15px; }
+            .post-author img { width: 40px; height: 40px; }
         }
 
         .card {
@@ -246,8 +259,9 @@
         .stories-container {
             display: flex;
             gap: 16px;
-            overflow-x: auto;
             padding: 10px 0;
+            flex-wrap: nowrap;
+            overflow: hidden;
             scrollbar-width: none; /* Firefox */
         }
         .stories-container::-webkit-scrollbar {
@@ -255,12 +269,29 @@
         }
         .story-item {
             flex-shrink: 0;
-            width: 100px;
+            width: 150px;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 8px;
+            /* Professional Glassmorphism */
+            background: linear-gradient(135deg, rgba(252, 252, 252, 0.4), rgba(226, 226, 226, 0.2));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            padding: 20px 15px;
+            transition: var(--transition);
+        }
+        .story-item:hover {
+            transform: translateY(-5px);
+        }
+        .dark-theme .story-item {
+            background: linear-gradient(135deg, rgba(60, 60, 62, 0.4), rgba(44, 44, 46, 0.2));
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
         }
         .story-avatar-wrapper {
             position: relative;
@@ -294,9 +325,13 @@
             justify-content: center;
             width: 100%;
             gap: 4px;
+            margin-bottom: 8px;
         }
         .story-actions {
             display: flex; flex-direction: column; gap: 6px; width: 100%;
+        }
+        .story-actions .btn {
+            width: 100%;
         }
 
         .btn-secondary {
@@ -464,6 +499,38 @@
             vertical-align: text-bottom;
             margin-left: 2px;
         }
+
+        /* Custom Video Controls from profile.html */
+        .video-overlay-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .video-controls-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background-color: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            pointer-events: none;
+        }
+        .video-controls-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        .video-control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 60px; height: 60px; font-size: 1.5rem;
+        }
         @keyframes blink-cursor {
             from, to { background-color: transparent; }
             50% { background-color: var(--text-primary); }
@@ -508,10 +575,10 @@
     <header class="app-header">
         <a href="indexx.html" class="logo">
             <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 35px;">
-            <span style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
+            <span class="logo-text" style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400; color: var(--text-primary);">SJDVerse</span>
         </a>
         <nav class="app-nav">
-            <a href="indexx.html" class="nav-icon" id="nav-home" title="Home"><i class="fas fa-home"></i></a>
+            <a href="profile.html" class="nav-icon" id="nav-home" title="Profile"><i class="fas fa-user"></i></a>
             <a href="explore.html" class="nav-icon" id="nav-explore" title="Explore"><i class="fas fa-compass"></i></a>
             <a href="search.html" class="nav-icon" id="nav-search" title="Search"><i class="fas fa-search"></i></a>
             <a href="courses.html" class="nav-icon" id="nav-courses" title="Courses"><i class="fas fa-book-open"></i></a>
@@ -577,7 +644,7 @@
                 </div>
             </section>
             <div class="content-header">
-                <h1 style="font-family: 'Pacifico', cursive; font-size: 2.2rem;">Explore Feed</h1>
+                <h1 style="font-family: 'Goldman', cursive; font-size: 2rem; font-weight: 700; background: linear-gradient(45deg, var(--p3), var(--p1)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Explore Feed</h1>
                 <button id="refreshBtn" class="btn btn-secondary" onclick="refreshExplorePage()">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
@@ -597,6 +664,7 @@
         let scrollObserver = null;
         let followingIds = [];
         let challengeInterval = null;
+        let videoObserver = null;
 
         const challenges = [
             {
@@ -652,6 +720,19 @@
             }, { threshold: 0.1 });
 
             initializeNewHeader();
+
+            // Initialize video observer
+            videoObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const video = entry.target;
+                    if (entry.isIntersecting) {
+                        video.play().catch(e => console.warn("Video play was prevented.", e));
+                    } else {
+                        video.pause();
+                    }
+                });
+            }, { threshold: 0.5 });
+
             document.getElementById('nav-explore').classList.add('active');
             const savedTheme = localStorage.getItem('theme') || 'light';
             setTheme(savedTheme, true);
@@ -738,7 +819,7 @@
             }
 
             // Take the first 15 from the shuffled list
-            const suggestedProfiles = profiles.slice(0, 15);
+            const suggestedProfiles = profiles.slice(0, 5);
 
             storiesFeed.innerHTML = '';
             suggestedProfiles.forEach(profile => {
@@ -888,7 +969,9 @@
                 postFeed.innerHTML = '';
                 posts.forEach(post => renderPost(post));
 
-                postFeed.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+                postFeed.querySelectorAll('pre code').forEach(el => {
+                    if (typeof hljs !== 'undefined') hljs.highlightElement(el);
+                });
             }
         }
 
@@ -905,6 +988,28 @@
             const isLikedByCurrentUser = currentLoggedInUser && post.post_likes ? post.post_likes.some(like => like.user_id === currentLoggedInUser.id) : false;
 
             const postImageHTML = post.image_url ? `<div class="post-image-container"><img src="${getTransformedImageUrl(post.image_url, {width: 800})}" loading="lazy" alt="Post image" class="post-image" onclick="openImageViewer('${post.image_url}')"></div>` : '';
+            
+            // Check if the post is a vedez
+            const isVedez = post.attachment_metadata && post.attachment_metadata.type === 'vedez';
+            let vedezHtml = '';
+            if (isVedez) {
+                vedezHtml = `
+                    <div class="post-image-container" style="background-color: #000;">
+                        <div class="video-overlay-container">
+                            <video src="${post.attachment_url}" loop autoplay muted playsinline disablepictureinpicture class="post-image" style="object-fit: cover;"></video>
+                            <div class="video-controls-overlay">
+                                <button class="btn-icon video-control-btn" data-action="play-pause"><i class="fas fa-play"></i></button>
+                                <button class="btn-icon video-control-btn" data-action="mute-unmute"><i class="fas fa-volume-mute"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const postContent = escapeHTML(post.content);
+            const isRtl = /[\u0600-\u06FF]/.test(post.content);
+            const contentDirection = isRtl ? 'dir="rtl" style="text-align: right;"' : '';
+            const contentHtml = `<p ${contentDirection}>${postContent}</p>`;
             
             let codeHtml = '';
             if (post.code_snippet && post.code_snippet.code) {
@@ -928,7 +1033,7 @@
             }
 
             let attachmentHtml = '';
-            if (post.attachment_url && post.attachment_metadata) {
+            if (post.attachment_url && post.attachment_metadata && !isVedez) { // Do not show for Vedez
                 const meta = post.attachment_metadata;
                 const fileSize = meta.size ? `(${(meta.size / 1024 / 1024).toFixed(2)} MB)` : '';
                 attachmentHtml = `
@@ -965,6 +1070,9 @@
                         <div class="dropdown-item" onclick="followUserFromPost(event, '${author.id}')"><i class="fas fa-user-plus"></i> Follow</div>
                     `;
                 }
+                if (isVedez) {
+                    menuItems += `<div class="dropdown-item" onclick="downloadFile('${post.attachment_url}', '${post.attachment_metadata.name}')"><i class="fas fa-download"></i> Download Vedez</div>`;
+                }
                 actionButtonHTML = `
                     <div class="post-menu-container" data-author-id="${author.id}">
                         <button class="btn-icon" onclick="togglePostMenu(event)"><i class="fas fa-ellipsis-v"></i></button>
@@ -984,7 +1092,9 @@
 
             postCard.innerHTML = `
                 <div class="post-header">
-                    <a href="user.html?username=${author.username}" class="post-author">
+                    <a href="user.html?username=${
+											author.username
+										}" class="post-author">
                         <img src="${getTransformedImageUrl(author.avatar_url, {width: 100, height: 100})}" alt="Avatar" class="${author.is_verified ? 'verified-avatar-small' : ''}">
                         <div class="post-author-info">
                             <h4>${author.full_name} ${author.is_verified ? '<span class="fa-stack verified-badge" title="Verified"><i class="fas fa-certificate fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span>' : ''}</h4>
@@ -993,9 +1103,7 @@
                     </a>
                     ${actionButtonHTML}
                 </div>
-                <div class="post-content">
-                    <p>${escapeHTML(post.content)}</p>
-                    ${postImageHTML}
+                <div class="post-content">${contentHtml}${isVedez ? vedezHtml : postImageHTML}
                     ${codeHtml}
                     ${attachmentHtml}
                 </div>
@@ -1007,7 +1115,38 @@
                 </div>
             `;
             postFeed.appendChild(postCard);
+            setupVideoListeners(postCard);
             scrollObserver.observe(postCard);
+        }
+        function setupVideoListeners(postElement) {
+            const video = postElement.querySelector('video'); //NOSONAR
+            const container = postElement.querySelector('.video-overlay-container');
+            const controlsOverlay = postElement.querySelector('.video-controls-overlay');
+            const playPauseBtn = postElement.querySelector('[data-action="play-pause"]');
+            const muteUnmuteBtn = postElement.querySelector('[data-action="mute-unmute"]');
+
+            if (video) {
+                let controlsTimeout;
+                container.addEventListener('click', (e) => { //NOSONAR
+                    if (e.target === video || e.target === container) {
+                        clearTimeout(controlsTimeout);
+                        controlsOverlay.classList.add('visible');
+                        controlsTimeout = setTimeout(() => {
+                            controlsOverlay.classList.remove('visible');
+                        }, 2000);
+                    }
+                });
+
+                playPauseBtn.addEventListener('click', () => { if (video.paused) video.play(); else video.pause(); });
+
+                muteUnmuteBtn.addEventListener('click', () => { video.muted = !video.muted; });
+
+                video.addEventListener('play', () => playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>');
+                video.addEventListener('pause', () => playPauseBtn.innerHTML = '<i class="fas fa-play"></i>');
+                video.addEventListener('volumechange', () => { muteUnmuteBtn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>'; });
+
+                if (videoObserver) { videoObserver.observe(video); }
+            }
         }
         async function toggleLike(postId) {
             const likeButton = document.querySelector(`#post-${postId} .post-action`);
@@ -1246,6 +1385,14 @@
             const p = document.createElement('p');
             p.textContent = str;
             return p.innerHTML;
+        }
+
+        function downloadFile(url, filename) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename || 'download');
+            link.setAttribute('target', '_blank');
+            link.click();
         }
 
         function getTransformedImageUrl(url, options = {}) {

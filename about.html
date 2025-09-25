@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>About Us - SJDVerse</title>
+    <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Recursive:wght@800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/cal-sans" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sulphur+Point:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --p1: #d8f4a0; --p2: #fdc7d5; --p3: #bcd8fd; --p4: #ffeca8; --p5: #5d5c5c;
+            --white: #ffffff; --light-gray: #f8f9fa; --medium-gray: #e9ecef; --dark-gray: #343a40;
+            --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.06); 
+            --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --border-radius: 16px; 
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+ 
+            /* Default to dark theme colors for the background effect */
+            --bg-primary: #1d2227;
+            --bg-secondary: #2c2c2e;
+            --text-primary: #f2f2f7;
+            --text-secondary: #aeaeb2;
+            --border-color: #3a3a3c;
+            --card-bg: #2c2c2e;
+            --primary: #5d9bfb;
+        }
+
+        .dark-theme {
+            --bg-primary: #1c1c1e;
+            --bg-secondary: #2c2c2e;
+            --text-primary: #f2f2f7;
+            --text-secondary: #aeaeb2;
+            --border-color: #3a3a3c;
+            --card-bg: #2c2c2e;
+            --primary: #5d9bfb;
+        }
+
+        .light-theme {
+            --bg-primary: var(--white);
+            --bg-secondary: var(--light-gray);
+            --text-primary: var(--dark-gray);
+            --text-secondary: var(--p5);
+            --border-color: var(--medium-gray);
+            --card-bg: var(--white);
+            --primary: var(--p3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-primary);
+            line-height: 1.7; 
+            position: relative; /* Needed for pseudo-elements */
+            overflow-x: hidden;            
+            background-color: #000000; /* Solid black background */
+        }
+
+        @keyframes move-orb-1 {
+            from { transform: translate(-10vw, -10vh) rotate(0deg); }
+            to { transform: translate(60vw, 40vh) rotate(180deg); }
+        }
+
+        @keyframes move-orb-2 {
+            from { transform: translate(80vw, 70vh) rotate(0deg); }
+            to { transform: translate(10vw, 10vh) rotate(-180deg); }
+        }
+
+        @keyframes subtle-float {
+            0%, 100% { transform: translateY(0) rotate(-1deg); }
+            50% { transform: translateY(-15px) rotate(1deg); }
+        }
+
+        @keyframes animated-gradient-text-founder {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+
+        h1, h2, h3, h4, h5, h6, .logo, .btn {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+        }
+
+        /* Header Styles (reused) */
+        .app-header {
+            background: #000000; /* Solid black background */
+            padding: 0 5%;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15); /* Slightly more visible border on black */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 60px;
+        }
+        .app-header .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .app-header .logo span {
+            color: var(--white) !important; /* Ensure logo text is white on black header */
+        }
+        .app-nav { display: flex; align-items: center; gap: 20px; }
+        .app-nav .nav-icon {
+            font-size: 1.4rem; color: rgba(255, 255, 255, 0.8); /* Lighter icons for visibility */
+            text-decoration: none; transition: var(--transition); position: relative; padding: 8px;
+        }
+        .app-nav .nav-icon:hover { color: var(--white); transform: translateY(-2px); }
+        .app-nav .profile-link img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; }
+        .app-nav .profile-link:hover img { border-color: var(--text-primary); }
+        .profile-nav-item { position: relative; }
+        .profile-dropdown { display: none; position: absolute; top: calc(100% + 10px); right: 0; background: var(--card-bg); border-radius: 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); width: 200px; z-index: 1001; border: 1px solid var(--border-color); padding: 8px 0; animation: fadeIn 0.2s ease; }
+        .profile-dropdown .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; transition: background-color 0.2s; background: none; border: none; width: 100%; font-family: 'Poppins', sans-serif; font-size: 0.9rem; color: var(--text-primary); text-decoration: none; text-align: left; }
+        .profile-dropdown .dropdown-item:hover { background: var(--bg-secondary); }
+        .profile-dropdown hr { border: none; border-top: 1px solid var(--border-color); margin: 8px 0; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Hero Section */
+        .about-hero {
+            padding: 40px 5%;
+            margin-bottom: 60px;
+            position: relative; 
+            height: 100vh; /* Full screen height */
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            background-image: url('https://i.postimg.cc/YSbcw7Yz/170902093-10585441.png');
+            background-size: cover;
+            background-position: center;
+        }
+        .about-hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        .about-hero-visual {
+            position: relative;
+            z-index: 2;
+        }
+        .about-hero::before {
+            content: '';
+            position: absolute; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 1;
+        }
+        .light-theme .about-hero {
+            box-shadow: var(--shadow-medium);
+        }
+        @keyframes animated-gradient-text {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        .about-hero h1 {
+            font-size: clamp(3rem, 8vw, 4.5rem); /* Responsive font size */
+            line-height: 1.1;
+            margin-bottom: 15px;
+            font-family: 'Recursive', sans-serif;
+            font-weight: 800;
+            position: relative;
+            color: #d14943; /* Reverted to original color */
+        }
+
+        /* Section Styles */
+        .about-section {
+            margin-bottom: 60px;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: var(--primary);
+            border-radius: 2px;
+        }
+
+        /* Mission Section */
+        .mission-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Restored two columns */
+            gap: 40px; /* Restored gap */
+            align-items: center;
+            border-radius: 20px;
+        }
+        .mission-content img {
+            width: 100%; /* Restored image display */
+            border-radius: var(--border-radius);
+        }
+
+        /* Team Section */
+        .team-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .team-member-card {
+            border-radius: var(--border-radius);
+            padding: 30px;
+            text-align: center;
+            width: 300px;
+            box-shadow: var(--shadow-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dark-theme .team-member-card {
+        }
+        .team-member-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .about-hero p {
+            position: relative; z-index: 2;
+            font-size: 1.2rem;
+            color: #FFFFFF; /* Changed to white for better contrast */
+            max-width: 700px;
+            margin: 0; /* Removed auto margin */
+            text-align: left; /* Aligned to the left */
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            /* Reset styles for static text */
+            position: relative;
+            overflow: visible;
+        }
+        #animated-description-container span {
+            display: block;
+            opacity: 0;
+            transform: translateY(15px);
+            animation: fadeIn-up 0.8s ease-out forwards;
+        }
+        @keyframes fadeIn-up {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .team-member-card img { 
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            margin-bottom: 20px;
+        }
+        .team-member-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+        .team-member-card .role {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .team-member-card .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .team-member-card .social-links a {
+            color: var(--text-secondary);
+            font-size: 1.3rem;
+            transition: var(--transition);
+        }
+        .team-member-card .social-links a:hover {
+            color: var(--primary);
+            transform: scale(1.2);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 60px 30px;
+           
+        }
+        
+        .cta-section h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+        }
+        .btn { padding: 12px 24px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-primary { background: var(--primary); color: var(--dark-gray); box-shadow: 0 4px 15px rgba(93, 155, 251, 0.2); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(93, 155, 251, 0.3); }
+        .light-theme .btn-primary { box-shadow: 0 4px 15px rgba(188, 216, 253, 0.4); }
+        .light-theme .btn-primary:hover { box-shadow: 0 8px 25px rgba(188, 216, 253, 0.5); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .about-hero h1 { font-size: 2.5rem; }
+            .mission-content { grid-template-columns: 1fr; }
+            .mission-content img { order: -1; margin-bottom: 30px; }
+            .logo-text { display: none; }
+        }
+
+        /* Scroll Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Founder Section Specific Styles */
+        .founder-details {
+            text-align: left;
+            margin-top: 20px;
+            color: var(--text-primary);
+        }
+        .founder-details h3 {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.85);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.25);
+            margin-bottom: 0;
+        }
+        .founder-details h3 .name-part-1 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600; /* Semi-bold */
+        }
+        .founder-details h3 .name-part-2 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 200; /* Extra-light */
+        }
+        .founder-details p {
+            font-family: 'Sulphur Point', sans-serif;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            margin-top: 0;
+        }
+        .founder-image-wrapper {
+            justify-self: center;
+            position: relative;
+        }
+        .founder-image-glass {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: subtle-float 12s ease-in-out infinite;
+        }
+        .founder-image-glass img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .light-theme .founder-image-glass {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .light-theme .founder-details {
+            color: var(--text-secondary);
+        }
+
+        .light-theme .mission-content img, .light-theme .team-member-card {
+            box-shadow: var(--shadow-medium);
+        }
+        .founder-social-links {
+            display: flex;
+            justify-content: flex-start; /* Align to the left */
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .founder-social-links a {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+        .founder-social-links a:hover {
+            color: var(--white);
+            transform: scale(1.1);
+        }
+        .scroll-down-btn {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3; /* Above hero pseudo-elements */
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.8rem;
+            text-decoration: none;
+            animation: bounce 2.5s infinite;
+        }
+        .scroll-down-btn:hover {
+            color: var(--white);
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+            40% { transform: translate(-50%, -20px); }
+            60% { transform: translate(-50%, -10px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <a href="indexx.html" class="logo">
+            <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 35px;">
+            <span class="logo-text" style="font-family: 'Michroma', sans-serif; font-size: 1.5rem; font-weight: 400;">SJDVerse</span>
+        </a>
+        <nav class="app-nav">
+            <a href="profile.html" class="nav-icon" id="nav-home" title="Profile"><i class="fas fa-user"></i></a>
+            <a href="explore.html" class="nav-icon" id="nav-explore" title="Explore"><i class="fas fa-compass"></i></a>
+            <a href="search.html" class="nav-icon" id="nav-search" title="Search"><i class="fas fa-search"></i></a>
+            <a href="courses.html" class="nav-icon" id="nav-courses" title="Courses"><i class="fas fa-book-open"></i></a>
+            <a href="messages.html" class="nav-icon" id="nav-messages" title="Messages"><i class="fas fa-comments"></i></a>
+            <div class="profile-nav-item">
+                <a href="javascript:void(0);" class="nav-icon profile-link" id="nav-profile-trigger" title="Profile">
+                    <img id="headerUserAvatar" src="https://i.postimg.cc/prmTzhSz/man.png" alt="User Avatar">
+                </a>
+                <div id="profileDropdown" class="profile-dropdown">
+                    <a href="profile.html" class="dropdown-item"><i class="fas fa-user-circle"></i> <span>Profile</span></a>
+                    <a href="about.html" class="dropdown-item"><i class="fas fa-info-circle"></i> <span>About</span></a>
+                    <button id="themeToggleDropdown" class="dropdown-item"><i class="fas fa-moon"></i> <span>Theme</span></button>
+                    <hr>
+                    <button class="dropdown-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <section class="about-hero fade-in">
+        <div class="about-hero-content">
+            <h1 class="animated-gradient-text">Dream Bold<br>Then Build /.</h1>
+            <div id="animated-description-container"></div>
+        </div>
+        <div class="about-hero-visual">
+            <div class="founder-image-wrapper">
+                <div class="founder-image-glass">
+                    <img src="https://i.postimg.cc/ZKLCTgHR/Screenshot-20250923-230742-1.jpg" alt="Sajad Mohammadi">
+                </div>
+                <div class="founder-details">
+                    <h3>
+                        <span class="name-part-1">Eng. Sajad</span> <span class="name-part-2">Mohammadi</span>
+                    </h3>
+                    <p>Founder & Lead Developer</p>
+                    <div class="founder-social-links">
+                        <a href="https://www.instagram.com/thedorcci?igsh=NzIyY2ZzZ25hM2hq&utm_source=ig_contact_invite" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="mailto:sajadalimohammadi394@gmail.com" title="Email"><i class="fas fa-envelope"></i></a>
+                        <a href="https://discord.gg/7vguB7t6" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+                        <a href="https://www.linkedin.com/in/sajad-ali-mohammadi-659028380?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://sjdpluse.github.io/" target="_blank" title="Website"><i class="fas fa-globe"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <a href="#main-content" class="scroll-down-btn" aria-label="Scroll down"><i class="fas fa-chevron-down"></i></a>
+    </section>
+    <main class="container" id="main-content">
+
+        <section class="about-section fade-in">
+            <h2 class="section-title">Our Mission</h2>
+            <div class="mission-content">
+                <div>
+                    <h3>Empowering Through Knowledge</h3>
+                    <p>Our core mission is to democratize technology education. We believe that everyone, regardless of their background, should have access to high-quality resources to build their skills and pursue their passions in the tech world.</p>
+                    <p>We strive to create an inclusive and supportive environment where collaboration is encouraged, and every member feels empowered to contribute and learn.</p>
+                </div>
+                <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1184&auto=format&fit=crop" alt="Team collaborating">
+            </div>
+        </section>
+
+        <section class="about-section fade-in">
+            <h2 class="section-title">Our Vision</h2>
+            <div class="mission-content">
+                <img src="https://images.unsplash.com/photo-1535223289827-42f1e9919769?q=80&w=1287&auto=format&fit=crop" alt="Global connection">
+                <div>
+                    <h3>A Global Hub for Innovators</h3>
+                    <p>We envision SJDVerse as the central hub for tech creators worldwide. A place where a great idea can find a team, a difficult problem can find a solution, and a new skill can find its first real-world application.</p>
+                    <p>Our vision is to break down geographical barriers, fostering a global community where innovation flourishes through shared knowledge and collective effort.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section fade-in">
+            <h2 class="section-title">Our Values</h2>
+            <div class="mission-content">
+                <div>
+                    <h3>Collaboration, Innovation, and Inclusivity</h3>
+                    <p><strong>Collaboration:</strong> We believe the best creations are built together. We foster an environment of teamwork and mutual support.</p>
+                    <p><strong>Innovation:</strong> We encourage curiosity and the courage to build new things. SJDVerse is a playground for experimentation and forward-thinking.</p>
+                    <p><strong>Inclusivity:</strong> We are committed to creating a welcoming space for everyone. Diversity of thought and background is our greatest strength.</p>
+                </div>
+                <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=1170&auto=format&fit=crop" alt="Diverse team working">
+            </div>
+        </section>
+
+        <section class="about-section fade-in">
+            <h2 class="section-title">Our Commitment to Security</h2>
+            <div class="mission-content">
+                <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1170&auto=format&fit=crop" alt="Cyber security abstract">
+                <div>
+                    <h3>A Fortress for Your Data</h3>
+                    <p>At SJDVerse, we understand that trust is built on a foundation of security. Our platform is engineered with a multi-layered security architecture to protect your data and privacy at every step.</p>
+                    <p>We leverage enterprise-grade technologies, including a backend powered by <strong>Supabase</strong>, which provides robust security features like <strong>Row Level Security (RLS)</strong> to ensure data isolation. All communications are encrypted end-to-end using industry-standard <strong>TLS/SSL</strong>, and our infrastructure benefits from the world-class security of leading cloud providers, including advanced DDoS mitigation and threat detection.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section fade-in">
+            <h2>Join Our Growing Community</h2>
+            <p>Ready to start your journey? Join thousands of other developers and creators on SJDVerse today.</p>
+            <a href="indexx.html" class="btn btn-primary">Get Started</a>
+        </section>
+    </main>
+
+    <footer class="fade-in" style="background: rgba(0, 0, 0, 0.3); color: var(--white); padding: 40px 5%; backdrop-filter: blur(10px); border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; margin-top: 60px;">
+        <p>&copy; 2025 SJDVerse. All rights reserved. | Built and Developed by Sajad Mohammadi</p>
+    </footer>
+
+    <script>
+        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await _supabase.auth.getUser();
+            currentUser = user;
+
+            initializeNewHeader();
+            const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark for this page
+            setTheme(savedTheme, true);
+            setupScrollAnimations();
+            setupDescriptionAnimation();
+            setupSmoothScrolling();
+        });
+
+        // --- Header, Theme, and Auth Logic (reused) ---
+        function initializeNewHeader() {
+            const profileTrigger = document.getElementById('nav-profile-trigger');
+            const profileDropdown = document.getElementById('profileDropdown');
+            
+            if (currentUser) {
+                document.getElementById('headerUserAvatar').src = currentUser.user_metadata.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
+            }
+
+            if (profileTrigger && profileDropdown) {
+                profileTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+                });
+            }
+            
+            const themeToggle = document.getElementById('themeToggleDropdown');
+            if(themeToggle) themeToggle.addEventListener('click', toggleTheme);
+
+            document.addEventListener('click', (e) => {
+                if (profileDropdown && profileDropdown.style.display === 'block' && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleTheme() {
+            const newTheme = document.body.classList.contains('dark-theme') ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        function setTheme(theme, isInitial = false) {
+            document.body.classList.toggle('dark-theme', theme === 'dark');
+            document.body.classList.toggle('light-theme', theme !== 'dark');
+            const themeToggleDropdown = document.getElementById('themeToggleDropdown');
+            if (themeToggleDropdown) themeToggleDropdown.querySelector('i').className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            if (!isInitial) localStorage.setItem('theme', theme);
+        }
+
+        async function logout() {
+            if (!confirm('Are you sure you want to log out?')) return;
+            await _supabase.auth.signOut();
+            window.location.href = 'indexx.html';
+        }
+
+        // Scroll animations
+        function setupScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        function setupDescriptionAnimation() {
+            const container = document.getElementById('animated-description-container');
+            if (!container) return;
+
+            const phrases = [
+                "Learn cutting-edge technologies.",
+                "Collaborate on innovative projects.",
+                "Build your future, one line at a time.",
+            ];
+
+            phrases.forEach((phrase, index) => {
+                const span = document.createElement('span');
+                span.textContent = phrase;
+                span.style.animationDelay = `${index * 0.3}s`; // Staggered delay
+                container.appendChild(span);
+            });
+        }
+        // Smooth scrolling for anchor links
+        function setupSmoothScrolling() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
