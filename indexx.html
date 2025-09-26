@@ -8,6 +8,7 @@
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&family=MuseoModerno:wght@400;700&family=Michroma&family=Exo+2:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
     
     <!-- Lodash for background effect -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
@@ -2203,6 +2204,10 @@
             document.querySelectorAll('[data-i18n-title-key]').forEach(el => {
                 const key = el.getAttribute('data-i18n-title-key');
                 el.title = langTranslations[key] || defaultTranslations[key] || el.title;
+            });
+
+            document.querySelectorAll('.form-input, .btn').forEach(el => {
+                el.style.fontFamily = lang === 'fa' ? "'Vazirmatn', 'Poppins', sans-serif" : "'Poppins', sans-serif";
             });
         }
         

@@ -6,7 +6,7 @@
     <title>My Profile - SJDVerse</title>
     <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Foldit:wght@100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=WindSong:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Rubik+80s+Fade&display=swap" rel="stylesheet">
@@ -72,12 +72,6 @@
         body {
             font-family: 'Poppins', sans-serif;
             background-color: var(--bg-secondary);
-            color: var(--text-primary);
-            line-height: 1.5; /* کاهش فاصله خطوط */
-            transition: var(--transition-slow);
-        }
-        html[lang="fa"] body {
-            font-family: 'Noto Kufi Arabic', 'Poppins', sans-serif;
         }
 
         h1, h2, h3, h4, h5, h6, .logo, .btn {
@@ -112,6 +106,11 @@
             border-top: 4px solid var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+        }
+        .rtl-text {
+            font-family: 'Vazirmatn', 'Poppins', sans-serif;
+            direction: rtl;
+            text-align: right;
         }
 
         @keyframes spin {
@@ -1528,7 +1527,9 @@
         #shareProfileModal .modal-content {
             background: transparent;
             padding: 0;
-            max-width: 400px;
+            width: 90vw; /* Use viewport width for responsiveness */
+            max-width: 380px; /* Set a max width for larger screens */
+            aspect-ratio: 1080 / 1440; /* Set the desired vertical aspect ratio */
             box-shadow: none;
         }
 
@@ -1545,13 +1546,21 @@
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
             overflow: hidden; /* To contain the pseudo-element */
         }
+        #shareCard > * {
+            position: relative;
+            z-index: 1;
+        }
+        #shareCard {
+            isolation: isolate;
+        }
         #shareCard::before {
             content: '';
             position: absolute;
             inset: 0;
-            background-image: url('https://i.postimg.cc/MHvGnPdQ/99534f69f891e3a2febe8bc30c6d0da8.jpg');
+            background-image: url('https://i.postimg.cc/9FQ0TsnX/23456.png');
             background-size: cover;
-            opacity: 0.04;
+            background-position: center;
+            filter: brightness(0.4); /* تاریک کردن پس‌زمینه برای خوانایی بهتر متن */
         }
 
         .dark-theme #shareCard {
@@ -1571,7 +1580,7 @@
         #shareCard .site-logo-container span {
             font-family: 'Michroma', sans-serif;
             font-size: 1.5rem;
-            color: var(--dark-gray);
+            color: var(--white);
         }
         .dark-theme #shareCard .site-logo-container span {
             color: var(--white);
@@ -1587,15 +1596,9 @@
         #shareCard #shareName {
             font-size: 1.5rem;
             font-weight: 300;
-            font-family: 'Comfortaa', cursive;
-            background: linear-gradient(45deg, #555, #000);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-family: 'Comfortaa', cursive;            
+            color: #d14943;
             margin: 0;
-        }
-
-        .dark-theme #shareCard #shareName {
-            color: var(--text-primary);
         }
 
         #shareCard .tagline {
@@ -1604,7 +1607,7 @@
             letter-spacing: 4px;
             font-size: 0.6rem;
             text-transform: uppercase;
-            color: var(--text-secondary);
+            color: rgba(255, 255, 255, 0.7);
             margin-top: -15px;
         }
 
@@ -1618,17 +1621,12 @@
 
         #qrCodeContainer {
             position: relative;
-            padding: 15px;
-            background: linear-gradient(145deg, #e6e6e6, #ffffff);
-            border-radius: 18px;
             display: inline-block; /* To wrap around the QR code */
-            border: 1px solid rgba(0,0,0,0.05);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
         }
-        #qrCodeContainer > canvas, #qrCodeContainer > img:not(.qr-avatar) {
-            background: white;
-            padding: 8px;
-            border-radius: 12px;
+        #qrCodeContainer > canvas, #qrCodeContainer > img:not(.qr-avatar) { /* برای اطمینان از شفافیت پس‌زمینه QR Code */
+            background: transparent;
+            /* padding: 8px; */ /* Padding is no longer needed */
+            /* border-radius: 12px; */ /* Radius is no longer needed */
         }
         #qrCodeContainer .qr-avatar {
             position: absolute;
@@ -1641,9 +1639,90 @@
             border: 3px solid white;
             background: white;
         }
-        .dark-theme #qrCodeContainer {
-            background: linear-gradient(145deg, #2c2c2e, #3a3a3c);
-            border-color: rgba(255,255,255,0.1);
+        #qrCodeContainer {
+            position: relative;
+            display: inline-block; /* To wrap around the QR code */
+            margin-bottom: 15px;
+            /* Glassmorphism effect for QR code background */
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px; /* A nice rounded corner for the glass */
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+
+        }
+        .qr-avatar {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 3px solid white; /* White border to match the QR code */
+        }
+
+        /* Floating glass footer for share card */
+        #shareCard .modal-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            
+            /* Layout */
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            margin-top: 0;
+            z-index: 2;
+        }
+
+        #shareCard .modal-footer .btn {
+            /* Individual Glassmorphism for each button */
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 50px; /* Pill shape for each button */
+            color: var(--white);
+            flex-grow: 1; /* Make buttons share space */
+        }
+        #shareCard .modal-footer .btn-primary {
+            background: rgba(255, 255, 255, 0.2); /* Make primary button slightly more prominent */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        
+        #shareCard .share-avatar {
+            width: 150px; /* Reduced size */
+            height: 150px; /* Reduced size */
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 5px; /* Add padding for a glass inset effect */
+            background-color: rgba(255, 255, 255, 0.1); /* Subtle background for the glass effect */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); /* Soft glow */
+        }
+        .user-info-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        #shareCard #shareName {
+            margin: 0; /* Reset margin */
+        }
+        #qrCodeContainer canvas {
+            border-radius: 8px; /* Add a slight radius to the QR code canvas */
+        }
+        
+        #shareCard .share-avatar {
+            width: 100%;
+            height: 100%;
+            border: none; /* Border is now on the glass container */
+            padding: 0;
         }
     </style>
 </head>
@@ -1830,6 +1909,9 @@
                                 <button onclick="removePostCode()" class="btn-icon" style="background: transparent; color: var(--danger);"><i class="fas fa-times"></i></button>
                             </div>
                         </div>
+                        <div id="postYoutubePreviewContainer" class="hidden" style="margin-top: 16px;">
+                            <!-- YouTube iframe preview will be injected here -->
+                        </div>
                         <div class="create-post-actions">
                             <div class="action-buttons">
                                 <label for="postImageInput" class="action-button" data-i18n-title-key="add_image" title="Add Image">
@@ -1847,6 +1929,9 @@
                                 </button>
                                 <button class="action-button" data-i18n-title-key="add_vedez" title="Add Vedez" onclick="showAddVedezModal()">
                                     <i class="fas fa-video"></i>
+                                </button>
+                                <button class="action-button" data-i18n-title-key="add_youtube" title="Add YouTube Video" onclick="showYoutubeModal()">
+                                    <i class="fab fa-youtube"></i>
                                 </button>
                             </div>
                             <button class="btn btn-primary" onclick="createPost()">
@@ -2094,14 +2179,14 @@
                 </div>
                 <p class="tagline">DREAM BOLD THEN BUILD /.</p>
                 <div class="separator"></div>
-                <div id="qrCodeContainer"></div>
+                <div id="qrCodeContainer" style="margin-top: 15px;"></div>
                 <h3 id="shareName" style="margin-top: 10px;"></h3>
                 <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">Scan to view profile</p>
-            </div>
-            <div class="modal-footer" style="background: var(--card-bg); border-radius: var(--border-radius-lg); margin-top: 15px; padding: 15px;">
-                <button class="btn btn-secondary" onclick="closeModal('shareProfileModal')">Close</button>
-                <button class="btn btn-secondary" onclick="downloadShareCard()"><i class="fas fa-download"></i> Download</button>
-                <button class="btn btn-primary" onclick="shareProfile()"><i class="fas fa-share-alt"></i> Share</button>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('shareProfileModal')">Close</button>
+                    <button class="btn btn-secondary" onclick="downloadShareCard()"><i class="fas fa-download"></i> Download</button>
+                    <button class="btn btn-primary" onclick="shareProfile()"><i class="fas fa-share-alt"></i> Share</button>
+                </div>
             </div>
         </div>
     </div>
@@ -2283,6 +2368,26 @@
         </div>
     </div>
 
+    <!-- Add YouTube Modal -->
+    <div id="addYoutubeModal" class="modal hidden">
+        <div class="modal-content card">
+            <div class="card-header">
+                <h3 class="card-title">Embed YouTube Video</h3>
+                <button class="btn-icon" onclick="closeModal('addYoutubeModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label for="youtubeUrlInput">YouTube Video URL</label>
+                    <input type="url" id="youtubeUrlInput" class="form-input" placeholder="e.g., https://www.youtube.com/watch?v=...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addYoutubeModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="attachYoutubeVideo()">Embed Video</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Supabase initialization
         const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
@@ -2295,6 +2400,7 @@
         let loadedProfileData = null;
         let attachedCodeSnippet = null;
         let attachedVedezFile = null;
+        let attachedYoutubeVideo = null;
         let scrollObserver = null;
         let videoObserver = null;
 
@@ -2830,9 +2936,10 @@
             const genericFile = document.getElementById('postFileInput').files[0];
             const vedezFile = attachedVedezFile;
 
+            const youtubeVideo = attachedYoutubeVideo; // Capture the state
             
 
-            if (!content && !imageFile && !genericFile && !attachedCodeSnippet && !vedezFile) {
+            if (!content && !imageFile && !genericFile && !attachedCodeSnippet && !vedezFile && !youtubeVideo) {
                 alert(getTranslation('post_empty_alert'));
                 return;
             }
@@ -2843,6 +2950,15 @@
             let attachmentUrl = null;
             let attachmentMetadata = null;
             let finalCodeSnippet = attachedCodeSnippet;
+
+            // Add YouTube video info to metadata
+            if (youtubeVideo) {
+                attachmentMetadata = { 
+                    type: 'youtube', 
+                    url: youtubeVideo.embedUrl,
+                    originalUrl: youtubeVideo.originalUrl
+                };
+            }
 
             // Upload image if exists
             if (imageFile) {
@@ -2965,6 +3081,7 @@
                 removePostImage();
                 removePostCode();
                 removePostFile();
+                removeYoutubeVideo();
                 closeModal('addVedezModal');
                 
                 // Update post count
@@ -3046,6 +3163,7 @@
             // Check if the post is a vedez
             const isVedez = post.attachment_metadata && post.attachment_metadata.type === 'vedez';
             let vedezHtml = '';
+            const isYoutube = post.attachment_metadata && post.attachment_metadata.type === 'youtube';
             if (isVedez) {
                 vedezHtml = `
                     <div class="post-image-container" style="background-color: #000;">
@@ -3056,6 +3174,13 @@
                                 <button class="btn-icon video-control-btn" data-action="mute-unmute"><i class="fas fa-volume-mute"></i></button>
                             </div>
                         </div>
+                    </div>`;
+            }
+            let youtubeHtml = '';
+            if (isYoutube) {
+                youtubeHtml = `
+                    <div class="post-image-container" style="background-color: #000;">
+                        <iframe src="${post.attachment_metadata.url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: var(--border-radius-sm);"></iframe>
                     </div>`;
             }
 
@@ -3120,8 +3245,7 @@
                     </div>
                 </div>
                 <div class="post-content">
-                    ${contentHtml}
-                    ${isVedez ? vedezHtml : imageHtml}
+                    ${contentHtml}${isVedez ? vedezHtml : (isYoutube ? youtubeHtml : imageHtml)}
                     ${codeHtml}
                     ${attachmentHtml}
                 </div>
@@ -3129,14 +3253,6 @@
                     <div class="post-action ${isLikedByCurrentUser ? 'liked' : ''}" onclick="toggleLike('${post.id}')">
                         <i class="fas fa-heart"></i>
                         <span id="like-count-${post.id}">${likes}</span>
-                    </div>
-                    <div class="post-action" data-i18n-key="share">
-                        <i class="fas fa-share-alt"></i>
-                        <span>Share</span>
-                    </div>
-                    <div class="post-action" data-i18n-key="save">
-                        <i class="fas fa-bookmark"></i>
-                        <span>Save</span>
                     </div>
                 </div>
             `;
@@ -3334,6 +3450,7 @@
         function previewPostImage(event) {
             const input = event.target;
             if (input.files && input.files[0]) {
+                removeYoutubeVideo();
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     document.getElementById('postImagePreview').src = e.target.result; // This is correct
@@ -3352,6 +3469,7 @@
         function previewPostFile(event) {
             const input = event.target;
             if (input.files && input.files[0]) {
+                removeYoutubeVideo();
                 const file = input.files[0];
                 document.getElementById('postFileName').textContent = file.name;
                 document.getElementById('postFilePreviewContainer').classList.remove('hidden');
@@ -3411,6 +3529,7 @@
             errorEl.style.display = 'none';
             publishBtn.disabled = true;
             attachedVedezFile = null;
+            removeYoutubeVideo();
 
             if (file) {
                 const videoUrl = URL.createObjectURL(file);
@@ -3428,6 +3547,54 @@
                     }
                 };
             }
+        }
+
+        function showYoutubeModal() {
+            openModal('addYoutubeModal');
+        }
+
+        function getYoutubeVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function attachYoutubeVideo() {
+            const urlInput = document.getElementById('youtubeUrlInput');
+            const url = urlInput.value.trim();
+            if (!url) {
+                alert('Please enter a YouTube URL.');
+                return;
+            }
+
+            const videoId = getYoutubeVideoId(url);
+            if (!videoId) {
+                alert('Invalid YouTube URL. Please check the link and try again.');
+                return;
+            }
+
+            removePostImage();
+            removePostFile();
+
+            const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+            attachedYoutubeVideo = { embedUrl: embedUrl, originalUrl: url };
+
+            const previewContainer = document.getElementById('postYoutubePreviewContainer');
+            previewContainer.innerHTML = `
+                <div class="post-image-container">
+                    <iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: var(--border-radius-sm);"></iframe>
+                    <button onclick="removeYoutubeVideo()" class="btn-icon" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white;"><i class="fas fa-times"></i></button>
+                </div>`;
+            previewContainer.classList.remove('hidden');
+            closeModal('addYoutubeModal');
+            urlInput.value = '';
+        }
+
+        function removeYoutubeVideo() {
+            attachedYoutubeVideo = null;
+            const previewContainer = document.getElementById('postYoutubePreviewContainer');
+            previewContainer.innerHTML = '';
+            previewContainer.classList.add('hidden');
         }
         // Filter posts
         function filterPosts() {
@@ -4092,14 +4259,28 @@
             const qrContainer = document.getElementById('qrCodeContainer');
             qrContainer.innerHTML = ''; // Clear previous QR code
             const shareUrl = `${window.location.origin}${window.location.pathname.replace('profile.html', 'user.html')}?username=${loadedProfileData.username}`;
+            
             new QRCode(qrContainer, {
                 text: shareUrl,
-                width: 130,
-                height: 130,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
+                width: 200,
+                height: 200,
+                colorDark : "#FFFFFF", // Use solid white as a mask
+                colorLight : "rgba(0,0,0,0)", // پس‌زمینه شفاف
                 correctLevel : QRCode.CorrectLevel.H
             });
+
+            // Apply a gradient to the generated QR code canvas
+            const canvas = qrContainer.querySelector('canvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                gradient.addColorStop(0, '#ff8a00'); // A nice orange
+                gradient.addColorStop(1, '#e52e71'); // A nice pink/magenta
+
+                ctx.globalCompositeOperation = 'source-in';
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
 
             // Add avatar to the center of QR code
             const avatarImg = document.createElement('img');
@@ -4107,35 +4288,28 @@
             avatarImg.className = 'qr-avatar';
             qrContainer.appendChild(avatarImg);
 
-
-            openModal('shareProfileModal');
+            openModal('shareProfileModal'); // این خط باید بعد از ایجاد QR Code باشد
         }
 
         async function downloadShareCard() {
             const cardElement = document.getElementById('shareCard');
-            const shareNameElement = document.getElementById('shareName');
-            const isDark = document.body.classList.contains('dark-theme');
+            const footerElement = cardElement.querySelector('.modal-footer');
 
-            // Temporarily change style for rendering to avoid html2canvas bug with background-clip: text
-            const originalStyles = {
-                background: shareNameElement.style.background,
-                webkitBackgroundClip: shareNameElement.style.webkitBackgroundClip,
-                webkitTextFillColor: shareNameElement.style.webkitTextFillColor,
-                color: shareNameElement.style.color
-            };
+            // Hide the footer before taking the screenshot
+            if (footerElement) {
+                footerElement.style.display = 'none';
+            }
+            
+            const canvas = await html2canvas(cardElement, { 
+                useCORS: true,
+                scale: 3, // Increase scale for much better quality
+                backgroundColor: null // Ensure transparency is handled correctly
+            });
 
-            shareNameElement.style.background = 'none';
-            shareNameElement.style.webkitBackgroundClip = 'border-box';
-            shareNameElement.style.webkitTextFillColor = 'initial';
-            shareNameElement.style.color = isDark ? 'var(--text-primary)' : 'var(--dark-gray)';
-
-            const canvas = await html2canvas(cardElement, { useCORS: true });
-
-            // Revert styles back to original
-            shareNameElement.style.background = originalStyles.background;
-            shareNameElement.style.webkitBackgroundClip = originalStyles.webkitBackgroundClip;
-            shareNameElement.style.webkitTextFillColor = originalStyles.webkitTextFillColor;
-            shareNameElement.style.color = originalStyles.color;
+            // Show the footer again after taking the screenshot
+            if (footerElement) {
+                footerElement.style.display = 'flex';
+            }
 
             const link = document.createElement('a');
             link.download = `${loadedProfileData.username}_profile_card.png`;
@@ -4235,6 +4409,9 @@
             document.querySelectorAll('[data-i18n-key]').forEach(el => el.innerHTML = getTranslation(el.getAttribute('data-i18n-key')));
             document.querySelectorAll('[data-i18n-placeholder-key]').forEach(el => el.placeholder = getTranslation(el.getAttribute('data-i18n-placeholder-key')));
             document.querySelectorAll('[data-i18n-title-key]').forEach(el => el.title = getTranslation(el.getAttribute('data-i18n-title-key')));
+            document.querySelectorAll('.form-input').forEach(el => {
+                el.style.fontFamily = lang === 'fa' ? "'Vazirmatn', 'Poppins', sans-serif" : "'Poppins', sans-serif";
+            });
         }
         async function handlePostHighlight(postId, commentId) {
             // Use a small timeout to ensure posts are rendered

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Messages - SJDVerse</title>
     <link rel="icon" href="https://i.postimg.cc/5tQ2wfY2/logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -272,6 +273,7 @@
             currentUser = session.user;
             updateUserNav(currentUser);
             await loadConversations();
+            subscribeToConversations(); // Subscribe to real-time updates
 
             // Initialize theme
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -291,7 +293,7 @@
 
             if (error) {
                 console.error('Error loading conversations:', error);
-                conversationsContainer.innerHTML = `<p class="placeholder">${getTranslation('conversations_load_error')}</p>`;
+                conversationsContainer.innerHTML = `<p class="placeholder" style="color: var(--danger);">${getTranslation('conversations_load_error')} <br><small>${error.message}</small></p>`;
                 return;
             }
 
@@ -306,7 +308,7 @@
                 return;
             }
 
-            // دریافت تعداد پیام‌های خوانده‌نشده برای هر گفتگو
+            // Get the number of unread messages for each conversation
             const conversationsWithUnread = await Promise.all(
                 data.map(async (convo) => {
                     const { count, error: countError } = await _supabase
@@ -324,9 +326,6 @@
                     return { ...convo, unread_count: count };
                 })
             );
-
-            // مرتب‌سازی گفتگوها بر اساس جدیدترین پیام (نزولی)
-            conversationsWithUnread.sort((a, b) => new Date(b.last_message_at) - new Date(a.last_message_at));
 
             const lang = document.documentElement.lang || 'en';
             conversationsContainer.innerHTML = conversationsWithUnread.map(convo => {
@@ -360,6 +359,30 @@
                         </a>
                 `;
             }).join('');
+        }
+
+        function subscribeToConversations() {
+            // Create a channel name that is unique but predictable
+            const channelName = `user-conversations-${currentUser.id}`;
+            
+            const channel = _supabase.channel(channelName, {
+                config: {
+                    broadcast: {
+                        self: true, // Receive events from the same client
+                    },
+                },
+            });
+
+            channel
+                .on('postgres_changes', { 
+                    event: 'INSERT', 
+                    schema: 'public', 
+                    table: 'messages' 
+                }, (payload) => {
+                    console.log('New message received, reloading conversations:', payload);
+                    loadConversations(); // Reload conversations to re-order the list
+                })
+                .subscribe();
         }
 
         function toggleConversationMenu(event, conversationId) {
