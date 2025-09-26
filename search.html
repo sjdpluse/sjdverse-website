@@ -382,6 +382,7 @@
             const { data: profiles, error } = await _supabase
                 .from('profiles')
                 .select('id, username, full_name, avatar_url, is_verified')
+                .not('username', 'is', null) // <-- این خط برای فیلتر کردن کاربران بدون نام کاربری اضافه شد
                 .not('id', 'in', `(${excludedIds.join(',')})`)
                 .limit(50);
 

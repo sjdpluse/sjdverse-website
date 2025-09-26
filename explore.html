@@ -804,6 +804,7 @@
             const { data: profiles, error } = await _supabase
                 .from('profiles')
                 .select('id, username, full_name, avatar_url, is_verified')
+                .not('username', 'is', null) // <-- این خط اضافه شده است
                 .not('id', 'in', `(${excludedIds.join(',')})`)
                 .limit(50); // Fetch 50 to get a random 15
 

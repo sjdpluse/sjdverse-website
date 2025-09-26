@@ -305,6 +305,12 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        .form-message {
+            padding: 15px; background: rgba(188, 216, 253, 0.2); border-radius: 12px;
+            border: 1px solid var(--p3); color: var(--p5); font-size: 0.9rem;
+            margin-bottom: 20px; text-align: center; line-height: 1.5;
+        }
+
         .step-indicator {
             display: flex;
             justify-content: center;
@@ -1291,6 +1297,29 @@
                     </div>
                 </form>
 
+                <!-- Google Sign Up - Step 2: Choose Username -->
+                <form class="auth-form" id="googleUsernameForm">
+                    <div class="form-step active">
+                        <h3 style="text-align: center; margin-bottom: 15px; font-family: 'Montserrat', sans-serif;">One Last Step!</h3>
+                        <p class="form-message">
+                            Welcome! To complete your SJDVerse profile, please choose a unique username.
+                        </p>
+                        <div class="form-group">
+                            <label for="googleUsername">Username</label>
+                            <div class="input-with-icon">
+                                <input type="text" id="googleUsername" class="form-input" required pattern="^[a-z0-9_]{4,20}$" title="Username must be 4-20 characters, lowercase, and can only contain letters, numbers, and underscores." placeholder="e.g., Zahra_123">
+                                <i class="fas fa-at"></i>
+                            </div>
+                            <p style="font-size: 0.8rem; color: var(--p5); opacity: 0.7; margin-top: 5px;">Must be unique, lowercase, 4-20 characters (a-z, 0-9, _).</p>
+                        </div>
+                        <div class="form-navigation" style="justify-content: flex-end;">
+                            <button type="button" id="completeProfileBtn" class="btn btn-primary" onclick="handleGoogleProfileCompletion()">
+                                Complete Profile <i class="fas fa-check"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
                 <!-- Sign In Form -->
                 <form class="auth-form" id="signInForm">
                     <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px;">
@@ -1542,11 +1571,12 @@
         }
         // Listen for auth state changes
         _supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
+            if (event === 'SIGNED_IN') {
                 currentUser = session.user;
-                if (event === 'SIGNED_IN') {
-                    window.location.href = 'profile.html'; // Redirect to user's own profile
-                }
+                // Check if the user needs to complete their profile (e.g., after Google sign-up)
+                checkProfileCompletion(currentUser);
+            } else if (event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
+                currentUser = session.user;
             } else if (event === 'SIGNED_OUT') {
                 currentUser = null;
                 document.getElementById('authOverlay').style.display = 'flex';
@@ -1555,6 +1585,20 @@
             }
             updateUserNav();
         });
+
+        async function checkProfileCompletion(user) {
+            const { data: profile, error } = await _supabase.from('profiles').select('username').eq('id', user.id).single();
+
+            if (error && error.code !== 'PGRST116') { // PGRST116 means no row found, which is fine for a new user
+                showNotification('Error checking profile. Please refresh.', 'error');
+            } else if (!profile || !profile.username) {
+                // User signed in but has no username. Show the completion form.
+                showGoogleUsernameForm();
+            } else {
+                // Profile is complete, redirect to their profile page.
+                window.location.href = 'profile.html';
+            }
+        }
 
         // Re-check auth status when tab becomes visible again
         // This ensures the header is updated if the profile was changed in another tab/page
@@ -1569,7 +1613,8 @@
             const { data: { session } } = await _supabase.auth.getSession();
             if (session) {
                 currentUser = session.user;
-                window.location.href = 'profile.html'; // Redirect to profile if already logged in
+                // The onAuthStateChange listener will handle the redirect or profile completion form.
+                // We don't need to redirect from here anymore.
                 await updateUnreadCount();
             } else {
                 document.getElementById('loading').classList.add('hidden');
@@ -1586,8 +1631,12 @@
             if (currentUser) {
                 guestNav.style.display = 'none';
                 userNav.style.display = 'flex';
-                userNameEl.textContent = currentUser.user_metadata.full_name || currentUser.email;
-                userAvatarEl.src = currentUser.user_metadata.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
+                
+                // Fetch profile data to get the name and avatar
+                const { data: profile } = await _supabase.from('profiles').select('full_name, avatar_url').eq('id', currentUser.id).single();
+
+                userNameEl.textContent = profile?.full_name || currentUser.email;
+                userAvatarEl.src = profile?.avatar_url || currentUser.user_metadata.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
                 
                 // Subscribe to global message notifications
                 subscribeToGlobalMessages();
@@ -1600,6 +1649,7 @@
         function showSignUp() {
             document.getElementById('authButtons').style.display = 'none';
             document.getElementById('signInForm').classList.remove('active');
+            document.getElementById('googleUsernameForm').classList.remove('active');
             document.getElementById('signUpForm').classList.add('active');
             currentStep = 1;
             updateStepIndicator();
@@ -1610,6 +1660,7 @@
         function showSignIn() {
             document.getElementById('authButtons').style.display = 'none';
             document.getElementById('signUpForm').classList.remove('active');
+            document.getElementById('googleUsernameForm').classList.remove('active');
             document.getElementById('signInForm').classList.add('active');
         }
 
@@ -1617,7 +1668,66 @@
             document.getElementById('authButtons').style.display = 'block';
             document.getElementById('signUpForm').classList.remove('active');
             document.getElementById('signInForm').classList.remove('active');
+            document.getElementById('googleUsernameForm').classList.remove('active');
             currentStep = 1;
+        }
+
+        function showGoogleUsernameForm() {
+            document.getElementById('authButtons').style.display = 'none';
+            document.getElementById('signInForm').classList.remove('active');
+            document.getElementById('signUpForm').classList.remove('active');
+            document.getElementById('googleUsernameForm').classList.add('active');
+        }
+
+        async function handleGoogleProfileCompletion() {
+            const usernameInput = document.getElementById('googleUsername');
+            const username = usernameInput.value.trim().toLowerCase();
+            const completeBtn = document.getElementById('completeProfileBtn');
+
+            if (!/^[a-z0-9_]{4,20}$/.test(username)) {
+                showNotification('Username must be 4-20 characters, lowercase, and can only contain letters, numbers, and underscores.', 'error');
+                return;
+            }
+
+            completeBtn.disabled = true;
+            completeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+
+            // Check for username availability
+            const { data, error: checkError } = await _supabase
+                .from('profiles')
+                .select('username')
+                .eq('username', username)
+                .single();
+
+            if (data) {
+                showNotification('This username is already taken. Please choose another one.', 'error');
+                completeBtn.disabled = false;
+                completeBtn.innerHTML = 'Complete Profile <i class="fas fa-check"></i>';
+                return;
+            }
+            if (checkError && checkError.code !== 'PGRST116') {
+                showNotification('Error checking username. Please try again.', 'error');
+                completeBtn.disabled = false;
+                completeBtn.innerHTML = 'Complete Profile <i class="fas fa-check"></i>';
+                return;
+            }
+
+            // Update the user's profile with the chosen username
+            const { error: updateError } = await _supabase
+                .from('profiles')
+                .update({ username: username })
+                .eq('id', currentUser.id);
+
+            if (updateError) {
+                showNotification('Error saving username. Please try again.', 'error');
+                completeBtn.disabled = false;
+                completeBtn.innerHTML = 'Complete Profile <i class="fas fa-check"></i>';
+            } else {
+                showNotification('Profile completed! Welcome to SJDVerse.', 'success');
+                setTimeout(() => {
+                    window.location.href = 'profile.html';
+                }, 1500);
+            }
         }
 
         async function nextStep(step) {
