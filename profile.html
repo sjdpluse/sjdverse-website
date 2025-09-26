@@ -2532,6 +2532,12 @@
             // Add skill with Enter key or button click
             const skillInput = document.getElementById('skillInput');
             const addSkillBtn = document.getElementById('addSkillBtn');
+            if (addSkillBtn) {
+                addSkillBtn.addEventListener('click', addSkillFromInput);
+            } else {
+                console.error("Add Skill button not found!");
+            }
+
             if (skillInput && addSkillBtn) {
                 addSkillBtn.addEventListener('click', addSkillFromInput);
                 skillInput.addEventListener('keypress', (e) => {
@@ -2916,6 +2922,8 @@
                 if (placeholder && placeholder.textContent === getTranslation('no_skills')) {
                     placeholder.remove();
                 }
+
+                
 
                 const tag = document.createElement('span');
                 tag.className = 'skill-tag skill-tag-edit';
