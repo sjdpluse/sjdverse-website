@@ -2673,13 +2673,13 @@
         // Update skill tags display
         function updateSkillTags(skillsArray, containerId, isEditable = false) {
             const skillsContainer = document.getElementById(containerId);
+            skillsContainer.innerHTML = ''; // Clear existing tags first
             
             // Check if it's a valid array and has items
             if (!Array.isArray(skillsArray) || skillsArray.length === 0) {
                 skillsContainer.innerHTML = `<span class="skill-tag">${getTranslation('no_skills')}</span>`;
                 return;
             }
-            
             // The input is already an array, just filter out empty values
             const skills = skillsArray.filter(skill => skill && skill.trim() !== '');
             
@@ -2687,8 +2687,6 @@
                 skillsContainer.innerHTML = `<span class="skill-tag">${getTranslation('no_skills')}</span>`;
                 return;
             }
-            
-            skillsContainer.innerHTML = '';
             skills.forEach(skill => {
                 const tag = document.createElement('span');
                 tag.className = isEditable ? 'skill-tag skill-tag-edit' : 'skill-tag';
@@ -2911,6 +2909,12 @@
                 if (existingSkills.includes(skill.toLowerCase())) {
                     alert('This skill has already been added.');
                     return;
+                }
+
+                // If it's the first skill, remove the "No skills added" placeholder
+                const placeholder = skillsContainer.querySelector('.skill-tag');
+                if (placeholder && placeholder.textContent === getTranslation('no_skills')) {
+                    placeholder.remove();
                 }
 
                 const tag = document.createElement('span');
