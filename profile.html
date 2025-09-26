@@ -2911,7 +2911,9 @@
 
             if (skill) {
                 // Check for duplicates
-                const existingSkills = Array.from(skillsContainer.querySelectorAll('.skill-tag')).map(tag => tag.dataset.skill.toLowerCase());
+                const existingSkills = Array.from(skillsContainer.querySelectorAll('.skill-tag'))
+                    .filter(tag => tag.dataset.skill) // Only check tags that have a skill
+                    .map(tag => tag.dataset.skill.toLowerCase());
                 if (existingSkills.includes(skill.toLowerCase())) {
                     alert('This skill has already been added.');
                     return;
