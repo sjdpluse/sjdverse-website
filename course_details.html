@@ -16,19 +16,25 @@
     <style>
         :root {
             --p1: #d8f4a0; --p2: #fdc7d5; --p3: #bcd8fd; --p4: #ffeca8; --p5: #5d5c5c;
-            --white: #ffffff; --light-gray: #f8f9fa; --medium-gray: #e6e6e6; --dark-gray: #343a40;
+            --white: #ffffff; --light-gray: #f8f9fa; --medium-gray: #efefef; --dark-gray: #343a40;
             --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.06); 
             --border-radius: 16px; 
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
             /* Light Theme (default) */
-            --bg-primary: var(--white);
-            --bg-secondary: var(--light-gray);
+            --bg-primary: var(--white); 
+            --bg-secondary: #efefef; /* Changed as requested */
             --text-primary: var(--dark-gray);
             --text-secondary: var(--p5);
             --border-color: var(--medium-gray);
             --card-bg: var(--bg-primary);
             --primary: var(--p3);
+
+            /* Layout variables */
+            --header-height: 60px;
+            --footer-height: 112px; /* Approximate height of the bottom bar */
+            --main-content-top-margin: 20px;
+            --chat-bottom-gap: 80px; /* New variable for space above footer */
         }
 
         .dark-theme {
@@ -107,13 +113,18 @@
         /* Main Layout */
         .container {
             max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 20px;
-            /* The main content area */
+            margin: var(--main-content-top-margin) auto;
+            padding: 0 20px 0 calc(350px + 24px + 20px); /* Left padding = sidebar width + gap + original padding */
             gap: 24px;
             padding-bottom: 300px; /* Add space for the fixed footer */
         }
 
+        .main-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            min-width: 0; /* Prevents grid blowout */
+        }
         .course-main-content {
             background: var(--medium-gray);
             border-radius: var(--border-radius);
@@ -123,6 +134,237 @@
         .dark-theme .course-main-content {
             background: var(--bg-primary);
         }
+
+        /* Course Chat Sidebar Styles */
+        .course-chat-sidebar {
+            position: fixed;
+            left: 20px;
+            top: calc(var(--header-height) + var(--main-content-top-margin));
+            height: calc(100vh - var(--header-height) - var(--footer-height) - var(--main-content-top-margin) - var(--chat-bottom-gap));
+            display: flex;
+            flex-direction: column;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
+            width: 350px;
+        }
+        .course-chat-sidebar h3 {
+            padding: 16px 20px;
+            margin: 0;
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .chat-messages-area {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-message {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            max-width: 90%;
+        }
+        .chat-message.sent {
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+        .chat-message img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-top: 5px;
+        }
+        .chat-message-content {
+            background: var(--bg-secondary);
+            padding: 8px 12px;
+            border-radius: 12px;
+        }
+        .chat-message.sent .chat-message-content {
+            background: var(--primary);
+            color: var(--dark-gray);
+        }
+        .chat-message-author {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .chat-message-text {
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .chat-input-area {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input {
+            flex-grow: 1;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 10px;
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+        }
+        .chat-input.rtl-text {
+            font-family: 'Vazirmatn', 'Poppins', sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
+
+        /* Download Progress Indicator */
+        .download-progress-container {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .download-progress-circle {
+            stroke: var(--primary);
+            stroke-width: 4;
+            fill: transparent;
+            transition: stroke-dashoffset 0.1s linear;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .download-progress-background { stroke: var(--border-color); stroke-width: 4; fill: transparent; }
+        .download-progress-text { position: absolute; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
+
+
+        /* Reply Preview Styles */
+        .reply-preview-area {
+            padding: 10px 15px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        .reply-preview-content {
+            border-left: 3px solid var(--primary);
+            padding-left: 10px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .reply-preview-content strong { color: var(--primary); display: block; }
+        .reply-preview-content p { margin: 0; }
+        .cancel-reply-btn { font-size: 1.2rem; }
+
+        /* Quoted Message Styles */
+        .message-actions {
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            margin: 0 8px;
+        }
+        .chat-message:hover .message-actions {
+            opacity: 1;
+        }
+        .message-action-btn {
+            background: var(--bg-secondary);
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 6px;
+            border-radius: 50%;
+            color: var(--text-secondary);
+        }
+        .dark-theme .message-action-btn { background: var(--bg-tertiary); }
+        .message-action-btn:hover { color: var(--text-primary); }
+
+        /* Custom Context Menu */
+        .custom-context-menu {
+            position: fixed;
+            z-index: 10000;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--border-color);
+            padding: 8px 0;
+            min-width: 150px;
+        }
+        .context-menu-item {
+            display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer;
+        }
+        .context-menu-item:hover { background-color: var(--bg-secondary); }
+
+        .quoted-message {
+            background: rgba(0,0,0,0.05);
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--primary);
+            font-size: 0.9rem;
+        }
+        .chat-message.sent .quoted-message { background: rgba(0,0,0,0.1); }
+
+        /* Loading Spinner in Message Bubble */
+        .msg-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-top-color: var(--text-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .chat-message.sent .msg-spinner {
+            border-top-color: var(--dark-gray);
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+
+        /* File Attachment Styles */
+        .chat-message-content .file-attachment {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 8px;
+            margin-top: 5px;
+            text-decoration: none;
+            color: inherit;
+        }
+        .chat-message.sent .file-attachment { background: rgba(0,0,0,0.1); }
+        .chat-message-content .file-attachment:hover { background: rgba(0,0,0,0.1); }
+        .chat-message-content .file-attachment i { font-size: 1.5rem; }
+        .chat-message-content .image-attachment {
+            max-width: 100%;
+            border-radius: 10px;
+            color: var(--text-primary);
+        }
+
+        /* Typing Indicator Styles */
+        .typing-dots span {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--text-secondary);
+            animation: typing-blink 1.4s infinite both;
+            margin: 0 1px;
+        }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing-blink {
+            0% { opacity: 0.2; }
+            20% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+        .chat-input:focus { outline: none; border-color: var(--primary); }
 
         .lesson-header {
             border-bottom: 1px solid var(--border-color);
@@ -727,6 +969,10 @@
             .logo-text { display: none; }
         }
     </style>
+    <style>
+        /* Responsive adjustments for the new layout */
+        @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } .course-chat-sidebar { display: none; /* Hide chat on smaller screens for now */ } }
+    </style>
 </head>
 <body>
     <!-- Header -->
@@ -773,20 +1019,43 @@
 
     <!-- Main Content -->
     <main class="container" id="mainContainer">
-        <div class="course-main-content">
-            <div class="lesson-header">
-                <h1 id="lessonTitle" data-i18n-key="welcome_to_course">Welcome to the Course</h1>
-                <div id="lessonHeaderActions"></div>
+        <aside class="course-chat-sidebar" id="courseChatSidebar">
+            <h3><i class="fas fa-comments"></i> Course Chat</h3>
+            <div id="chatMessagesArea" class="chat-messages-area">
+                <!-- Typing indicator will be injected here -->
+                <div id="typingIndicator" class="chat-message" style="display: none;">
+                    <img src="" alt="typing" id="typingAvatar">
+                    <div class="chat-message-content">
+                        <div class="typing-dots"><span></span><span></span><span></span></div>
+                    </div>
+                </div>
+                <p class="placeholder" style="margin: auto;">Loading chat...</p>
             </div>
-            <div id="lessonContent" class="lesson-content-area">
-                <p class="placeholder" data-i18n-key="select_lesson_prompt">Select a lesson from the list to begin.</p>
+            <div id="replyPreviewArea" class="reply-preview-area" style="display: none;">
+                <!-- Reply preview will be generated here by JS -->
             </div>
-        </div>
-        <div class="card card-alt-bg" style="margin-top: 24px;">
-            <div id="lessonReviewsSection" class="lesson-reviews-section">
-                <!-- Reviews and form will be rendered here by JS -->
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Send a message...">
+                <input type="file" id="fileUploadInput" style="display: none;">
+                <button class="btn-icon" id="attachFileBtn" title="Attach File"><i class="fas fa-paperclip"></i></button>
+                <button class="btn-icon" id="sendChatBtn" title="Send Message"><i class="fas fa-paper-plane"></i></button>
             </div>
-        </div>
+        </aside>
+            <div class="course-main-content">
+                <div class="lesson-header">
+                    <h1 id="lessonTitle" data-i18n-key="welcome_to_course">Welcome to the Course</h1>
+                    <div id="lessonHeaderActions"></div>
+                </div>
+                <div id="lessonContent" class="lesson-content-area">
+                    <p class="placeholder" data-i18n-key="select_lesson_prompt">Select a lesson from the list to begin.</p>
+                </div>
+            </div>
+            <!-- Reviews Section - Re-added -->
+            <div class="card card-alt-bg">
+                <div id="lessonReviewsSection" class="lesson-reviews-section">
+                    <!-- Reviews and form will be rendered here by JS -->
+                </div>
+            </div>
     </main>
 
     <!-- Fixed Footer Sidebar -->
@@ -834,6 +1103,20 @@
             </div>
             <div id="modalLessonsContainer">
                 <!-- Lessons will be rendered here by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="customAlertModal" class="modal">
+        <div class="modal-content" style="max-width: 450px; text-align: center;">
+            <div id="customAlertIcon" style="font-size: 3rem; margin-bottom: 20px;">
+                <!-- Icon will be set by JS -->
+            </div>
+            <h3 id="customAlertTitle" style="margin-bottom: 10px;"></h3>
+            <p id="customAlertMessage" style="color: var(--text-secondary); margin-bottom: 25px;"></p>
+            <div class="modal-footer" style="justify-content: center;">
+                <button id="customAlertCloseBtn" class="btn btn-primary" onclick="closeModal('customAlertModal')">OK</button>
             </div>
         </div>
     </div>
@@ -923,6 +1206,12 @@
         let isEnrolled = false;
         let lessonImageFiles = [];
         let lessonAttachmentFiles = [];
+        let chatChannel = null;
+        let typingTimeout = null;
+        let otherUsersInChat = new Map();
+        let replyingToMessage = null;
+        let editingMessage = null;
+
         let editLessonImageFiles = [];
         let editLessonAttachmentFiles = [];
 
@@ -945,7 +1234,7 @@
             fa: {
                 "welcome_to_course": "به دوره خوش آمدید", "select_lesson_prompt": "برای شروع، یک درس از لیست انتخاب کنید.",
                 "loading_course": "در حال بارگذاری دوره...", "by_instructor": "توسط", "lessons": "درس‌ها", "loading_lessons": "در حال بارگذاری درس‌ها...", "no_lessons_yet": "هنوز درسی اضافه نشده است.", "add_lesson": "افزودن درس", "add_new_lesson": "افزودن درس جدید", "edit_lesson": "ویرایش درس",
-                "lesson_title": "عنوان درس", "content_description": "محتوا (متن یا توضیحات)", "images_for_description": "تصاویر توضیحات",
+                "lesson_title": "عنوان درس", "content_description": "محتوا (متن یا توضیحات)", "images_for_description": "تصاویر برای توضیحات",
                 "attachments_multiple": "فایل‌های ضمیمه", "replace_images": "جایگزینی تصاویر (اختیاری)", "replace_attachments": "جایگزینی ضمیمه‌ها (اختیاری)",
                 "cancel": "انصراف", "save_changes": "ذخیره تغییرات", "course_id_not_found": "شناسه دوره یافت نشد.", "could_not_load_course": "جزئیات دوره بارگذاری نشد.",
                 "error_loading_lessons": "خطا در بارگذاری درس‌ها.", "no_lessons_added_by_instructor": "مربی هنوز هیچ درسی به این دوره اضافه نکرده است.",
@@ -963,19 +1252,22 @@
         // Initialize TinyMCE Rich Text Editor
         function initTinyMCE(selector) {
             const lang = localStorage.getItem('language') || 'en';
-            tinymce.init({
+            const tinymceConfig = {
                 selector: selector,
                 plugins: 'anchor autolink charmap codesample emoticons link lists media searchreplace table visualblocks wordcount markdown',
                 toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
                 height: 350,
                 menubar: true,
-                language: lang === 'fa' ? 'fa_IR' : '',
-                language_url: lang === 'fa' ? `https://cdn.tiny.cloud/1/qeb0slxpyhvq1pasb3elckze1ekoacc7ark5khb7li7g9mm4/tinymce/6/langs/fa_IR.js` : '',
-                directionality: lang === 'fa' ? 'rtl' : 'ltr',
                 // Match the site's theme
                 skin: (document.body.classList.contains('dark-theme') ? 'oxide-dark' : 'oxide'),
                 content_css: (document.body.classList.contains('dark-theme') ? 'dark' : 'default'),
-            });
+            };
+            if (lang === 'fa') {
+                tinymceConfig.language = 'fa_IR';
+                tinymceConfig.language_url = `https://cdn.tiny.cloud/1/qeb0slxpyhvq1pasb3elckze1ekoacc7ark5khb7li7g9mm4/tinymce/6/langs/fa_IR.js`;
+                tinymceConfig.directionality = 'rtl';
+            }
+            tinymce.init(tinymceConfig);
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -990,23 +1282,6 @@
             currentUser = user;
 
             await loadCourseDetails();
-
-            if (currentUser) {
-                // Check if user is enrolled in this course
-                const { count, error } = await _supabase
-                    .from('course_enrollments')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('user_id', currentUser.id)
-                    .eq('course_id', courseId);
-                if (!error && count > 0) isEnrolled = true;
-            }
-
-            initializeNewHeader();
-            const savedLang = localStorage.getItem('language') || 'en';
-            changeLanguage(savedLang);
-
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            setTheme(savedTheme, true);
 
             await loadLessons();
 
@@ -1066,6 +1341,25 @@
                     </div>
                 `;
             }
+
+            // Now that courseData is loaded, check enrollment status
+            if (currentUser) {
+                const { count, error: enrollError } = await _supabase
+                    .from('course_enrollments')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', currentUser.id)
+                    .eq('course_id', courseId);
+                if (!enrollError && count > 0) isEnrolled = true;
+            }
+
+            // Initialize header, theme, and language after checking enrollment
+            initializeNewHeader();
+            const savedLang = localStorage.getItem('language') || 'en';
+            changeLanguage(savedLang);
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme, true);
+
+            await initCourseChat(); // Initialize chat AFTER enrollment status is known
         }
 
         async function loadLessons() {
@@ -1309,6 +1603,31 @@
             loadLessonReviews(lessonId);
         }
 
+        function showAlert(title, message, type = 'info') {
+            const modal = document.getElementById('customAlertModal');
+            const iconEl = document.getElementById('customAlertIcon');
+            const titleEl = document.getElementById('customAlertTitle');
+            const messageEl = document.getElementById('customAlertMessage');
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+
+            let iconClass = 'fas fa-info-circle';
+            let iconColor = 'var(--info)';
+            if (type === 'success') {
+                iconClass = 'fas fa-check-circle';
+                iconColor = 'var(--success)';
+            } else if (type === 'error') {
+                iconClass = 'fas fa-exclamation-triangle';
+                iconColor = 'var(--danger)';
+            }
+
+            iconEl.innerHTML = `<i class="${iconClass}"></i>`;
+            iconEl.style.color = iconColor;
+
+            openModal('customAlertModal');
+        }
+
         function showAddLessonModal() {
             document.getElementById('addLessonModal').classList.add('active');
             // Initialize TinyMCE for the 'Add Lesson' modal
@@ -1395,7 +1714,7 @@
             const comment = document.getElementById('reviewComment').value.trim();
 
             if (!ratingInput) {
-                alert('Please select a star rating.');
+                showAlert('Rating Required', 'Please select a star rating.', 'error');
                 return;
             }
 
@@ -1413,12 +1732,12 @@
             if (error) {
                 console.error('Error submitting review:', error);
                 if (error.code === '23505') { // unique constraint violation
-                    alert('You have already reviewed this lesson.');
+                    showAlert('Already Reviewed', 'You have already reviewed this lesson.', 'error');
                 } else {
-                    alert('Failed to submit review. Please try again.');
+                    showAlert('Error', 'Failed to submit review. Please try again.', 'error');
                 }
             } else {
-                alert('Thank you for your review!');
+                showAlert('Thank You!', 'Your review has been submitted successfully.', 'success');
                 loadLessonReviews(lessonId); // Refresh the reviews list
             }
         }
@@ -1492,7 +1811,7 @@
             const content = tinymce.get('lessonContentInput').getContent();
             
             if (!title) {
-                alert(getTranslation('provide_one_title'));
+                showAlert('Title Required', getTranslation('provide_one_title'), 'error');
                 return;
             }
 
@@ -1512,7 +1831,7 @@
                     for (const result of uploadResults) {
                         if (result.error) {
                             if (result.error.message === 'Bucket not found') {
-                                alert('Error: Bucket "lesson-images" not found in Supabase Storage. Please create a public bucket with this name.');
+                                showAlert('Storage Error', 'Bucket "lesson-images" not found. Please contact support.', 'error');
                             }
                             throw result.error;
                         }
@@ -1530,7 +1849,7 @@
                         const { data, error } = await _supabase.storage.from('lesson-attachments').upload(fileName, file);
                         if (error) {
                             if (error.message === 'Bucket not found') {
-                                alert('Error: Bucket "lesson-attachments" not found. Please create a public bucket with this name and adjust table schema.');
+                                showAlert('Storage Error', 'Bucket "lesson-attachments" not found. Please contact support.', 'error');
                             }
                             throw error;
                         }
@@ -1557,14 +1876,14 @@
 
                 if (insertError) throw insertError;
 
-                alert(getTranslation('lesson_added_success'));
+                showAlert('Success', getTranslation('lesson_added_success'), 'success');
                 closeModal('addLessonModal');
                 document.getElementById('addLessonForm').reset();
                 await loadLessons();
 
             } catch (error) {
                 console.error(getTranslation('error_adding_lesson'), error);
-                alert(`${getTranslation('error_adding_lesson')} ${error.message}`);
+                showAlert('Error', `${getTranslation('error_adding_lesson')} ${error.message}`, 'error');
             } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
@@ -1611,7 +1930,7 @@
 
                 if (deleteError) throw deleteError;
 
-                alert(getTranslation('lesson_deleted_success'));
+                showAlert('Success', getTranslation('lesson_deleted_success'), 'success');
                 
                 // Reset view if the deleted lesson was active
                 const activeLessonEl = document.querySelector('.modal-lesson-item.active');
@@ -1624,7 +1943,7 @@
 
             } catch (error) {
                 console.error(getTranslation('error_deleting_lesson'), error);
-                alert(`${getTranslation('error_deleting_lesson')} ${error.message}`);
+                showAlert('Error', `${getTranslation('error_deleting_lesson')} ${error.message}`, 'error');
             } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
@@ -1663,7 +1982,7 @@
             const content = tinymce.get('editLessonContentInput').getContent();
 
             if (!title) {
-                alert(getTranslation('provide_one_title'));
+                showAlert('Title Required', getTranslation('provide_one_title'), 'error');
                 return;
             }
             document.getElementById('loadingOverlay').style.display = 'flex';
@@ -1736,14 +2055,14 @@
                 const { error: updateError } = await _supabase.from('course_lessons').update(updatePayload).eq('id', lessonId);
                 if (updateError) throw updateError;
 
-                alert(getTranslation('lesson_updated_success'));
+                showAlert('Success', getTranslation('lesson_updated_success'), 'success');
                 closeModal('editLessonModal');
                 await loadLessons();
                 displayLesson(lessonId); // Re-display the updated lesson
 
             } catch (error) {
                 console.error(getTranslation('error_updating_lesson'), error);
-                alert(`${getTranslation('error_updating_lesson')} ${error.message}`);
+                showAlert('Error', `${getTranslation('error_updating_lesson')} ${error.message}`, 'error');
             } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
@@ -1831,6 +2150,567 @@
                 reader.readAsDataURL(file);
             });
             */
+        }
+
+        // --- Course Chat Functionality ---
+        async function initCourseChat() {
+            if (!isEnrolled && (!courseData || currentUser?.id !== courseData.instructor_id)) {
+                const chatArea = document.getElementById('chatMessagesArea');
+                const chatInputArea = document.querySelector('.chat-input-area');
+                if (chatArea) chatArea.innerHTML = `<p class="placeholder" style="margin: auto;">Enroll to join the chat.</p>`;
+                if (chatInputArea) chatInputArea.style.display = 'none';
+                return;
+            }
+
+            await loadChatMessages();
+            subscribeToChatMessages();
+
+            document.getElementById('sendChatBtn').addEventListener('click', sendChatMessage);
+            document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendChatMessage();
+                }
+            }); 
+
+            // Broadcast typing event and handle RTL input
+            document.getElementById('chatInput').addEventListener('input', (e) => {
+                const text = e.target.value;
+                const isRtl = /[\u0600-\u06FF]/.test(text);
+                e.target.classList.toggle('rtl-text', isRtl);
+                if (chatChannel) { 
+                    chatChannel.send({ type: 'broadcast', event: 'typing', payload: { user_id: currentUser.id } });
+                }
+            });
+
+            document.getElementById('attachFileBtn').addEventListener('click', () => {
+                document.getElementById('fileUploadInput').click();
+            });
+            document.getElementById('fileUploadInput').addEventListener('change', handleFileUpload);
+        }
+
+        async function handleFileUpload(event) { //NOSONAR
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // --- Optimistic UI for File Upload ---
+            const tempId = `temp-upload-${Date.now()}`;
+            const tempMessage = {
+                id: tempId,
+                isLoading: true, // Custom flag for rendering
+                user_id: currentUser.id,
+                profile: {
+                    full_name: 'You',
+                    avatar_url: currentUser.user_metadata.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png'
+                },
+                file_metadata: { name: file.name, type: file.type }
+            };
+
+            // Render the loading message immediately
+            renderChatMessage(tempMessage);
+            const chatArea = document.getElementById('chatMessagesArea');
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            // Disable inputs during upload
+            document.getElementById('attachFileBtn').disabled = true;
+            document.getElementById('sendChatBtn').disabled = true;
+
+            try {
+                const filePath = `${courseId}/${currentUser.id}/${Date.now()}-${file.name}`;
+                const { data: uploadData, error: uploadError } = await _supabase.storage
+                    .from('course-chat-files')
+                    .upload(filePath, file);
+
+                if (uploadError) throw uploadError;
+
+                const { data: urlData } = _supabase.storage.from('course-chat-files').getPublicUrl(filePath);
+
+                const { data: finalMessage, error: insertError } = await _supabase
+                    .from('course_chat_messages')
+                    .insert({
+                        course_id: courseId,
+                        user_id: currentUser.id,
+                        content: file.name,
+                        file_url: urlData.publicUrl,
+                        file_metadata: { name: file.name, size: file.size, type: file.type }
+                    })
+                    .select('*, profile:user_id (id, full_name, avatar_url)')
+                    .single();
+
+                if (insertError) throw insertError;
+
+                // Upload successful, update the temporary message with the final content
+                const messageElement = document.getElementById(`msg-${tempId}`);
+                if (messageElement) {
+                    messageElement.id = `msg-${finalMessage.id}`; // Update ID
+                    // Re-render the content of the message bubble
+                    renderChatMessage(finalMessage, messageElement);
+                }
+
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                // Update the temporary message to show an error
+                const errorElement = document.getElementById(`msg-${tempId}`);
+                if (errorElement) {
+                    errorElement.querySelector('.chat-message-content').innerHTML = `<span style="color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Failed to upload: ${escapeHTML(file.name)}</span>`;
+                }
+            } finally {
+                document.getElementById('attachFileBtn').disabled = false;
+                document.getElementById('sendChatBtn').disabled = false;
+                event.target.value = ''; // Reset file input
+            };
+        }
+
+        async function loadChatMessages() {
+            const chatArea = document.getElementById('chatMessagesArea');
+            chatArea.innerHTML = `<p class="placeholder" style="margin: auto;">Loading chat...</p>`;
+
+            const { data, error } = await _supabase
+                .from('course_chat_messages')
+                .select('*, profile:user_id (id, full_name, avatar_url), replied_message:reply_to_message_id(*, profile:user_id(full_name))')
+                .eq('course_id', courseId)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                console.error('Error loading chat messages:', error);
+                chatArea.innerHTML = `<p class="placeholder" style="margin: auto; color: red;">Error loading chat.</p>`;
+                return;
+            }
+
+            chatArea.innerHTML = '';
+            // Cache other users' profiles
+            otherUsersInChat.clear();
+            data.forEach(msg => {
+                if (msg.profile && msg.user_id !== currentUser.id) {
+                    otherUsersInChat.set(msg.profile.id, msg.profile);
+                }
+            });
+            data.forEach(msg => renderChatMessage(msg));
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function renderChatMessage(message, existingElement = null) {
+            const chatArea = document.getElementById('chatMessagesArea'); //NOSONAR
+            const msgDiv = existingElement || document.createElement('div');
+            const isSent = message.user_id === currentUser.id;
+
+            if (!existingElement) {
+                msgDiv.id = `msg-${message.id}`;
+                msgDiv.className = `chat-message ${isSent ? 'sent' : ''}`;
+            }
+            
+            const authorName = isSent ? 'You' : (message.profile ? message.profile.full_name : 'User');
+            const authorAvatar = (message.profile ? message.profile.avatar_url : null) || 'https://i.postimg.cc/prmTzhSz/man.png';
+
+            // Handle loading state for optimistic UI
+            if (message.isLoading) {
+                msgDiv.innerHTML = `
+                    <img src="${authorAvatar}" alt="${authorName}" title="${authorName}">
+                    <div class="chat-message-content">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="msg-spinner"></div>
+                            <span>Uploading ${escapeHTML(message.file_metadata.name)}...</span>
+                        </div>
+                    </div>
+                `;
+                if (!existingElement) chatArea.appendChild(msgDiv);
+                return;
+            }
+
+            if (message.is_deleted) {
+                msgDiv.innerHTML = `
+                    <div class="chat-message-content" style="background: transparent; font-style: italic; color: var(--text-secondary);">
+                        This message was deleted.
+                    </div>
+                `;
+            } else {
+                let quotedMessageHTML = '';
+                if (message.replied_message) {
+                    const repliedTo = message.replied_message; //NOSONAR
+                    const author = repliedTo.profile?.full_name || (repliedTo.user_id === currentUser.id ? 'You' : 'User');
+                    const contentPreview = repliedTo.is_deleted 
+                        ? 'This message was deleted' 
+                        : (repliedTo.content || 'Attachment');
+                    const repliedMessageId = repliedTo.id;
+
+                    quotedMessageHTML = `
+                        <div class="quoted-message">
+                            <strong>Replying to ${escapeHTML(author)}</strong>
+                            <p>${escapeHTML(contentPreview.substring(0, 50))}${contentPreview.length > 50 ? '...' : ''}</p>
+                        </div>`;
+                }
+                let fileHTML = '';
+                if (message.file_url && message.file_metadata) {
+                    const meta = message.file_metadata;
+                    const fileInfo = escapeHTML(JSON.stringify({ url: message.file_url, meta: meta }));
+                    const downloadButtonHTML = `<button class="btn-icon" style="margin-left: auto; background: rgba(0,0,0,0.1);" onclick='downloadFileWithProgress(event, ${fileInfo})' title="Download"><i class="fas fa-download"></i></button>`;
+
+                    if (meta.type && meta.type.startsWith('image/')) {
+                        fileHTML = `
+                            <div class="file-attachment" style="flex-direction: column; align-items: flex-start; padding: 5px;">
+                                <img src="${message.file_url}" alt="${escapeHTML(meta.name)}" class="image-attachment" style="margin-top: 0; max-width: 250px; cursor: pointer;" onclick="openImageViewer('${message.file_url}')">
+                                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 5px 5px 0;">
+                                    <span style="font-size: 0.8rem; opacity: 0.8;">${escapeHTML(meta.name)}</span>
+                                    ${downloadButtonHTML}
+                                </div>
+                            </div>`;
+                    } else {
+                        const fileSize = meta.size ? `(${(meta.size / 1024 / 1024).toFixed(2)} MB)` : '';
+                        fileHTML = `
+                            <div class="file-attachment">
+                                <i class="fas fa-file-alt"></i>
+                                <div><strong>${escapeHTML(meta.name)}</strong><small>${fileSize}</small></div>
+                                ${downloadButtonHTML}
+                            </div>`;
+                    }
+                }
+
+                const editedIndicator = message.updated_at ? `<span style="font-size: 0.7rem; color: var(--text-secondary); opacity: 0.8;"> (edited)</span>` : '';
+                const successCheck = isSent && !existingElement ? ' <i class="fas fa-check-circle" style="color: var(--success); margin-left: 5px;"></i>' : '';
+
+                const isRtl = /[\u0600-\u06FF]/.test(message.content);
+                const rtlClass = isRtl ? ' rtl-text' : '';
+
+                 msgDiv.innerHTML = `
+                    ${isSent ? `<div class="message-actions">
+                                    <button class="message-action-btn" title="Actions" onclick='showMessageMenu(event, ${JSON.stringify(message).replace(/'/g, "&apos;")})'>
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                 </div>` : ''}
+                    ${!isSent ? `<img src="${authorAvatar}" alt="${authorName}" title="${authorName}">` : ''} 
+                    <div class="chat-message-content" style="position: relative;">
+                        ${!isSent ? `<div class="chat-message-author">${escapeHTML(authorName)}</div>` : ''}
+                        ${quotedMessageHTML}
+                        <div class="chat-message-text${rtlClass}">${message.file_url ? (isSent ? `File sent ${successCheck}` : '') : escapeHTML(message.content)}</div>
+                        ${fileHTML}
+                    </div>
+                    ${!isSent ? `<div class="message-actions">
+                                    <button class="message-action-btn" title="Reply" onclick='handleReplyClick(${JSON.stringify(message).replace(/'/g, "&apos;")})'>
+                                        <i class="fas fa-reply"></i>
+                                    </button>
+                                 </div>` : ''}
+                    ${isSent ? `<img src="${authorAvatar}" alt="${authorName}" title="${authorName}">` : ''}
+                `;
+            }
+            if (!existingElement) {
+                chatArea.appendChild(msgDiv);
+            }
+
+            if (isSent && !message.is_deleted) {
+                // Context menu is now handled by the ellipsis button click
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const content = input.value.trim();
+
+            // If we are in editing mode, handle update instead of insert
+            if (editingMessage) {
+                await handleUpdateMessage(content);
+                return;
+            }
+            if (!content) return;
+
+            // --- Optimistic UI Update ---
+            // 1. Create a temporary message object to render immediately.
+            const tempMessage = {
+                id: `temp-${Date.now()}`, // Temporary unique ID
+                content: content,
+                created_at: new Date().toISOString(),
+                user_id: currentUser.id,
+                profile: { // Use the logged-in user's profile data
+                    full_name: 'You',
+                    avatar_url: currentUser.user_metadata.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png'
+                }
+            };
+
+            // 2. Render the message immediately.
+            renderChatMessage(tempMessage);
+            const chatArea = document.getElementById('chatMessagesArea');
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            // 3. Clear input and disable it while sending.
+            input.value = '';
+            input.disabled = true;
+
+            const payload = {
+                course_id: courseId,
+                user_id: currentUser.id,
+                content: content
+            };
+            if (replyingToMessage) {
+                payload.reply_to_message_id = replyingToMessage.id;
+            }
+
+            // Clear reply state after using it
+            cancelReply();
+
+            // 4. Send the actual message to the database.
+            const { data, error } = await _supabase
+                .from('course_chat_messages')
+                .insert(payload).select('id').single(); // Get the real ID back
+
+            input.disabled = false;
+            input.focus();
+
+            if (error) { //NOSONAR
+                console.error('Error sending message:', error);
+                alert('Failed to send message.');
+                // On error, remove the optimistic message
+                const failedMsg = document.getElementById(`msg-${tempMessage.id}`);
+                if (failedMsg) failedMsg.remove();
+                input.value = content;
+            } else {
+                // Replace the temporary ID with the real one from the database
+                const sentMsgElement = document.getElementById(`msg-${tempMessage.id}`);
+                if (sentMsgElement) sentMsgElement.id = `msg-${data.id}`;
+            }
+        }
+
+        function subscribeToChatMessages() {
+            chatChannel = _supabase.channel(`course-chat-${courseId}`);
+            chatChannel
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'course_chat_messages',
+                    filter: `course_id=eq.${courseId}`
+                }, async (payload) => {
+                    // Our own messages are rendered optimistically.
+                    // Only render if it's a new message from ANOTHER user.
+                    // Our own messages are rendered optimistically.
+                    if (payload.new.user_id !== currentUser.id) {
+                        
+                        // Fetch full message details to get profile and reply info for the new message
+                        const { data: message, error } = await _supabase
+                            .from('course_chat_messages')
+                            .select('*, profile:user_id (id, full_name, avatar_url), replied_message:reply_to_message_id(*, profile:user_id(full_name))')
+                            .eq('id', payload.new.id)
+                            .single();
+                        if (!error) {
+                            // Cache the profile of the new user if not already present
+                            if (message.profile && !otherUsersInChat.has(message.profile.id)) {
+                                otherUsersInChat.set(message.profile.id, message.profile);
+                            }
+                            
+                            renderChatMessage(message);
+                            const chatArea = document.getElementById('chatMessagesArea');
+                            chatArea.scrollTop = chatArea.scrollHeight;
+                        }
+                        }
+                })
+                .on('postgres_changes', {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'course_chat_messages',
+                    filter: `course_id=eq.${courseId}`
+                }, (payload) => {
+                    // Handle message edits
+                    if (payload.new.updated_at && payload.new.user_id !== currentUser.id) {
+                        const msgElement = document.getElementById(`msg-${payload.new.id}`);
+                        if (msgElement) {
+                            const textElement = msgElement.querySelector('.chat-message-text');
+                            const timeElement = msgElement.querySelector('span[style*="position: absolute"]');
+                            if (textElement) textElement.innerHTML = escapeHTML(payload.new.content);
+                            if (timeElement && !timeElement.innerText.includes('(edited)')) timeElement.innerHTML += ` <span style="font-size: 0.7rem; color: var(--text-secondary); opacity: 0.8;"> (edited)</span>`;
+                        }
+                    }
+                    // Handle message deletion
+                    if (payload.new.is_deleted) {
+                        const msgElement = document.getElementById(`msg-${payload.new.id}`);
+                        if (msgElement) {
+                            msgElement.innerHTML = `
+                                <div class="chat-message-content" style="background: transparent; font-style: italic; color: var(--text-secondary);">
+                                    This message was deleted
+                                </div>`;
+                            msgElement.removeEventListener('contextmenu', (e) => showMessageContextMenu(e, payload.new.id));
+                        }
+                    }
+                })
+                .on('broadcast', { event: 'typing' }, ({ payload }) => {
+                    if (payload.user_id !== currentUser.id) {
+                        const indicator = document.getElementById('typingIndicator');
+                        const avatar = document.getElementById('typingAvatar');
+                        const userProfile = otherUsersInChat.get(payload.user_id);
+                        
+                        if (indicator && avatar && userProfile) {
+                            avatar.src = userProfile.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
+                            indicator.style.display = 'flex';
+                            const chatArea = document.getElementById('chatMessagesArea');
+                            chatArea.scrollTop = chatArea.scrollHeight;
+
+                            clearTimeout(typingTimeout);
+                            typingTimeout = setTimeout(() => {
+                                indicator.style.display = 'none';
+                            }, 3000); // Hide after 3 seconds of inactivity
+                        }
+                    }
+                })
+                .subscribe();
+        }
+
+        function showMessageMenu(event, message) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const contextMenu = document.getElementById('messageContextMenu');
+            
+            // Position the menu
+            const rect = event.currentTarget.getBoundingClientRect();
+            contextMenu.style.top = `${rect.bottom}px`;
+            contextMenu.style.left = `${rect.left - contextMenu.offsetWidth + rect.width}px`;
+            contextMenu.style.display = 'block';
+
+            // Set up actions
+            document.getElementById('context-reply').onclick = () => { handleReplyClick(message); contextMenu.style.display = 'none'; };
+            const editBtn = document.getElementById('context-edit');
+            if (message.file_url) { // Can't edit messages with files
+                editBtn.style.display = 'none';
+            } else {
+                editBtn.style.display = 'flex';
+                editBtn.onclick = () => { handleEditClick(message); contextMenu.style.display = 'none'; };
+            }
+            document.getElementById('context-delete').onclick = () => { 
+                if (confirm('Are you sure you want to delete this message?')) deleteChatMessage(message.id);
+                contextMenu.style.display = 'none';
+            };
+
+            // Hide menu on outside click
+            const hideMenu = () => { contextMenu.style.display = 'none'; document.removeEventListener('click', hideMenu); };
+            setTimeout(() => document.addEventListener('click', hideMenu), 0);
+        }
+
+        function handleReplyClick(message) {
+            replyingToMessage = message;
+            const previewArea = document.getElementById('replyPreviewArea');
+            const authorName = message.user_id === currentUser.id ? 'You' : message.profile.full_name;
+            const contentPreview = message.content || 'Attachment';
+
+            previewArea.innerHTML = `
+                <div class="reply-preview-content">
+                    <strong>Replying to ${escapeHTML(authorName)}</strong>
+                    <p>${escapeHTML(contentPreview.substring(0, 70))}${contentPreview.length > 70 ? '...' : ''}</p>
+                </div>
+                <button class="btn-icon cancel-reply-btn" onclick="cancelReply()" title="Cancel Reply">&times;</button>
+            `;
+            previewArea.style.display = 'flex';
+            document.getElementById('chatInput').focus();
+        }
+
+        function cancelReply() {
+            replyingToMessage = null;
+            const previewArea = document.getElementById('replyPreviewArea');
+            previewArea.style.display = 'none';
+            previewArea.innerHTML = '';
+        }
+
+        function handleEditClick(message) {
+            // Cancel any ongoing reply
+            cancelReply();
+            editingMessage = message;
+            const previewArea = document.getElementById('replyPreviewArea');
+            
+            previewArea.innerHTML = `
+                <div class="reply-preview-content" style="border-left-color: var(--warning);">
+                    <strong>Editing message</strong>
+                    <p>${escapeHTML(message.content.substring(0, 70))}${message.content.length > 70 ? '...' : ''}</p>
+                </div>
+                <button class="btn-icon cancel-reply-btn" onclick="cancelEdit()" title="Cancel Edit">&times;</button>
+            `;
+            previewArea.style.display = 'flex';
+
+            const input = document.getElementById('chatInput');
+            input.value = message.content;
+            input.focus();
+        }
+
+        function cancelEdit() {
+            editingMessage = null;
+            const previewArea = document.getElementById('replyPreviewArea');
+            previewArea.style.display = 'none';
+            previewArea.innerHTML = '';
+            document.getElementById('chatInput').value = '';
+        }
+
+        async function handleUpdateMessage(newContent) {
+            if (!editingMessage || !newContent || newContent === editingMessage.content) {
+                cancelEdit();
+                return;
+            }
+
+            const { error } = await _supabase.from('course_chat_messages').update({ content: newContent, updated_at: new Date().toISOString() }).eq('id', editingMessage.id);
+
+            if (error) {
+                showAlert('Error', 'Failed to edit message.', 'error');
+            } else {
+                document.querySelector(`#msg-${editingMessage.id} .chat-message-text`).innerHTML = escapeHTML(newContent);
+                cancelEdit();
+            }
+        }
+
+        async function deleteChatMessage(messageId) {
+            const { error } = await _supabase.from('course_chat_messages').update({ is_deleted: true, content: 'This message was deleted' }).eq('id', messageId).eq('user_id', currentUser.id);
+            if (error) { console.error('Error deleting message:', error); showAlert('Error', 'Failed to delete message.', 'error'); }
+        }
+
+        async function downloadFileWithProgress(event, fileInfo) {
+            event.preventDefault();
+            const { url, meta } = fileInfo;
+            const linkElement = event.currentTarget;
+            const originalContent = linkElement.innerHTML;
+
+            // Create and inject progress indicator
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'download-progress-container';
+            const radius = 20;
+            const circumference = 2 * Math.PI * radius;
+            progressContainer.innerHTML = `
+                <svg width="50" height="50" viewBox="0 0 50 50">
+                    <circle class="download-progress-background" cx="25" cy="25" r="${radius}"></circle>
+                    <circle class="download-progress-circle" cx="25" cy="25" r="${radius}" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}"></circle>
+                </svg>
+                <span class="download-progress-text">0%</span>
+            `;
+            linkElement.innerHTML = '';
+            linkElement.appendChild(progressContainer);
+            linkElement.style.pointerEvents = 'none'; // Disable further clicks
+
+            const progressCircle = progressContainer.querySelector('.download-progress-circle');
+            const progressText = progressContainer.querySelector('.download-progress-text');
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+
+                const totalSize = Number(response.headers.get('content-length')) || meta.size;
+                if (!totalSize) { console.warn('Cannot calculate progress, content-length header is missing.'); }
+
+                const reader = response.body.getReader();
+                let receivedLength = 0;
+                const chunks = [];
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    chunks.push(value);
+                    receivedLength += value.length;
+
+                    if (totalSize) {
+                        const percent = Math.round((receivedLength / totalSize) * 100);
+                        progressText.textContent = `${percent}%`;
+                        const offset = circumference - (percent / 100) * circumference;
+                        progressCircle.style.strokeDashoffset = offset;
+                    }
+                }
+
+                const blob = new Blob(chunks);
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.style.display = 'none'; a.href = blobUrl; a.download = meta.name || 'download'; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(blobUrl); a.remove();
+            } catch (error) { console.error('Download failed:', error); showAlert('Download Error', 'Error downloading file.', 'error');
+            } finally { linkElement.innerHTML = originalContent; linkElement.style.pointerEvents = 'auto'; }
         }
 
         function getTranslation(key) {
@@ -1934,5 +2814,15 @@
             return p.innerHTML;
         }
     </script>
+
+    <!-- Custom Context Menu for Chat Messages -->
+    <div id="messageContextMenu" class="custom-context-menu" style="display: none;">
+        <div class="context-menu-item" id="context-reply">
+            <i class="fas fa-reply"></i><span>Reply</span>
+        </div>
+        <div class="context-menu-item" id="context-edit"><i class="fas fa-edit"></i><span>Edit</span></div>
+        <div class="context-menu-item" id="context-delete" style="color: var(--danger);"><i class="fas fa-trash"></i><span>Delete</span></div>
+    </div>
+
 </body>
 </html>

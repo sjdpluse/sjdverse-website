@@ -3355,7 +3355,7 @@
             
             const currentImage = document.getElementById('currentPostImage');
             if (post.image_url) {
-                currentImage.src = post.image_url;
+                currentImage.src = getTransformedImageUrl(post.image_url, { width: 200 }); // Apply transformation for preview
                 currentImage.style.display = 'block';
             } else {
                 currentImage.style.display = 'none';

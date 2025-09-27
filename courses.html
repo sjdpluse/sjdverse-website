@@ -1330,17 +1330,28 @@
                 const thumbnailUrl = urlData.publicUrl;
 
                 // 6. Insert the new course
-                const { error: insertError } = await _supabase.from('courses').insert({
-                    title: courseTitle,
-                    description: courseDescription,
-                    price: parseFloat(coursePrice),
-                    thumbnail_url: thumbnailUrl,
-                    instructor_id: currentUser.id,
-                    enrollment_code: enrollmentCode
-                });
+                const { data: newCourse, error: insertError } = await _supabase
+                    .from('courses')
+                    .insert({
+                        title: courseTitle,
+                        description: courseDescription,
+                        price: parseFloat(coursePrice),
+                        thumbnail_url: thumbnailUrl,
+                        instructor_id: currentUser.id,
+                        enrollment_code: enrollmentCode
+                    })
+                    .select('id') // Select the ID of the newly created course
+                    .single();
+
                 if (insertError) throw new Error("Database schema might be outdated. Please ensure 'courses' table has an 'enrollment_code' (text) column and a foreign key to profiles.");
 
-                // 7. Success
+                // 7. Enroll the instructor in their own course
+                const { error: enrollError } = await _supabase
+                    .from('course_enrollments')
+                    .insert({ user_id: currentUser.id, course_id: newCourse.id });
+                if (enrollError) throw new Error("Failed to auto-enroll instructor in the new course.");
+
+                // 8. Success
                 closeModal('proposeCourseModal');
                 showEnrollmentCode(enrollmentCode);
                 await loadCourses(); // Refresh the list

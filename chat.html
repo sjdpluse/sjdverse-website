@@ -1277,7 +1277,7 @@
 
             } catch (error) {
                 console.error('Download failed:', error);
-                alert('Error downloading file.');
+                showNotification('Error downloading file.', 'error');
             } finally {
                 linkElement.innerHTML = originalContent;
                 linkElement.style.pointerEvents = 'auto';
@@ -1301,7 +1301,7 @@
 
                 if (uploadError) {
                     if (uploadError.message === 'Bucket not found') {
-                        alert('Error: Bucket "chat-attachments" not found in Supabase Storage. Please create a public bucket named "chat-attachments".');
+                        showNotification('Error: Bucket "chat-attachments" not found in Supabase Storage. Please create a public bucket named "chat-attachments".', 'error');
                     }
                     throw uploadError;
                 }
@@ -1317,7 +1317,7 @@
                 });
             } catch (error) {
                 console.error('Error handling file upload:', error);
-                alert(`Error uploading and sending file: ${error.message}`);
+                showNotification(`Error uploading and sending file: ${error.message}`, 'error');
             } finally {
                 uploadButton.innerHTML = '<i class="fas fa-paperclip"></i>';
                 uploadButton.disabled = false;
@@ -1339,7 +1339,7 @@
 
             if (error) {
                 console.error('Error deleting message:', error);
-                alert('Error deleting message.');
+                showNotification('Error deleting message.', 'error');
             }
         }
 
@@ -1425,7 +1425,7 @@
 
             if (error) {
                 console.error('Error sending message:', error);
-                alert('Error sending message.');
+                showNotification('Error sending message.', 'error');
                 messageInput.value = content; // Restore message on error
             }
         }
@@ -1546,7 +1546,7 @@
 
             } catch (error) {
                 console.error('Error deleting conversation:', error);
-                alert('Failed to delete conversation history.');
+                showNotification('Failed to delete conversation history.', 'error');
             } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
@@ -1626,10 +1626,26 @@
             if (!isInitial) localStorage.setItem('theme', theme);
         }
         async function logout() {
-            if (!confirm('Are you sure you want to log out?')) return;
+            // Using a custom confirmation modal would be better, but for now, `confirm` is used.
+            // To replace this, you would call a function like `showCustomConfirm('Logout', 'Are you sure?', () => { ... })`
+            if (!confirm('Are you sure you want to log out?')) return; 
             await _supabase.auth.signOut();
             window.location.href = 'indexx.html';
         }
+
+        // A simple notification function (can be replaced with a more robust one)
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `position: fixed; top: 80px; right: 20px; padding: 15px; border-radius: 8px; color: white; z-index: 10000; transition: opacity 0.3s;`;
+            notification.style.background = type === 'error' ? '#f44336' : '#4caf50';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
         function updateUserNav(user) {
             const avatarUrl = user?.user_metadata?.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
             document.getElementById('headerUserAvatar').src = avatarUrl;
