@@ -13,8 +13,8 @@ async function getSupabaseClient() {
 
     try {
         // URL of your deployed Edge Function
-        const functionUrl = '/functions/v1/get-supabase-config';
-        
+        const functionUrl = 'https://avqsryfzntdvofhwdvvi.supabase.co/functions/v1/get-supabase-config';
+
         const response = await fetch(functionUrl);
         if (!response.ok) {
             throw new Error(`Failed to fetch Supabase config: ${response.statusText}`);

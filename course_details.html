@@ -1229,7 +1229,8 @@
                 "error_updating_lesson": "Error updating lesson:", "theme": "Theme",
                 "profile": "Profile", "logout": "Logout", "settings": "Settings", "home": "Home", "explore": "Explore", "search": "Search",
                 "messages": "Messages", "attachments_title": "Attachments:", "language": "Language",
-                "courses": "Courses"
+                "courses": "Courses",
+                "confirm_logout": "Are you sure you want to log out?"
             },
             fa: {
                 "welcome_to_course": "به دوره خوش آمدید", "select_lesson_prompt": "برای شروع، یک درس از لیست انتخاب کنید.",
@@ -1245,7 +1246,8 @@
                 "profile": "پروفایل", "logout": "خروج", "settings": "تنظیمات", "home": "خانه", "explore": "کاوش", "search": "جستجو", "courses": "دوره‌ها",
                 "messages": "پیام‌ها", "attachments_title": "ضمیمه‌ها:", "language": "زبان",
                 "create_quiz": "ایجاد آزمون", "edit_quiz": "ویرایش آزمون", "start_quiz": "شروع آزمون", "submit_quiz": "ارسال آزمون",
-                "quiz_completed": "آزمون تمام شد!", "your_score": "امتیاز شما:", "quiz_result_desc": "شما به {score} سوال از {total} سوال پاسخ صحیح دادید."
+                "quiz_completed": "آزمون تمام شد!", "your_score": "امتیاز شما:", "quiz_result_desc": "شما به {score} سوال از {total} سوال پاسخ صحیح دادید.",
+                "confirm_logout": "آیا برای خروج از حساب کاربری خود مطمئن هستید؟"
             }
         };
 
@@ -2802,7 +2804,7 @@
         }
 
         async function logout() {
-            if (!confirm(getTranslation('confirm_delete_lesson'))) return;
+            if (!confirm(getTranslation('confirm_logout'))) return;
             await _supabase.auth.signOut();
             window.location.href = 'indexx.html';
         }
