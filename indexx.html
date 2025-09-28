@@ -1477,6 +1477,8 @@
     <script>
         // Animates the text in the auth visual panel
         function setupAuthVisualTextAnimation() {
+            const subtitle = document.getElementById('auth-visual-subtitle');
+            if (!subtitle) return;
 
             const originalHTML = subtitle.innerHTML;
             const parts = originalHTML.split('<br>');

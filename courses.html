@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&family=Michroma&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Supabase Client Loader -->
+    <script src="supabase-client.js"></script>
     <style>
         :root {
             --p1: #d8f4a0; --p2: #fdc7d5; --p3: #bcd8fd; --p4: #ffeca8; --p5: #5d5c5c;
@@ -692,47 +694,34 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+        let _supabase; // Will be initialized by getSupabaseClient()
         let currentUser = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { user } } = await _supabase.auth.getUser();
-            currentUser = user;
+            getSupabaseClient().then(async (client) => {
+                _supabase = client;
+                const { data: { user } } = await _supabase.auth.getUser();
+                currentUser = user;
+                await updateUserNav(); // Use the new function
+                setTheme(localStorage.getItem('theme') || 'light', true);
+                await loadMyCourses();
+                await loadCourses();
+                await loadActiveInstructors();
+                
+                document.getElementById('proposeCourseForm').addEventListener('submit', (e) => { e.preventDefault(); proposeCourse(); });
+                document.getElementById('enrollForm').addEventListener('submit', (e) => { e.preventDefault(); enrollWithCode(); });
 
-            initializeNewHeader();
-            setTheme(localStorage.getItem('theme') || 'light', true);
-            await loadMyCourses();
-            await loadCourses();
-            await loadActiveInstructors();
-            
-            document.getElementById('proposeCourseForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                proposeCourse();
-            });
-            document.getElementById('enrollForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                enrollWithCode();
-            });
+                const searchInput = document.getElementById('courseSearchInput');
+                if (searchInput) { searchInput.addEventListener('input', filterCourses); }
 
-            const searchInput = document.getElementById('courseSearchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', filterCourses);
-            }
+                const editCourseForm = document.getElementById('editCourseForm');
+                if (editCourseForm) { editCourseForm.addEventListener('submit', (e) => { e.preventDefault(); updateCourse(); }); }
 
-            const editCourseForm = document.getElementById('editCourseForm');
-            if (editCourseForm) {
-                editCourseForm.addEventListener('submit', (e) => { e.preventDefault(); updateCourse(); });
-            }
-
-            // Add a global click listener to close course action menus
-            document.addEventListener('click', (e) => {
-                document.querySelectorAll('.course-menu-dropdown').forEach(m => {
-                    m.style.display = 'none';
+                // Add a global click listener to close course action menus
+                document.addEventListener('click', (e) => {
+                    document.querySelectorAll('.course-menu-dropdown').forEach(m => { m.style.display = 'none'; });
                 });
-            });
+            }).catch(err => document.body.innerHTML = '<h1>Error: Could not connect to services. Please try again later.</h1>');
         });
 
         async function loadActiveInstructors() {
@@ -1407,24 +1396,6 @@
             return `${url}?${query}`;
         }
 
-        function initializeNewHeader() {
-            const profileTrigger = document.getElementById('nav-profile-trigger');
-            const profileDropdown = document.getElementById('profileDropdown');
-            if (profileTrigger && profileDropdown) {
-                profileTrigger.addEventListener('click', (e) => { e.stopPropagation(); profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block'; });
-                document.addEventListener('click', (e) => {
-                    if (profileDropdown.style.display === 'block' && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
-                        profileDropdown.style.display = 'none';
-                    }
-                });
-            }
-            const themeToggle = document.getElementById('themeToggleDropdown');
-            if(themeToggle) themeToggle.addEventListener('click', toggleTheme);
-            if(currentUser) {
-                document.getElementById('headerUserAvatar').src = currentUser.user_metadata.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
-            }
-        }
-
         function toggleTheme() {
             const newTheme = document.body.classList.contains('dark-theme') ? 'light' : 'dark';
             setTheme(newTheme);
@@ -1442,6 +1413,31 @@
             if (!confirm('Are you sure you want to log out?')) return;
             await _supabase.auth.signOut();
             window.location.href = 'indexx.html';
+        }
+
+        // --- New Shared Header & Theme Logic ---
+        async function updateUserNav() {
+            if (!currentUser) return;
+            const { data: profile } = await _supabase.from('profiles').select('avatar_url').eq('id', currentUser.id).single();
+            const avatarUrl = profile?.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
+            document.getElementById('headerUserAvatar').src = avatarUrl;
+        }
+
+        function initializeNewHeader() {
+            const profileTrigger = document.getElementById('nav-profile-trigger');
+            const profileDropdown = document.getElementById('profileDropdown');
+            if (profileTrigger && profileDropdown) {
+                profileTrigger.addEventListener('click', (e) => { e.stopPropagation(); profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block'; });
+            }
+            const themeToggle = document.getElementById('themeToggleDropdown');
+            if(themeToggle) themeToggle.addEventListener('click', toggleTheme);
+
+            // Close dropdowns on outside click
+            document.addEventListener('click', (e) => {
+                if (profileDropdown && profileDropdown.style.display === 'block' && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.style.display = 'none';
+                }
+            });
         }
     </script>
 </body>

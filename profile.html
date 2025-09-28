@@ -17,6 +17,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hljs-dark-theme" disabled>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" id="hljs-light-theme">
+    <!-- Supabase Client Loader -->
+    <script src="supabase-client.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1728,7 +1730,8 @@
 </head>
 <body>
     <div class="loading-overlay" id="loading">
-        <div class="spinner"></div>
+        <div class="spinner" id="loadingSpinner"></div>
+        <i id="successIndicator" class="fas fa-check-circle" style="display: none; font-size: 5rem; color: var(--success);"></i>
     </div>
 
     <header class="app-header">
@@ -2302,6 +2305,23 @@
         <img id="modalImage" src="" style="max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: var(--border-radius); box-shadow: var(--shadow-heavy);">
     </div>
 
+    <!-- Custom Alert/Confirm Modal -->
+    <div id="customAlertModal" class="modal hidden">
+        <div class="modal-content card" style="max-width: 450px; text-align: center;">
+            <div id="customAlertIcon" style="font-size: 3rem; margin-bottom: 20px;">
+                <!-- Icon will be set by JS -->
+            </div>
+            <h3 id="customAlertTitle" style="margin-bottom: 10px;"></h3>
+            <p id="customAlertMessage" style="color: var(--text-secondary); margin-bottom: 25px;"></p>
+            <div id="customAlertButtons" class="modal-footer" style="justify-content: center; gap: 15px;">
+                <!-- Buttons will be set by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" style="position: fixed; top: 80px; right: 20px; z-index: 10001; display: flex; flex-direction: column; gap: 10px;"></div>
+
     <!-- Add Code Snippet Modal -->
     <div id="addCodeModal" class="modal hidden">
         <div class="modal-content card">
@@ -2389,12 +2409,8 @@
     </div>
 
     <script>
-        // Supabase initialization
-        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         // Global variables
+        let _supabase; // Will be initialized by getSupabaseClient()
         const loadingOverlay = document.getElementById('loading');
         let currentUser = null;
         let loadedProfileData = null;
@@ -2406,71 +2422,72 @@
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', async () => {
-            loadingOverlay.style.display = 'flex';
-            
-            // Initialize scroll observer
-            scrollObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                        scrollObserver.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1 });
+            getSupabaseClient().then(async (client) => {
+                _supabase = client;
+                loadingOverlay.style.display = 'flex';
+                
+                // Initialize scroll observer
+                scrollObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            scrollObserver.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
 
-            scrollObserver.observe(document.querySelector('.profile-sidebar'));
+                scrollObserver.observe(document.querySelector('.profile-sidebar'));
 
-            // Check authentication
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) {
-                window.location.href = 'indexx.html';
-                return;
-            }
-            
-            currentUser = session.user;
-            
-            // Load profile data
-            await loadProfile();
-            await loadPosts();
-            await loadProjects();
-            await loadConnections();
-            await loadAchievements();
-            
-            // Initialize theme
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.body.classList.add(savedTheme === 'dark' ? 'dark-theme' : 'light-theme');
-            setTheme(savedTheme, true); // Pass true to avoid saving again
-            
-            // Initialize language
-            changeLanguage('en');
-            
-            loadingOverlay.style.display = 'none';
-            
-            // Initialize event listeners
-            initEventListeners();
+                // Check authentication
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (!session) {
+                    window.location.href = 'indexx.html';
+                    return;
+                }
+                
+                currentUser = session.user;
+                
+                // Load profile data
+                await loadProfile();
+                await loadPosts();
+                await loadProjects();
+                await loadConnections();
+                await loadAchievements();
+                
+                // Initialize theme
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.body.classList.add(savedTheme === 'dark' ? 'dark-theme' : 'light-theme');
+                setTheme(savedTheme, true); // Pass true to avoid saving again
+                
+                // Initialize language
+                changeLanguage('en');
+                
+                loadingOverlay.style.display = 'none';
+                
+                // Initialize event listeners
+                initEventListeners();
 
-            // Initialize video observer
-            videoObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    const video = entry.target;
-                    if (entry.isIntersecting) {
-                        video.play().catch(e => console.warn("Video play was prevented.", e));
-                    } else {
-                        video.pause();
-                    }
-                });
-            }, { threshold: 0.5 }); // Play when 50% of the video is visible
+                // Initialize video observer
+                videoObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        const video = entry.target;
+                        if (entry.isIntersecting) {
+                            video.play().catch(e => console.warn("Video play was prevented.", e));
+                        } else {
+                            video.pause();
+                        }
+                    });
+                }, { threshold: 0.5 }); // Play when 50% of the video is visible
 
+                // Handle notification clicks
+                const urlParams = new URLSearchParams(window.location.search);
+                const postIdToHighlight = urlParams.get('postId');
+                const commentIdToHighlight = urlParams.get('highlightCommentId');
 
-
-            // Handle notification clicks
-            const urlParams = new URLSearchParams(window.location.search);
-            const postIdToHighlight = urlParams.get('postId');
-            const commentIdToHighlight = urlParams.get('highlightCommentId');
-
-            if (postIdToHighlight) {
-                handlePostHighlight(postIdToHighlight, commentIdToHighlight);
-            }
+                if (postIdToHighlight) {
+                    handlePostHighlight(postIdToHighlight, commentIdToHighlight);
+                }
+            }).catch(err => document.body.innerHTML = '<h1>Error: Could not connect to services. Please try again later.</h1>');
         });
 
         // Initialize event listeners
@@ -2552,6 +2569,55 @@
 
 
             document.getElementById('nav-profile-trigger').classList.add('active');
+        }
+
+        // --- Custom Alert & Notification System ---
+        function showNotification(message, type = 'info', duration = 4000) {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                padding: 15px 20px; border-radius: 12px; color: white; font-weight: 500;
+                box-shadow: var(--shadow-medium); transition: all 0.4s ease;
+                transform: translateX(100%); opacity: 0;
+            `;
+            
+            let bgColor, iconClass;
+            if (type === 'error') { bgColor = 'var(--danger)'; iconClass = 'fa-exclamation-triangle'; }
+            else if (type === 'success') { bgColor = 'var(--success)'; iconClass = 'fa-check-circle'; }
+            else { bgColor = 'var(--info)'; iconClass = 'fa-info-circle'; }
+
+            notification.style.background = bgColor;
+            notification.innerHTML = `<div style="display: flex; align-items: center; gap: 10px;"><i class="fas ${iconClass}"></i><span>${message}</span></div>`;
+            
+            container.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+                notification.style.opacity = '1';
+            }, 10);
+
+            // Animate out and remove
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 400);
+            }, duration);
+        }
+
+        function showCustomConfirm(title, message, onConfirm) {
+            const modal = document.getElementById('customAlertModal');
+            document.getElementById('customAlertIcon').innerHTML = `<i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i>`;
+            document.getElementById('customAlertTitle').textContent = title;
+            document.getElementById('customAlertMessage').textContent = message;
+            
+            const buttonsContainer = document.getElementById('customAlertButtons');
+            buttonsContainer.innerHTML = `
+                <button class="btn btn-secondary" onclick="closeModal('customAlertModal')">Cancel</button>
+                <button id="confirmActionBtn" class="btn btn-danger">Yes, Proceed</button>
+            `;
+            openModal('customAlertModal');
+            document.getElementById('confirmActionBtn').onclick = () => { closeModal('customAlertModal'); onConfirm(); };
         }
 
         // Theme functionality
@@ -2727,9 +2793,9 @@
             if (uploadError) {
                 loadingOverlay.style.display = 'none';
                 if (uploadError.message === 'Bucket not found') {
-                    alert('Error: Bucket "avatars" not found in Supabase Storage. Please create a public bucket named "avatars".');
+                    showNotification('Error: Bucket "avatars" not found in Supabase Storage. Please create a public bucket named "avatars".', 'error');
                 } else {
-                    alert('Error uploading avatar: ' + uploadError.message);
+                    showNotification('Error uploading avatar: ' + uploadError.message, 'error');
                 }
                 return;
             }
@@ -2746,12 +2812,12 @@
 
             if (updateError) {
                 loadingOverlay.style.display = 'none';
-                alert('Error updating profile with new avatar: ' + updateError.message);
+                showNotification('Error updating profile with new avatar: ' + updateError.message, 'error');
             } else {
                 // Reload profile to show all changes
                 await loadProfile();
                 loadingOverlay.style.display = 'none';
-                alert('Profile picture updated successfully!');
+                showNotification('Profile picture updated successfully!', 'success');
             }
         }
 
@@ -2767,9 +2833,9 @@
             if (uploadError) {
                 loadingOverlay.style.display = 'none';
                 if (uploadError.message === 'Bucket not found') {
-                    alert('Error: Bucket "covers" not found in Supabase Storage. Please create a public bucket named "covers".');
+                    showNotification('Error: Bucket "covers" not found in Supabase Storage. Please create a public bucket named "covers".', 'error');
                 } else {
-                    alert('Error uploading cover: ' + uploadError.message);
+                    showNotification('Error uploading cover: ' + uploadError.message, 'error');
                 }
                 return;
             }
@@ -2778,11 +2844,11 @@
             const publicUrl = `${urlData.publicUrl}?t=${new Date().getTime()}`;
 
             const { error: updateError } = await _supabase.from('profiles').update({ cover_url: publicUrl }).eq('id', currentUser.id);
-            if (updateError) { loadingOverlay.style.display = 'none'; alert('Error updating profile with new cover: ' + updateError.message); } 
-            else { 
+            if (updateError) { loadingOverlay.style.display = 'none'; showNotification('Error updating profile with new cover: ' + updateError.message, 'error'); } 
+            else {
                 await loadProfile(); 
                 loadingOverlay.style.display = 'none'; 
-                alert('Cover photo updated successfully!'); 
+                showNotification('Cover photo updated successfully!', 'success'); 
             }
         }
 
@@ -2915,7 +2981,7 @@
                     .filter(tag => tag.dataset.skill) // Only check tags that have a skill
                     .map(tag => tag.dataset.skill.toLowerCase());
                 if (existingSkills.includes(skill.toLowerCase())) {
-                    alert('This skill has already been added.');
+                    showNotification('This skill has already been added.', 'info');
                     return;
                 }
 
@@ -2958,6 +3024,10 @@
                 return;
             }
 
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const successIndicator = document.getElementById('successIndicator');
+            loadingSpinner.style.display = 'block';
+            successIndicator.style.display = 'none';
             loadingOverlay.style.display = 'flex';
 
             let imageUrl = null;
@@ -2984,9 +3054,9 @@
                 if (uploadError) {
                     loadingOverlay.style.display = 'none';
                     if (uploadError.message === 'Bucket not found') {
-                        alert('Error: Bucket "post-images" not found in Supabase Storage. Please create a public bucket named "post-images".');
+                        showNotification('Error: Bucket "post-images" not found in Supabase Storage. Please create a public bucket named "post-images".', 'error');
                     } else {
-                        alert(getTranslation('image_upload_error') + ': ' + uploadError.message);
+                        showNotification(getTranslation('image_upload_error') + ': ' + uploadError.message, 'error');
                     }
                     console.error('Image upload error:', uploadError);
                     return;
@@ -3008,9 +3078,9 @@
                 if (uploadError) {
                     loadingOverlay.style.display = 'none';
                     if (uploadError.message === 'Bucket not found') {
-                        alert('Error: Bucket "post-attachments" not found. Please create a public bucket with this name in Supabase Storage.');
+                        showNotification('Error: Bucket "post-attachments" not found. Please create a public bucket with this name in Supabase Storage.', 'error');
                     } else {
-                        alert('Error uploading file: ' + uploadError.message);
+                        showNotification('Error uploading file: ' + uploadError.message, 'error');
                     }
                     console.error('File upload error:', uploadError);
                     return;
@@ -3040,9 +3110,9 @@
                     publishBtn.disabled = false;
                     publishBtn.innerHTML = originalBtnHTML;
                     if (uploadError.message === 'Bucket not found') {
-                        alert('Error: Bucket "vedez" not found. Please create a public bucket with this name in Supabase Storage.');
+                        showNotification('Error: Bucket "vedez" not found. Please create a public bucket with this name in Supabase Storage.', 'error');
                     } else {
-                        alert('Error uploading vedez: ' + uploadError.message);
+                        showNotification('Error uploading vedez: ' + uploadError.message, 'error');
                     }
                     console.error('Vedez upload error:', uploadError);
                     return;
@@ -3085,21 +3155,18 @@
 
             if (error) {
                 console.error('Error creating post:', error);
-                alert(getTranslation('post_publish_error'));
+                loadingOverlay.style.display = 'none';
+                showNotification(getTranslation('post_publish_error'), 'error');
             } else {
-                // Add the new post to the feed
-                addPostToFeed(data);
-                
-                // Clear the form
-                document.getElementById('postContent').value = '';
-                removePostImage();
-                removePostCode();
-                removePostFile();
-                removeYoutubeVideo();
-                closeModal('addVedezModal');
-                
-                // Update post count
-                document.getElementById('statPosts').textContent = parseInt(document.getElementById('statPosts').textContent) + 1;
+                // Show success indicator
+                loadingSpinner.style.display = 'none';
+                successIndicator.style.display = 'block';
+
+                // Wait a moment, then reload the page
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                    window.location.reload();
+                }, 1500); // Wait 1.5 seconds before reloading
             }
         }
 
@@ -3343,7 +3410,7 @@
             const dropdown = button.nextElementSibling;
             
             // Close all other open dropdowns first
-            document.querySelectorAll('.post-menu-dropdown').forEach(d => {
+            document.querySelectorAll('.post-menu-dropdown, .settings-dropdown').forEach(d => {
                 if (d !== dropdown) d.style.display = 'none';
             });
             dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
@@ -3378,7 +3445,7 @@
                 const { error: uploadError } = await _supabase.storage.from('post-images').upload(fileName, imageFile, { upsert: true });
                 if (uploadError) {
                     loadingOverlay.style.display = 'none';
-                    alert('Error uploading new image: ' + uploadError.message);
+                    showNotification('Error uploading new image: ' + uploadError.message, 'error');
                     return;
                 }
                 const { data: urlData } = _supabase.storage.from('post-images').getPublicUrl(fileName);
@@ -3396,68 +3463,70 @@
 
             if (error) {
                 console.error('Error updating post:', error);
-                alert('Failed to update post.');
+                showNotification('Failed to update post.', 'error');
             } else {
                 // Optimistically update the UI without a full reload
                 const postCard = document.getElementById(`post-${id}`);
                 if (postCard) {
                     postCard.querySelector('.post-content p').textContent = content;
-                    if (newImageUrl) postCard.querySelector('.post-image').src = newImageUrl;
+                    const imgElement = postCard.querySelector('.post-image');
+                    if (imgElement && newImageUrl) imgElement.src = newImageUrl;
                 }
                 closeModal('editPostModal');
-                alert('Post updated successfully!');
+                showNotification('Post updated successfully!', 'success');
             }
         }
 
         // Delete post
         async function deletePost(postId) {
-            if (!confirm(getTranslation('confirm_delete_post'))) return;
-            
-            loadingOverlay.style.display = 'flex';
+            showCustomConfirm('Delete Post', getTranslation('confirm_delete_post'), async () => {
+                loadingOverlay.style.display = 'flex';
 
-            // First, get the image URL to delete it from storage
-            const { data: postData, error: fetchError } = await _supabase
-                .from('user_posts')
-                .select('image_url')
-                .eq('id', postId)
-                .single();
+                // First, get the image URL to delete it from storage
+                const { data: postData, error: fetchError } = await _supabase
+                    .from('user_posts')
+                    .select('image_url')
+                    .eq('id', postId)
+                    .single();
 
-            if (fetchError) {
-                console.error("Could not fetch post to delete image:", fetchError);
-            }
-
-            const { error } = await _supabase
-                .from('user_posts')
-                .delete()
-                .eq('id', postId)
-                .eq('user_id', currentUser.id);
-            
-            loadingOverlay.style.display = 'none';
-            
-            if (error) {
-                console.error('Error deleting post:', error);
-                alert(getTranslation('post_delete_error'));
-            } else {
-                // If DB deletion was successful, delete the image from storage
-                if (postData && postData.image_url) {
-                    const filePath = new URL(postData.image_url).pathname.split('/post-images/')[1];
-                    await _supabase.storage.from('post-images').remove([filePath]);
+                if (fetchError) {
+                    console.error("Could not fetch post to delete image:", fetchError);
                 }
 
-                const postElement = document.getElementById(`post-${postId}`);
-                if (postElement) {
-                    postElement.remove();
-                }
+                const { error } = await _supabase
+                    .from('user_posts')
+                    .delete()
+                    .eq('id', postId)
+                    .eq('user_id', currentUser.id);
                 
-                // Update post count
-                document.getElementById('statPosts').textContent = parseInt(document.getElementById('statPosts').textContent || '1') - 1;
+                loadingOverlay.style.display = 'none';
                 
-                // Show empty state if no posts left
-                const postFeed = document.getElementById('postFeed');
-                if (postFeed.children.length === 0) {
-                    postFeed.innerHTML = `<div class="card text-center"><p>${getTranslation('no_posts_yet_profile')}</p></div>`;
+                if (error) {
+                    console.error('Error deleting post:', error);
+                    showNotification(getTranslation('post_delete_error'), 'error');
+                } else {
+                    // If DB deletion was successful, delete the image from storage
+                    if (postData && postData.image_url) {
+                        const filePath = new URL(postData.image_url).pathname.split('/post-images/')[1];
+                        await _supabase.storage.from('post-images').remove([filePath]);
+                    }
+
+                    const postElement = document.getElementById(`post-${postId}`);
+                    if (postElement) {
+                        postElement.remove();
+                    }
+                    
+                    // Update post count
+                    document.getElementById('statPosts').textContent = parseInt(document.getElementById('statPosts').textContent || '1') - 1;
+                    
+                    // Show empty state if no posts left
+                    const postFeed = document.getElementById('postFeed');
+                    if (postFeed.children.length === 0) {
+                        postFeed.innerHTML = `<div class="card text-center"><p>${getTranslation('no_posts_yet_profile')}</p></div>`;
+                    }
+                    showNotification('Post deleted successfully.', 'success');
                 }
-            }
+            });
         }
 
         // Post image preview
@@ -3505,7 +3574,7 @@
             const code = document.getElementById('codeContent').value;
 
             if (!code.trim()) {
-                alert('Please enter some code.');
+                showNotification('Please enter some code.', 'error');
                 return;
             }
 
@@ -3577,13 +3646,13 @@
             const urlInput = document.getElementById('youtubeUrlInput');
             const url = urlInput.value.trim();
             if (!url) {
-                alert('Please enter a YouTube URL.');
+                showNotification('Please enter a YouTube URL.', 'error');
                 return;
             }
 
             const videoId = getYoutubeVideoId(url);
             if (!videoId) {
-                alert('Invalid YouTube URL. Please check the link and try again.');
+                showNotification('Invalid YouTube URL. Please check the link and try again.', 'error');
                 return;
             }
 
@@ -3669,7 +3738,7 @@
             const imageFile = document.getElementById('projectImage').files[0];
             
             if (!title || !description) {
-                alert(getTranslation('project_validation_error'));
+                showNotification(getTranslation('project_validation_error'), 'error');
                 return;
             }
             
@@ -3687,9 +3756,9 @@
                 if (uploadError) {
                     loadingOverlay.style.display = 'none';
                     if (uploadError.message === 'Bucket not found') {
-                        alert('Error: Bucket "project-images" not found in Supabase Storage. Please create a public bucket named "project-images".');
+                        showNotification('Error: Bucket "project-images" not found in Supabase Storage. Please create a public bucket named "project-images".', 'error');
                     } else {
-                        alert(getTranslation('project_image_upload_error') + ': ' + uploadError.message);
+                        showNotification(getTranslation('project_image_upload_error') + ': ' + uploadError.message, 'error');
                     }
                     console.error('Project image upload error:', uploadError);
                     return;
@@ -3719,7 +3788,7 @@
 
             if (error) {
                 console.error('Error adding project:', error);
-                alert(getTranslation('project_add_error'));
+                showNotification(getTranslation('project_add_error'), 'error');
                 return;
             }
             
@@ -3815,7 +3884,7 @@
             const imageFile = document.getElementById('editProjectImage').files[0];
 
             if (!title || !description) {
-                alert('Title and description are required.');
+                showNotification('Title and description are required.', 'error');
                 return;
             }
 
@@ -3827,7 +3896,7 @@
                 const { error: uploadError } = await _supabase.storage.from('project-images').upload(fileName, imageFile, { upsert: true });
                 if (uploadError) {
                     loadingOverlay.style.display = 'none';
-                    alert('Error uploading new image: ' + uploadError.message);
+                    showNotification('Error uploading new image: ' + uploadError.message, 'error');
                     return;
                 }
                 const { data: urlData } = _supabase.storage.from('project-images').getPublicUrl(fileName);
@@ -3845,36 +3914,36 @@
 
             if (error) {
                 console.error('Error updating project:', error);
-                alert('Failed to update project.');
+                showNotification('Failed to update project.', 'error');
             } else {
                 await loadProjects(); // Reload all projects to reflect changes
                 closeModal('editProjectModal');
-                alert('Project updated successfully!');
+                showNotification('Project updated successfully!', 'success');
             }
         }
 
         async function deleteProject(projectId) {
-            if (!confirm('Are you sure you want to delete this project? This action cannot be undone.')) return;
+            showCustomConfirm('Delete Project', 'Are you sure you want to delete this project? This action cannot be undone.', async () => {
+                loadingOverlay.style.display = 'flex';
 
-            loadingOverlay.style.display = 'flex';
+                const { data: projectData } = await _supabase.from('user_projects').select('image_url').eq('id', projectId).single();
+                const { error: deleteError } = await _supabase.from('user_projects').delete().eq('id', projectId);
 
-            const { data: projectData } = await _supabase.from('user_projects').select('image_url').eq('id', projectId).single();
-            const { error: deleteError } = await _supabase.from('user_projects').delete().eq('id', projectId);
+                if (deleteError) {
+                    loadingOverlay.style.display = 'none';
+                    showNotification('Failed to delete project.', 'error');
+                    return;
+                }
 
-            if (deleteError) {
+                if (projectData && projectData.image_url) {
+                    const filePath = new URL(projectData.image_url).pathname.split('/project-images/')[1];
+                    await _supabase.storage.from('project-images').remove([filePath]);
+                }
+
+                await loadProjects(); // Reload all projects to update UI and count
                 loadingOverlay.style.display = 'none';
-                alert('Failed to delete project.');
-                return;
-            }
-
-            if (projectData && projectData.image_url) {
-                const filePath = new URL(projectData.image_url).pathname.split('/project-images/')[1];
-                await _supabase.storage.from('project-images').remove([filePath]);
-            }
-
-            await loadProjects(); // Reload all projects to update UI and count
-            loadingOverlay.style.display = 'none';
-            alert('Project deleted successfully.');
+                showNotification('Project deleted successfully.', 'success');
+            });
         }
 
         // Achievements functionality
@@ -3939,7 +4008,7 @@
             const imageFile = document.getElementById('achievementImage').files[0];
 
             if (!title || !imageFile) {
-                alert(getTranslation('achievement_validation_error'));
+                showNotification(getTranslation('achievement_validation_error'), 'error');
                 return;
             }
 
@@ -3952,9 +4021,9 @@
             if (uploadError) {
                 loadingOverlay.style.display = 'none';
                 if (uploadError.message === 'Bucket not found') {
-                    alert('Error: Bucket "achievements-images" not found. Please create a public bucket with this name in Supabase Storage.');
+                    showNotification('Error: Bucket "achievements-images" not found. Please create a public bucket with this name in Supabase Storage.', 'error');
                 } else {
-                    alert(getTranslation('achievement_image_upload_error') + ': ' + uploadError.message);
+                    showNotification(getTranslation('achievement_image_upload_error') + ': ' + uploadError.message, 'error');
                 }
                 console.error('Achievement image upload error:', uploadError);
                 return;
@@ -3969,7 +4038,7 @@
 
             if (error) {
                 console.error('Error adding achievement:', error);
-                alert(getTranslation('achievement_add_error'));
+                showNotification(getTranslation('achievement_add_error'), 'error');
                 return;
             }
 
@@ -4002,7 +4071,7 @@
             const imageFile = document.getElementById('editAchievementImage').files[0];
 
             if (!title) {
-                alert('Title is required.');
+                showNotification('Title is required.', 'error');
                 return;
             }
 
@@ -4014,7 +4083,7 @@
                 const { error: uploadError } = await _supabase.storage.from('achievements-images').upload(fileName, imageFile);
                 if (uploadError) {
                     loadingOverlay.style.display = 'none';
-                    alert('Error uploading new image: ' + uploadError.message);
+                    showNotification('Error uploading new image: ' + uploadError.message, 'error');
                     return;
                 }
                 const { data: urlData } = _supabase.storage.from('achievements-images').getPublicUrl(fileName);
@@ -4032,7 +4101,7 @@
 
             if (error) {
                 console.error('Error updating achievement:', error);
-                alert('Failed to update achievement.');
+                showNotification('Failed to update achievement.', 'error');
             } else {
                 const achievementCard = document.getElementById(`achievement-${id}`);
                 if (achievementCard) {
@@ -4043,32 +4112,32 @@
                     achievementCard.querySelector('.btn-secondary').setAttribute('onclick', `showEditAchievementModal(${JSON.stringify(updatedAchievement)})`);
                 }
                 closeModal('editAchievementModal');
-                alert('Achievement updated successfully!');
+                showNotification('Achievement updated successfully!', 'success');
             }
         }
 
         async function deleteAchievement(achievementId) {
-            if (!confirm('Are you sure you want to delete this achievement? This action cannot be undone.')) return;
+            showCustomConfirm('Delete Achievement', 'Are you sure you want to delete this achievement? This action cannot be undone.', async () => {
+                loadingOverlay.style.display = 'flex';
 
-            loadingOverlay.style.display = 'flex';
+                const { data: achievementData } = await _supabase.from('user_achievements').select('certificate_url').eq('id', achievementId).single();
+                const { error: deleteError } = await _supabase.from('user_achievements').delete().eq('id', achievementId);
 
-            const { data: achievementData } = await _supabase.from('user_achievements').select('certificate_url').eq('id', achievementId).single();
-            const { error: deleteError } = await _supabase.from('user_achievements').delete().eq('id', achievementId);
+                if (deleteError) {
+                    loadingOverlay.style.display = 'none';
+                    showNotification('Failed to delete achievement.', 'error');
+                    return;
+                }
 
-            if (deleteError) {
+                if (achievementData && achievementData.certificate_url) {
+                    const filePath = new URL(achievementData.certificate_url).pathname.split('/achievements-images/')[1];
+                    await _supabase.storage.from('achievements-images').remove([filePath]);
+                }
+
+                await loadAchievements(); // Reload all achievements to update UI and count
                 loadingOverlay.style.display = 'none';
-                alert('Failed to delete achievement.');
-                return;
-            }
-
-            if (achievementData && achievementData.certificate_url) {
-                const filePath = new URL(achievementData.certificate_url).pathname.split('/achievements-images/')[1];
-                await _supabase.storage.from('achievements-images').remove([filePath]);
-            }
-
-            await loadAchievements(); // Reload all achievements to update UI and count
-            loadingOverlay.style.display = 'none';
-            alert('Achievement deleted successfully.');
+                showNotification('Achievement deleted successfully.', 'success');
+            });
         }
 
         // Connections functionality
@@ -4170,11 +4239,11 @@
 
             if (isLiked) {
                 const { error } = await _supabase.from('post_likes').delete().match({ post_id: postId, user_id: currentUser.id });
-                if (error) { alert(getTranslation('unlike_error')); console.error(error); } 
+                if (error) { showNotification(getTranslation('unlike_error'), 'error'); console.error(error); } 
                 else { likeButton.classList.remove('liked'); likeCountSpan.textContent = parseInt(likeCountSpan.textContent) - 1; }
             } else {
                 const { error } = await _supabase.from('post_likes').insert({ post_id: postId, user_id: currentUser.id });
-                if (error) { alert(getTranslation('like_error')); console.error(error); } 
+                if (error) { showNotification(getTranslation('like_error'), 'error'); console.error(error); } 
                 else { likeButton.classList.add('liked'); likeCountSpan.textContent = parseInt(likeCountSpan.textContent) + 1; }
             }
             likeButton.style.pointerEvents = 'auto';
@@ -4343,7 +4412,7 @@
             } catch (err) {
                 // Fallback to copying link if share fails or is cancelled
                 await navigator.clipboard.writeText(shareUrl);
-                alert('Profile link copied to clipboard!');
+                showNotification('Profile link copied to clipboard!', 'info');
             }
         }
 
@@ -4361,17 +4430,16 @@
 
         // Logout function
         async function logout() {
-            if (!confirm(getTranslation('confirm_logout'))) return;
-            
-            loadingOverlay.style.display = 'flex';
-            const { error } = await _supabase.auth.signOut();
-            
-            if (error) {
-                alert('Error logging out: ' + error.message);
-                loadingOverlay.style.display = 'none';
-            } else {
-                window.location.href = 'indexx.html';
-            }
+            showCustomConfirm('Logout', getTranslation('confirm_logout'), async () => {
+                loadingOverlay.style.display = 'flex';
+                const { error } = await _supabase.auth.signOut();
+                if (error) {
+                    showNotification('Error logging out: ' + error.message, 'error');
+                    loadingOverlay.style.display = 'none';
+                } else {
+                    window.location.href = 'indexx.html';
+                }
+            });
         }
 
         // Language functionality

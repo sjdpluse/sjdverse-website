@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Supabase Client Loader -->
+    <script src="supabase-client.js"></script>
     <style>
         :root {
             --p3: #bcd8fd; --p5: #5d5c5c;
@@ -520,11 +522,8 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         const chatContainer = document.getElementById('chatContainer');
+        let _supabase; // Will be initialized by getSupabaseClient()
         let currentUser = null;
         let conversationId = null;
         let currentUserProfile = null;
@@ -536,48 +535,52 @@
         let presenceChannel = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { user } } = await _supabase.auth.getUser();
-            if (!user) {
-                window.location.href = 'indexx.html';
-                return;
-            }
-            currentUser = user;
+            getSupabaseClient().then(async (client) => {
+                _supabase = client;
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (!user) {
+                    window.location.href = 'indexx.html';
+                    return;
+                }
+                currentUser = user;
 
-            // اطلاعات پروفایل کاربر فعلی را برای نمایش فوری پیام‌های ارسالی دریافت می‌کنیم
-            const { data: profile, error: profileError } = await _supabase
-                .from('profiles')
-                .select('full_name, avatar_url')
-                .eq('id', currentUser.id)
-                .single();
+                // اطلاعات پروفایل کاربر فعلی را برای نمایش فوری پیام‌های ارسالی دریافت می‌کنیم
+                const { data: profile, error: profileError } = await _supabase
+                    .from('profiles')
+                    .select('full_name, avatar_url')
+                    .eq('id', currentUser.id)
+                    .single();
 
-            if (!profileError) {
-                currentUserProfile = profile;
-            }
+                if (!profileError) {
+                    currentUserProfile = profile;
+                }
 
-            const params = new URLSearchParams(window.location.search);
-            conversationId = params.get('id');
-            const postIdRef = params.get('post_id');
+                const params = new URLSearchParams(window.location.search);
+                conversationId = params.get('id');
+                const postIdRef = params.get('post_id');
 
-            if (!conversationId) {
-                chatContainer.innerHTML = '<div class="loading-placeholder"><p>Chat ID not found.</p></div>';
-                return;
-            }
+                if (!conversationId) {
+                    chatContainer.innerHTML = '<div class="loading-placeholder"><p>Chat ID not found.</p></div>';
+                    return;
+                }
 
-            await loadChat();
+                await loadChat();
 
-            if (postIdRef) {
-                await showPostReference(postIdRef);
-                document.getElementById('messageInput').focus();
-            }
+                if (postIdRef) {
+                    await showPostReference(postIdRef);
+                    document.getElementById('messageInput').focus();
+                }
 
-            // Initialize theme
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.body.classList.add(savedTheme === 'dark' ? 'dark-theme' : 'light-theme');
-            setTheme(savedTheme, true);
+                // Initialize theme
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.body.classList.add(savedTheme === 'dark' ? 'dark-theme' : 'light-theme');
+                await updateUserNav(); // Use the new function
+                setTheme(savedTheme, true);
 
-            // Initialize event listeners
-            document.getElementById('nav-messages').classList.add('active');
-            initializeNewHeader();
+                // Initialize event listeners
+                document.getElementById('nav-messages').classList.add('active');
+                initializeNewHeader();
+            }).catch(err => document.body.innerHTML = '<h1>Error: Could not connect to services. Please try again later.</h1>');
         });
 
         async function loadChat() {
@@ -589,8 +592,7 @@
                 .neq('user_id', currentUser.id)
                 .single();
 
-            if (participantError || !otherParticipant) {
-                console.error('Error fetching participant:', JSON.stringify(participantError, null, 2));
+            if (participantError || !otherParticipant) {                console.error('Error fetching participant:', JSON.stringify(participantError, null, 2));
                 const errorMessage = participantError ? participantError.message : 'Participant not found.';
                 chatContainer.innerHTML = `<div class="loading-placeholder"><p>Error loading chat info: ${errorMessage}</p></div>`;
                 return;
@@ -1646,8 +1648,10 @@
             }, 3000);
         }
 
-        function updateUserNav(user) {
-            const avatarUrl = user?.user_metadata?.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
+        async function updateUserNav() {
+            if (!currentUser) return;
+            const { data: profile } = await _supabase.from('profiles').select('avatar_url').eq('id', currentUser.id).single();
+            const avatarUrl = profile?.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
             document.getElementById('headerUserAvatar').src = avatarUrl;
         }
         document.addEventListener('click', (e) => {

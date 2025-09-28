@@ -1,5 +1,3 @@
-let _supabase = null;
-
 /**
  * Fetches Supabase configuration from the Edge Function and initializes the client.
  * This function ensures that the Supabase client is a singleton and initialized only once.

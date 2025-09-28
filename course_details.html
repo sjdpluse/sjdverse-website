@@ -12,6 +12,9 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <!-- TinyMCE Rich Text Editor with your API key -->
+    <!-- Supabase Client Loader -->
+    <script src="supabase-client.js"></script>
+
     <script src="https://cdn.tiny.cloud/1/qeb0slxpyhvq1pasb3elckze1ekoacc7ark5khb7li7g9mm4/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <style>
         :root {
@@ -1195,10 +1198,7 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+        let _supabase; // Will be initialized by getSupabaseClient()
         let currentUser = null;
         let courseId = null;
         let courseData = null;
@@ -1273,34 +1273,31 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const params = new URLSearchParams(window.location.search);
-            courseId = params.get('id');
-            if (!courseId) {
-                document.getElementById('mainContainer').innerHTML = `<p class="placeholder">${getTranslation('course_id_not_found')}</p>`;
-                return;
-            }
+            getSupabaseClient().then(client => {
+                _supabase = client;
 
-            const { data: { user } } = await _supabase.auth.getUser();
-            currentUser = user;
+                const params = new URLSearchParams(window.location.search);
+                courseId = params.get('id');
+                if (!courseId) {
+                    document.getElementById('mainContainer').innerHTML = `<p class="placeholder">${getTranslation('course_id_not_found')}</p>`;
+                    return;
+                }
 
-            await loadCourseDetails();
+                _supabase.auth.getUser().then(({ data: { user } }) => {
+                    currentUser = user;
+                    loadCourseDetails().then(() => {
+                        loadLessons();
+                    });
+                });
 
-            await loadLessons();
+                document.getElementById('addLessonForm').addEventListener('submit', (e) => { e.preventDefault(); addLesson(); });
+                document.getElementById('editLessonForm').addEventListener('submit', (e) => { e.preventDefault(); updateLesson(); });
+                document.getElementById('lessonImagesInput').addEventListener('change', (e) => handleFileSelection(e, 'image', false));
+                document.getElementById('lessonAttachmentInput').addEventListener('change', (e) => handleFileSelection(e, 'attachment', false));
+                document.getElementById('editLessonImagesInput').addEventListener('change', (e) => handleFileSelection(e, 'image', true));
+                document.getElementById('editLessonAttachmentInput').addEventListener('change', (e) => handleFileSelection(e, 'attachment', true));
 
-            document.getElementById('addLessonForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                addLesson();
-            });
-
-            document.getElementById('editLessonForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                updateLesson();
-            });
-            
-            document.getElementById('lessonImagesInput').addEventListener('change', (e) => handleFileSelection(e, 'image', false));
-            document.getElementById('lessonAttachmentInput').addEventListener('change', (e) => handleFileSelection(e, 'attachment', false));
-            document.getElementById('editLessonImagesInput').addEventListener('change', (e) => handleFileSelection(e, 'image', true));
-            document.getElementById('editLessonAttachmentInput').addEventListener('change', (e) => handleFileSelection(e, 'attachment', true));
+            }).catch(err => document.body.innerHTML = '<h1>Error: Could not connect to services. Please try again later.</h1>');
         });
 
         async function loadCourseDetails() {
