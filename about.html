@@ -13,6 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Sulphur+Point:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Supabase Client Loader -->
+    <script src="supabase-client.js"></script>
     <style>
         :root {
             --p1: #d8f4a0; --p2: #fdc7d5; --p3: #bcd8fd; --p4: #ffeca8; --p5: #5d5c5c;
@@ -551,22 +553,22 @@
     </footer>
 
     <script>
-        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+        let _supabase; // Will be initialized by getSupabaseClient()
         let currentUser = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { user } } = await _supabase.auth.getUser();
-            currentUser = user;
+            getSupabaseClient().then(async (client) => {
+                _supabase = client;
+                const { data: { user } } = await _supabase.auth.getUser();
+                currentUser = user;
 
-            initializeNewHeader();
-            const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark for this page
-            setTheme(savedTheme, true);
-            setupScrollAnimations();
-            setupDescriptionAnimation();
-            setupSmoothScrolling();
+                initializeNewHeader();
+                const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark for this page
+                setTheme(savedTheme, true);
+                setupScrollAnimations();
+                setupDescriptionAnimation();
+                setupSmoothScrolling();
+            }).catch(err => document.body.innerHTML = '<h1>Error: Could not connect to services. Please try again later.</h1>');
         });
 
         // --- Header, Theme, and Auth Logic (reused) ---

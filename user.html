@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hljs-dark-theme" disabled>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" id="hljs-light-theme">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase Client Loader -->
+    <script src="supabase-client.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -567,12 +569,8 @@
     </header>
 
     <script>
-        // Supabase initialization
-        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        const userNav = document.getElementById('userNav'); // This is the logged-in user's nav
+        let _supabase; // Will be initialized by getSupabaseClient()
+        const userNav = document.getElementById('userNav');
 
         let profileUserId = null;
         let loadedProfileData = null;
@@ -581,6 +579,12 @@
         let videoObserver = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
+            _supabase = await getSupabaseClient();
+            if (!_supabase) {
+                document.body.innerHTML = `<div class="error-placeholder"><p>Could not connect to services.</p></div>`;
+                return;
+            }
+
             const savedLang = localStorage.getItem('language') || 'en';
 
             // Get current logged-in user for like/comment actions
