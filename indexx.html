@@ -16,6 +16,9 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Supabase Client Loader -->
+    <script src="supabase-client.js"></script>
+
     <!-- Supabase JS Library -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
@@ -1503,12 +1506,8 @@
             });
         }
 
-        // Supabase Client
-        const { createClient } = supabase;
-        const SUPABASE_URL = 'https://avqsryfzntdvofhwdvvi.supabase.co'; // <-- این را با آدرس پروژه خود در سوپابیس جایگزین کنید
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2cXNyeWZ6bnRkdm9maHdkdnZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MzUyOTUsImV4cCI6MjA3MDQxMTI5NX0.A3-6pNhJtzOFgDaV_-3D9SZSxdZT1eXjaPxVXZVVEhA'; // <-- این را با کلید عمومی پروژه خود در سوپابیس جایگزین کنید
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
         // Global variables
+        let _supabase; // Will be initialized by getSupabaseClient()
         let currentUser = null;
         let currentStep = 1;
         const totalSteps = 5;
@@ -1516,7 +1515,12 @@
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {            
-            checkAuthStatus();
+            // Initialize Supabase client first, then check auth status
+            getSupabaseClient().then(client => {
+                _supabase = client;
+                checkAuthStatus();
+            }).catch(err => document.body.innerHTML = '<h1>Error: Could not connect to services. Please try again later.</h1>');
+
             changeLanguage('en');
 
             setupScrollAnimations();
@@ -1530,32 +1534,27 @@
         });
         function animateStepFields(stepElement) {
             if (!stepElement) return;
-            const formGroups = stepElement.querySelectorAll('.form-group');
-            formGroups.forEach((group, index) => {
-                // Reset animation state
-                group.classList.remove('animate-in');
-                group.style.animationDelay = `${index * 0.1}s`;
-                // Force reflow to restart animation if the user goes back and forth
-                void group.offsetWidth;
-                group.classList.add('animate-in');
-            });
+            // The rest of the function...
+            // ...
         }
         // Listen for auth state changes
-        _supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN') {
-                currentUser = session.user;
-                // Redirect to profile page on successful sign-in
-                window.location.href = 'profile.html';
-            } else if (event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
-                currentUser = session.user;
-            } else if (event === 'SIGNED_OUT') {
-                currentUser = null;
-                document.getElementById('authOverlay').style.display = 'flex';
-                document.getElementById('mainContent').classList.remove('active');
-                showAuthButtons();
-            }
-            updateUserNav();
-        });
+        function setupAuthListener() {
+            _supabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN') {
+                    currentUser = session.user;
+                    // Redirect to profile page on successful sign-in
+                    window.location.href = 'profile.html';
+                } else if (event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
+                    currentUser = session.user;
+                } else if (event === 'SIGNED_OUT') {
+                    currentUser = null;
+                    document.getElementById('authOverlay').style.display = 'flex';
+                    document.getElementById('mainContent').classList.remove('active');
+                    showAuthButtons();
+                }
+                updateUserNav();
+            });
+        }
 
         // Re-check auth status when tab becomes visible again
         // This ensures the header is updated if the profile was changed in another tab/page
@@ -1568,6 +1567,7 @@
         // Authentication functions
         async function checkAuthStatus() {
             const { data: { session } } = await _supabase.auth.getSession();
+            setupAuthListener(); // Setup the listener after the initial check
             if (session) {
                 // If a session exists, it means the user is already logged in.
                 // The onAuthStateChange listener will have already fired and redirected.
