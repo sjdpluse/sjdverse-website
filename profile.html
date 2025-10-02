@@ -315,10 +315,16 @@
 
         @media (max-width: 900px) {
             .container {
+                display: block;
                 grid-template-columns: 1fr;
             }
 
             .profile-sidebar {
+                position: static !important;
+                margin-bottom: 20px;
+            }
+            .profile-sidebar.mobile-header {
+                display: block; /* Show the mobile-only header */
                 position: static !important;
             }
             .container {
@@ -971,6 +977,48 @@
             gap: 10px;
         }
 
+        
+        /* Comment Styles (from explore.html) */
+        .comments-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .comment { display: flex; gap: 10px; animation: fadeIn 0.4s; }
+        .comment img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .comment-body { background: var(--bg-secondary); padding: 10px 14px; border-radius: var(--border-radius); flex-grow: 1; }
+        .comment-author { font-size: 0.9rem; font-weight: 600; }
+        .comment-text { font-size: 0.9rem; margin: 4px 0; }
+        .comment-meta { display: flex; align-items: center; gap: 8px; }
+        .comment-date { font-size: 0.75rem; color: var(--text-secondary); }
+        .comment-input-container { display: flex; gap: 10px; margin-top: 10px; }
+        .comment-input { flex-grow: 1; background: var(--bg-secondary); border: 1px solid var(--border-color); }
+        .replies-container { margin-left: 46px; margin-top: 10px; padding-left: 15px; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; }
+        .reply-form-container { margin-left: 46px; margin-top: 10px; display: none; }
+        .view-replies-btn { font-weight: 600; cursor: pointer; color: var(--text-secondary); font-size: 0.8rem; }
+        .comment-edit-form { display: none; margin-top: 8px; gap: 8px; flex-direction: column; }
+        .comment-actions { display: flex; gap: 15px; margin-top: 8px; }
+        .comment-action { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: var(--transition); }
+        .comment-action:hover { color: var(--primary); }
+        .comment-action.liked { color: #ef476f; }
+        .comment-action i { font-size: 0.9rem; }
+
+        @media (max-width: 900px) {
+            .comments-section { padding-left: 10px; padding-right: 10px; }
+            .comments-list { max-height: none; overflow-y: visible; padding: 0; }
+            .comment { padding: 0 5px; }
+            .comment img { width: 30px; height: 30px; }
+            .replies-container, .reply-form-container { margin-left: 35px; padding-left: 10px; }
+        }
+
         /* Projects Grid */
         .projects-grid {
             display: grid;
@@ -1201,6 +1249,21 @@
             .post-action {
                 padding: 5px 8px;
             }
+            .container {
+                margin-top: -80px;
+                padding: 0; /* Remove horizontal padding on mobile */
+                gap: 0; /* Remove gap between sidebar and content */
+            }
+            /* Make post cards full-width on mobile, like explore page */
+            .main-content-area.glass-container {
+                padding: 0;
+                background: transparent;
+                box-shadow: none;
+                border: none;
+            }
+            .post-feed { gap: 0; }
+            .post-card { border-radius: 0; border-left: none; border-right: none; box-shadow: none; }
+            .create-post-card { border-radius: 0; border-left: none; border-right: none; box-shadow: none; }
         }
 
         /* Utilities */
@@ -1761,7 +1824,7 @@
     </header>
 
     <div class="profile-header">
-        <div id="coverPhoto" class="cover-photo"></div>
+        <div id="coverPhoto" class="cover-photo" style="background-image: url('https://images.unsplash.com/photo-1504805572947-34fad45a79b1?q=80&w=1200&auto=format&fit=crop');"></div>
         <input type="file" id="coverUploadInput" class="hidden" accept="image/*">
     </div>
 
@@ -1769,7 +1832,7 @@
         <!-- Profile Sidebar -->
         <aside class="profile-sidebar glass-container fade-in-up">
             <div class="profile-info">
-                <div class="profile-avatar-container">
+                <div class="profile-avatar-container" style="margin-top: -95px;">
                     <img src="https://i.postimg.cc/prmTzhSz/man.png" alt="Profile Avatar" id="sidebarAvatar" class="profile-avatar">
                     <label for="avatarUploadInput" class="edit-avatar-btn" title="Change profile picture">
                         <i class="fas fa-camera"></i>
@@ -1839,7 +1902,10 @@
         <!-- Main Content Area -->
         <div class="main-content-area glass-container">
             <div class="content-header">
-                <h1>Profile Dashboard</h1>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <img id="dashboardAvatar" src="https://i.postimg.cc/prmTzhSz/man.png" alt="Profile Avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">
+                    <h1>Profile Dashboard</h1>
+                </div>
                 <div class="theme-toggle" id="themeToggleBtn">
                     <div class="theme-toggle-handle"></div>
                 </div>
@@ -2418,6 +2484,7 @@
         let attachedVedezFile = null;
         let attachedYoutubeVideo = null;
         let scrollObserver = null;
+        let commentSubscriptions = {};
         let videoObserver = null;
 
         // Initialize the page
@@ -2669,7 +2736,7 @@
                 document.getElementById('aboutUsername').value = data.username ?? '';
                 // Populate form fields
                 document.getElementById('aboutBio').value = data.bio ?? '';
-                document.getElementById('aboutEducation').value = data.education ?? '';
+                document.getElementById('aboutEducation').value = data.education || ''; //NOSONAR
                 document.getElementById('aboutField').value = data.field_of_study ?? '';
                 // Update skills in both sidebar and edit view
                 updateSkillTags(data.skills, 'skillTags');
@@ -2699,6 +2766,7 @@
                 // Update avatar
                 const avatarUrl = data.avatar_url || 'https://i.postimg.cc/prmTzhSz/man.png';
                 document.getElementById('sidebarAvatar').src = getTransformedImageUrl(avatarUrl, { width: 300, height: 300 });
+                document.getElementById('dashboardAvatar').src = getTransformedImageUrl(avatarUrl, { width: 100, height: 100 });
                 if (data.is_verified) {
                     document.getElementById('sidebarAvatar').classList.add('verified-avatar');
                 } else {
@@ -2710,10 +2778,12 @@
                 // Update user info
                 const userName = data.full_name || 'User Name';
                 document.getElementById('sidebarUserName').textContent = userName;
+               
                 document.getElementById('createPostName').textContent = userName;
                 if (data.is_verified) {
                     const badge = ' <span class="fa-stack verified-badge" title="Verified"><i class="fas fa-certificate fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span>';
                     document.getElementById('sidebarUserName').innerHTML += badge;
+                
                 }
                 
                 document.getElementById('sidebarUserUsername').textContent = data.username ? `@${data.username}` : '@username';
@@ -2722,6 +2792,8 @@
                 document.getElementById('aboutEmail').value = currentUser.email;
                 document.getElementById('sidebarUserField').textContent = data.field_of_study || getTranslation('field_not_set');
                 document.getElementById('sidebarUserBio').textContent = data.bio || getTranslation('bio_placeholder_short');
+                
+
                 
                 // Update dates and skills
                 document.getElementById('joinDate').textContent = new Date(currentUser.created_at).toLocaleDateString('en-US', { 
@@ -3147,7 +3219,8 @@
                     code_snippet,
                     attachment_metadata,
                     post_likes (user_id),
-                    post_comments (id)
+                    post_comments (id),
+                    profiles!user_id (id, username, full_name, avatar_url, is_verified)
                 `)
                 .single();
 
@@ -3185,7 +3258,8 @@
                     code_snippet,
                     attachment_metadata, 
                     post_likes (user_id)
-                `)
+                `, { count: 'exact' })
+                .select('*, post_comments(count)')
                 .eq('user_id', currentUser.id)
                 .order('created_at', { ascending: false });
 
@@ -3198,7 +3272,7 @@
             if (!posts || posts.length === 0) {
                 postFeed.innerHTML = `
                     <div class="card text-center" style="padding: 40px 20px; border: 2px dashed var(--border-color); background: transparent; box-shadow: none;">
-                        <img src="https://i.postimg.cc/ydzFgYY0/12144973-Wavy-Bus-43-Single-06.png" alt="Create your first post" style="max-width: 250px; margin: 0 auto 20px;">
+                        <img src="https://i.postimg.cc/QdJ1MZ2Q/12144973-Wavy-Bus-43-Single-06.png" alt="Create your first post" style="max-width: 250px; margin: 0 auto 20px;">
                         <p style="font-size: 1.1rem; color: var(--text-secondary);">Try to create your first content</p>
                     </div>
                 `;
@@ -3234,6 +3308,7 @@
             });
             
             const likes = post.post_likes?.length || 0;
+            const commentCount = post.post_comments[0]?.count || 0;
             const isLikedByCurrentUser = currentUser && post.post_likes ? post.post_likes.some(like => like.user_id === currentUser.id) : false;
             
             const imageHtml = post.image_url ? `
@@ -3335,6 +3410,12 @@
                         <i class="fas fa-heart"></i>
                         <span id="like-count-${post.id}">${likes}</span>
                     </div>
+                    <div class="post-action" onclick="showComments('${post.id}')">
+                        <i class="fas fa-comment"></i> <span>Comment</span> <span id="comment-count-${post.id}">${commentCount}</span>
+                    </div>
+                </div>
+                <div id="comments-section-${post.id}" class="comments-section hidden">
+                    <!-- Comments will be loaded here by JS -->
                 </div>
             `;
             return postElement;
@@ -4441,6 +4522,256 @@
                 }
             });
         }
+
+        // --- Comment Functionality (from explore.html) ---
+
+        async function showComments(postId) {
+            const commentsSection = document.getElementById(`comments-section-${postId}`);
+            if (!commentsSection) return;
+
+            const isVisible = !commentsSection.classList.toggle('hidden');
+
+            if (isVisible && !commentsSection.querySelector('.comments-list')) {
+                commentsSection.innerHTML = `
+                    <div id="comments-list-${postId}" class="comments-list">
+                        <p class="placeholder">Loading comments...</p>
+                    </div>
+                    <div class="comment-input-container">
+                        <input type="text" id="comment-input-${postId}" class="form-input comment-input" placeholder="Write a comment...">
+                        <button class="btn btn-primary" onclick="postComment('${postId}')">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                `;
+                await loadComments(postId);
+                subscribeToComments(postId);
+            } else if (!isVisible && commentSubscriptions[postId]) {
+                _supabase.removeChannel(commentSubscriptions[postId]);
+                delete commentSubscriptions[postId];
+            }
+        }
+
+        async function loadComments(postId) {
+            const commentsList = document.getElementById(`comments-list-${postId}`);
+            const { data: comments, error } = await _supabase
+                .from('post_comments')
+                .select('*, profiles!user_id(username, avatar_url, is_verified), post_comment_likes!comment_id(user_id)')
+                .eq('post_id', postId)
+                .is('parent_comment_id', null)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                commentsList.innerHTML = `<p class="placeholder" style="color: red;">Error loading comments.</p>`;
+                return;
+            }
+
+            commentsList.innerHTML = '';
+            if (comments.length === 0) {
+                commentsList.innerHTML = `<p class="placeholder">No comments yet.</p>`;
+            } else {
+                comments.forEach(comment => renderComment(comment, commentsList));
+                comments.forEach(async (comment) => {
+                    const { count } = await _supabase.from('post_comments').select('*', { count: 'exact', head: true }).eq('parent_comment_id', comment.id);
+                    const viewRepliesBtn = document.getElementById(`view-replies-btn-${comment.id}`);
+                    if (count > 0 && viewRepliesBtn) {
+                        viewRepliesBtn.textContent = `View ${count} replies`;
+                        viewRepliesBtn.style.display = 'block';
+                    }
+                });
+            }
+        }
+
+        async function postComment(postId, parentId = null, inputId = null) {
+            const inputElementId = inputId || `comment-input-${postId}`;
+            const input = document.getElementById(inputElementId);
+            const content = input.value.trim();
+            if (!content) return;
+
+            const { data, error } = await _supabase
+                .from('post_comments')
+                .insert({ post_id: postId, user_id: currentUser.id, content: content, parent_comment_id: parentId })
+                .select('*, profiles!user_id(username, avatar_url, is_verified), post_comment_likes!comment_id(user_id)')
+                .single();
+
+            if (error) {
+                showNotification('Error posting comment.', 'error');
+            } else {
+                const container = parentId ? document.getElementById(`replies-container-${parentId}`) : document.getElementById(`comments-list-${postId}`);
+                if (container.querySelector('.placeholder')) container.innerHTML = '';
+                renderComment(data, container);
+                input.value = '';
+                if (parentId) toggleReplyForm(parentId);
+
+                const countSpan = document.getElementById(`comment-count-${postId}`);
+                countSpan.textContent = parseInt(countSpan.textContent) + 1;
+            }
+        }
+
+        function renderComment(comment, container) {
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment-wrapper';
+            commentDiv.id = `comment-wrapper-${comment.id}`;
+            const profile = comment.profiles || { avatar_url: 'https://i.postimg.cc/prmTzhSz/man.png', username: 'user' };
+            const commentDate = new Date(comment.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+            const likeCount = comment.post_comment_likes ? comment.post_comment_likes.length : 0;
+            const isLikedByCurrentUser = currentUser && comment.post_comment_likes ? comment.post_comment_likes.some(like => like.user_id === currentUser.id) : false;
+
+            commentDiv.innerHTML = `
+                <div class="comment" id="comment-${comment.id}" data-author-id="${profile.id}">
+                    <img src="${getTransformedImageUrl(profile.avatar_url, {width: 72, height: 72})}" alt="${profile.username}">
+                    <div class="comment-body"> 
+                        <div class="comment-meta">
+                            <a href="user.html?username=${profile.username}" style="text-decoration: none; color: inherit;">
+                                <strong class="comment-author">${profile.username} ${profile.is_verified ? '<span class="fa-stack verified-badge" title="Verified"><i class="fas fa-certificate fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span>' : ''}</strong>
+                            </a>
+                            <span class="comment-date">• ${commentDate}</span>
+                        </div>
+                        <p class="comment-text">${escapeHTML(comment.content)}</p>
+                        <div class="comment-actions">
+                            <div class="comment-action ${isLikedByCurrentUser ? 'liked' : ''}" onclick="toggleCommentLike('${comment.id}')">
+                                <i class="fas fa-heart"></i> <span id="comment-like-count-${comment.id}">${likeCount}</span>
+                            </div>
+                            <div class="comment-action" onclick="toggleReplyForm('${comment.id}')">
+                                <i class="fas fa-reply"></i> <span>Reply</span>
+                            </div>
+                            ${ currentUser && currentUser.id === comment.user_id ? `
+                                <div class="comment-action" onclick="showEditCommentForm('${comment.id}')"><i class="fas fa-edit"></i> <span>Edit</span></div>
+                                <div class="comment-action" onclick="deleteComment('${comment.id}', '${comment.post_id}')" style="color: var(--danger);"><i class="fas fa-trash"></i> <span>Delete</span></div>
+                            ` : '' }
+                        </div>
+                    </div>
+                </div>
+                <div id="reply-form-container-${comment.id}" class="reply-form-container">
+                    <div class="comment-input-container">
+                        <input type="text" id="reply-input-${comment.id}" class="form-input comment-input" placeholder="Write a reply...">
+                        <button class="btn btn-primary btn-sm" onclick="postComment('${comment.post_id}', '${comment.id}', 'reply-input-${comment.id}')">Reply</button>
+                    </div>
+                </div>
+                <div class="view-replies-btn" id="view-replies-btn-${comment.id}" style="margin-left: 46px; margin-top: 8px; display: none;" onclick="loadReplies('${comment.id}', this)">View Replies</div>
+                <div id="replies-container-${comment.id}" class="replies-container" style="display: none;"></div>
+            `;
+            container.appendChild(commentDiv);
+        }
+
+        function toggleReplyForm(commentId) {
+            const formContainer = document.getElementById(`reply-form-container-${commentId}`);
+            const isVisible = formContainer.style.display === 'block';
+            formContainer.style.display = isVisible ? 'none' : 'block';
+            if (!isVisible) formContainer.querySelector('input').focus();
+        }
+
+        async function loadReplies(parentCommentId, buttonElement) {
+            const repliesContainer = document.getElementById(`replies-container-${parentCommentId}`);
+            const isVisible = repliesContainer.style.display === 'flex';
+
+            if (isVisible) {
+                repliesContainer.style.display = 'none';
+                buttonElement.textContent = buttonElement.textContent.replace('Hide', 'View');
+                return;
+            }
+
+            repliesContainer.style.display = 'flex';
+            if (repliesContainer.children.length > 0) { // Already loaded, just show
+                buttonElement.textContent = buttonElement.textContent.replace('View', 'Hide');
+                return;
+            }
+
+            repliesContainer.innerHTML = `<p class="placeholder">Loading replies...</p>`;
+            const { data: replies, error } = await _supabase
+                .from('post_comments')
+                .select('*, profiles!user_id(username, avatar_url, is_verified), post_comment_likes!comment_id(user_id)')
+                .eq('parent_comment_id', parentCommentId)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                repliesContainer.innerHTML = `<p class="placeholder" style="color: red;">Error loading replies.</p>`;
+            } else {
+                repliesContainer.innerHTML = '';
+                buttonElement.textContent = `Hide ${replies.length} replies`;
+                replies.forEach(reply => renderComment(reply, repliesContainer));
+            }
+        }
+
+        async function toggleCommentLike(commentId) {
+            if (!currentUser) return;
+            const likeButton = document.querySelector(`[onclick="toggleCommentLike('${commentId}')"]`);
+            const likeCountSpan = document.getElementById(`comment-like-count-${commentId}`);
+            const isLiked = likeButton.classList.contains('liked');
+
+            likeButton.style.pointerEvents = 'none';
+            if (isLiked) {
+                const { error } = await _supabase.from('post_comment_likes').delete().match({ comment_id: commentId, user_id: currentUser.id });
+                if (!error) {
+                    likeButton.classList.remove('liked');
+                    likeCountSpan.textContent = parseInt(likeCountSpan.textContent) - 1;
+                }
+            } else {
+                const { error } = await _supabase.from('post_comment_likes').insert({ comment_id: commentId, user_id: currentUser.id });
+                if (!error) {
+                    likeButton.classList.add('liked');
+                    likeCountSpan.textContent = parseInt(likeCountSpan.textContent) + 1;
+                }
+            }
+            likeButton.style.pointerEvents = 'auto';
+        }
+
+        function showEditCommentForm(commentId) {
+            const commentWrapper = document.getElementById(`comment-wrapper-${commentId}`);
+            const commentBody = commentWrapper.querySelector('.comment-body');
+            const commentTextP = commentBody.querySelector('.comment-text');
+            const currentContent = commentTextP.textContent;
+
+            commentTextP.style.display = 'none';
+            commentBody.querySelector('.comment-actions').style.display = 'none';
+
+            let editForm = commentBody.querySelector('.comment-edit-form');
+            if (!editForm) {
+                editForm = document.createElement('div');
+                editForm.className = 'comment-edit-form';
+                editForm.innerHTML = `<textarea class="form-input" style="min-height: 60px;"></textarea><div style="display: flex; gap: 8px; justify-content: flex-end;"><button class="btn btn-secondary btn-sm" onclick="cancelEditComment('${commentId}')">Cancel</button><button class="btn btn-primary btn-sm" onclick="updateComment('${commentId}')">Save</button></div>`;
+                commentBody.appendChild(editForm);
+            }
+            
+            editForm.style.display = 'flex';
+            editForm.querySelector('textarea').value = currentContent;
+            editForm.querySelector('textarea').focus();
+        }
+
+        function cancelEditComment(commentId) {
+            const commentBody = document.querySelector(`#comment-wrapper-${commentId} .comment-body`);
+            commentBody.querySelector('.comment-text').style.display = 'block';
+            commentBody.querySelector('.comment-actions').style.display = 'flex';
+            commentBody.querySelector('.comment-edit-form').style.display = 'none';
+        }
+
+        async function updateComment(commentId) {
+            const textarea = document.querySelector(`#comment-wrapper-${commentId} .comment-edit-form textarea`);
+            const newContent = textarea.value.trim();
+            if (!newContent) return;
+
+            const { error } = await _supabase.from('post_comments').update({ content: newContent, updated_at: new Date() }).eq('id', commentId);
+            if (error) {
+                showNotification('Error updating comment.', 'error');
+            } else {
+                document.querySelector(`#comment-wrapper-${commentId} .comment-text`).textContent = newContent;
+                cancelEditComment(commentId);
+            }
+        }
+
+        async function deleteComment(commentId, postId) {
+            showCustomConfirm('Delete Comment', 'Are you sure you want to delete this comment?', async () => {
+                const { error } = await _supabase.from('post_comments').delete().eq('id', commentId);
+                if (error) {
+                    showNotification('Error deleting comment.', 'error');
+                } else {
+                    document.getElementById(`comment-wrapper-${commentId}`).remove();
+                    const countSpan = document.getElementById(`comment-count-${postId}`);
+                    countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1);
+                }
+            });
+        }
+
+        function subscribeToComments(postId) { /* Placeholder for real-time updates */ }
 
         // Language functionality
         const translations = {

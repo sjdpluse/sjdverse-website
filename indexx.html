@@ -1110,11 +1110,11 @@
             <div class="auth-form-container">
                 <!-- Auth Buttons -->
                 <div class="auth-buttons" id="authButtons">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px;">
-                        <img src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 50px;">
-                        <span style="font-family: 'Michroma', sans-serif; font-size: 2.8rem; font-weight: 400; color: var(--dark-gray);">SJDVerse</span>
+                    <div class="auth-logo-container" style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px;">
+                        <img class="auth-logo-img" src="https://i.postimg.cc/5tQ2wfY2/logo.png" alt="SJDVerse Logo" style="height: 50px;">
+                        <span class="auth-logo-text" style="font-family: 'Michroma', sans-serif; font-size: 2.8rem; font-weight: 400; color: var(--dark-gray);">SJDVerse</span>
                     </div>
-                    <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 700; margin-bottom: 30px; text-align: center; color: var(--dark-gray);">Welcome to the Future</h2>
+                    <h2 class="auth-title" style="font-family: 'Montserrat', sans-serif; font-weight: 700; margin-bottom: 30px; text-align: center; color: var(--dark-gray);">Welcome to the Future</h2>
                     <div style="display: flex; flex-direction: column; gap: 16px;">
                         <button class="btn btn-primary" onclick="showSignUp()">
                             <i class="fas fa-user-plus"></i>
@@ -1130,7 +1130,7 @@
 
                 <!-- Sign Up Form -->
                 <form class="auth-form" id="signUpForm">
-                    <div class="step-indicator">
+                    <div class="step-indicator" id="step-indicator">
                         <div class="step-dot active" id="step1Dot"></div>
                         <div class="step-dot" id="step2Dot"></div>
                         <div class="step-dot" id="step3Dot"></div>
@@ -1207,17 +1207,17 @@
                     </div>
 
                     <!-- Step 3: Profile Photo -->
-                    <div class="form-step" id="step3">
+                    <div class="form-step" id="step3" style="text-align: center;">
                         <h3 style="text-align: center; margin-bottom: 25px; font-family: 'Montserrat', sans-serif;">Profile Picture</h3>
-                        <div class="form-group" style="text-align: center;">
+                        <div class="form-group">
                             <label for="profilePhoto" class="photo-uploader-insta">
                                 <img id="photoPreview" class="profile-photo-preview-insta" src="https://i.postimg.cc/prmTzhSz/man.png" alt="Photo Preview">
                                 <div class="upload-overlay">
                                     <i class="fas fa-camera"></i>
                                 </div>
                             </label>
-                            <label for="profilePhoto" class="btn btn-secondary" style="margin-top: 10px;">Select a profile photo</label>
-                            <input type="file" id="profilePhoto" accept="image/*" onchange="previewPhoto(event)" style="display: none;">
+                            <label for="profilePhoto" class="btn btn-secondary" style="margin-top: 10px; display: inline-block;">Select a profile photo</label>
+                            <input type="file" id="profilePhoto" accept="image/*" onchange="previewPhoto(event)" style="display: none;" required>
                         </div>
                         <div class="form-navigation">
                             <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
@@ -1230,7 +1230,7 @@
                     </div>
 
                     <!-- Step 4: Educational Background -->
-                    <div class="form-step" id="step4">
+                    <div class="form-step" id="step4" style="text-align: center;">
                         <h3 style="text-align: center; margin-bottom: 25px; font-family: 'Montserrat', sans-serif;">Educational Background</h3>
                         <div class="form-group">
                             <label for="education">Education Level</label>
@@ -1263,7 +1263,7 @@
                     </div>
 
                     <!-- Step 5: Final Details -->
-                    <div class="form-step" id="step5">
+                    <div class="form-step" id="step5" style="text-align: center;">
                         <h3 style="text-align: center; margin-bottom: 25px; font-family: 'Montserrat', sans-serif;">Final Details</h3>
                         <div class="form-group">
                             <label for="country">Country</label>
@@ -1700,11 +1700,7 @@
                     return false;
                 }
             } else if (step === 3) {
-                const photoFile = document.getElementById('profilePhoto').files[0];
-                if (!photoFile) {
-                    showNotification('Please select a profile photo to continue.', 'error');
-                    return false;
-                }
+                // Photo is now required by the input, but we can keep this for extra safety
             } else if (step === 4) {
                 const education = document.getElementById('education').value;
                 if (!education) {
@@ -2008,18 +2004,27 @@
         // Responsive styles for mobile
         const responsiveStyle = document.createElement('style');
         responsiveStyle.textContent = `
-            @media (max-width: 900px) {
+            @media (max-width: 900px) { /* Target tablets and phones */
                 .auth-container {
-                    grid-template-columns: 1fr; /* Stack form on top */
+                    grid-template-columns: 1fr; /* Switch to a single column layout */
                     height: auto;
                     max-height: 95vh;
                     overflow-y: auto;
                 }
                 .auth-visual {
-                    display: none; /* Hide the visual part on mobile */
+                    display: none; /* Hide the visual panel on mobile */
                 }
                 .auth-form-container {
                     padding: 40px 25px; /* Adjust padding for smaller screens */
+                }
+                .auth-logo-img {
+                    height: 40px !important;
+                }
+                .auth-logo-text {
+                    font-size: 2rem !important;
+                }
+                .auth-title {
+                    font-size: 1.5rem !important;
                 }
             }
         `;

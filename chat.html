@@ -415,7 +415,8 @@
             .chat-container {
                 margin: 0;
                 border-radius: 0;
-                height: calc(100vh - 60px); /* Full height minus header */
+                flex-grow: 1; /* Allow it to take remaining space */
+                height: auto; /* Remove fixed vh height */
             }
             .message {
                 max-width: 85%; /* A bit more space for messages */
